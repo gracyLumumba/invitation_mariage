@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mariage Yannick & Chantia — Accès à votre invitation</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(145deg, var(--beige) 0%, var(--cream) 60%, var(--beige-dark) 100%);
+    padding: 1.5rem;
+  }
+  .login-wrap { width: 100%; max-width: 420px; }
+  .login-card { text-align: center; }
+  .login-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--marsala);
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
+  }
+  .login-amp { font-style: italic; color: var(--gold); }
+  .login-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+  }
+  .login-date {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 0;
+  }
+  .login-note {
+    font-size: 12.5px;
+    color: var(--text-light);
+    line-height: 1.7;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .form-inner { text-align: left; }
+  .loading { display: none; text-align: center; margin-top: 0.75rem; }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="card-framed login-card">
+    <span class="ornament">✦ ✦ ✦</span>
+    <div class="login-subtitle">Invitation au mariage de</div>
+    <div class="login-title">Yannick<br><span class="login-amp">&amp;</span> Chantia</div>
+    <div class="login-date">Samedi 14 juin 2026</div>
+    <div class="divider-gold"></div>
+    <p class="login-note">
+      Cette invitation est strictement personnelle.<br>
+      Veuillez saisir votre code secret pour accéder à votre invitation.
+    </p>
+
+    <div class="form-inner">
+      <div class="form-group">
+        <label class="form-label" for="code">Votre code secret</label>
+        <input class="form-input" id="code" type="text"
+               placeholder="ex: YC01"
+               maxlength="6"
+               autocomplete="off"
+               style="text-transform:uppercase;letter-spacing:0.15em;font-size:16px;text-align:center;"
+               onkeydown="if(event.key==='Enter') seConnecter()" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="seConnecter()" id="btn-login">
+        Accéder à mon invitation
+      </button>
+      <div class="loading" id="loading"><span class="spinner"></span></div>
+      <div class="alert alert-danger" id="err-msg"></div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:1rem;letter-spacing:0.05em;">
+    Votre code vous a été communiqué par les mariés.<br>
+    En cas de problème, contactez Yannick ou Chantia.
+  </p>
+</div>
+
+<script>
+async function seConnecter() {
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const errEl = document.getElementById('err-msg');
+  const btn   = document.getElementById('btn-login');
+  const load  = document.getElementById('loading');
+
+  errEl.className = 'alert';
+  if (!code) { afficherErreur('Veuillez saisir votre code secret.'); return; }
+
+  btn.disabled = true;
+  load.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/connexion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code_secret: code })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      window.location.href = '/invitation';
+    } else {
+      afficherErreur(data.erreur || 'Code incorrect. Vérifiez et réessayez.');
+    }
+  } catch(e) {
+    afficherErreur('Erreur de connexion. Vérifiez votre connexion internet.');
+  } finally {
+    btn.disabled = false;
+    load.style.display = 'none';
+  }
+}
+
+function afficherErreur(msg) {
+  const el = document.getElementById('err-msg');
+  el.textContent = msg;
+  el.className = 'alert alert-danger show';
+}
+
+// Formater automatiquement en majuscules
+document.getElementById('code').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+/* public/css/style.css — Charte graphique Yannick & Chantia */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+
+:root {
+  --marsala:       #8B4A4A;
+  --marsala-dark:  #6B3535;
+  --marsala-light: #C9897A;
+  --gold:          #C6A43F;
+  --gold-light:    #E8D48A;
+  --beige:         #F5F0E8;
+  --beige-dark:    #E5DDD0;
+  --cream:         #FAF7F2;
+  --text:          #2C1F1F;
+  --text-light:    #7A6060;
+  --white:         #FFFFFF;
+  --success:       #166534;
+  --success-bg:    #F0FDF4;
+  --success-border:#BBF7D0;
+  --danger:        #991B1B;
+  --danger-bg:     #FEF2F2;
+  --danger-border: #FECACA;
+  --warning:       #92400E;
+  --warning-bg:    #FFFBEB;
+  --warning-border:#FDE68A;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ---- TYPOGRAPHIE ---- */
+.font-serif   { font-family: 'Cormorant Garamond', serif; }
+.text-marsala { color: var(--marsala); }
+.text-gold    { color: var(--gold); }
+.text-muted   { color: var(--text-light); }
+
+/* ---- ORNEMENTS ---- */
+.ornament {
+  color: var(--gold);
+  font-size: 18px;
+  letter-spacing: 0.4em;
+  display: block;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.divider-gold {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 1rem auto;
+}
+
+/* ---- FORMULAIRES ---- */
+.form-group { margin-bottom: 1rem; }
+.form-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--beige-dark);
+  background: var(--cream);
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  border-radius: 2px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.form-input:focus {
+  border-color: var(--marsala-light);
+  background: var(--white);
+}
+
+/* ---- BOUTONS ---- */
+.btn {
+  display: inline-block;
+  padding: 11px 24px;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  text-decoration: none;
+  text-align: center;
+}
+.btn-primary {
+  background: var(--marsala);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--marsala-dark); }
+.btn-outline {
+  background: transparent;
+  color: var(--text-light);
+  border: 1px solid var(--beige-dark);
+}
+.btn-outline:hover { border-color: var(--text-light); color: var(--text); }
+.btn-gold {
+  background: var(--gold);
+  color: var(--white);
+}
+.btn-gold:hover { background: #a88930; }
+.btn-full { width: 100%; display: block; }
+
+/* ---- ALERTES ---- */
+.alert {
+  padding: 11px 16px;
+  border-radius: 2px;
+  font-size: 13px;
+  margin-top: 0.75rem;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-danger  { background: var(--danger-bg);  border: 1px solid var(--danger-border);  color: var(--danger);  }
+.alert-success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
+.alert-warning { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
+
+/* ---- BADGE ---- */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.badge-wait    { background: #FEF9C3; color: #854D0E; }
+.badge-accept  { background: #DCFCE7; color: #166534; }
+.badge-decline { background: #FEE2E2; color: #991B1B; }
+.badge-present { background: #DBEAFE; color: #1E40AF; }
+.badge-code    {
+  background: var(--beige);
+  color: var(--marsala);
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--beige-dark);
+}
+
+/* ---- CARTE ---- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--beige-dark);
+  border-radius: 2px;
+  padding: 1.5rem;
+}
+.card-framed {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--beige-dark);
+  border-radius: 2px;
+  padding: 2.5rem 2rem;
+}
+.card-framed::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid var(--gold-light);
+  pointer-events: none;
+}
+
+/* ---- SPINNER ---- */
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 2px solid var(--beige-dark);
+  border-top-color: var(--marsala);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+  .card-framed { padding: 1.5rem 1rem; }
+  .card-framed::after { inset: 6px; }
+}

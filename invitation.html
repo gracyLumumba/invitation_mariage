@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Votre invitation — Mariage Yannick & Chantia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root {
+  --marsala:#8B4A4A;--marsala-dark:#6B3535;--marsala-light:#C9897A;
+  --gold:#C6A43F;--gold-light:#E8D48A;--gold-pale:#F5ECC8;
+  --beige:#F5F0E8;--beige-dark:#E5DDD0;--cream:#FAF7F2;
+  --text:#2C1F1F;--text-light:#7A6060;--white:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;}
+
+/* ENVELOPPE */
+#env-screen{position:fixed;inset:0;z-index:999;background:linear-gradient(160deg,#3D1C1C 0%,#5C2A2A 50%,#3D1C1C 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .8s,visibility .8s;}
+#env-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.env-inner{text-align:center;animation:envFloat 3s ease-in-out infinite;padding:2rem;}
+@keyframes envFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.env-tagline{font-family:'Great Vibes',cursive;font-size:clamp(20px,5vw,32px);color:var(--gold-light);margin-bottom:1rem;opacity:0;animation:fiu 1s ease .5s forwards;}
+.env-icon{font-size:clamp(60px,15vw,90px);margin-bottom:1rem;opacity:0;animation:fiu 1s ease .8s forwards;filter:drop-shadow(0 4px 20px rgba(198,164,63,.3));}
+.env-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,52px);font-weight:300;color:var(--gold-light);opacity:0;animation:fiu 1s ease 1.1s forwards;line-height:1.2;margin-bottom:.5rem;}
+.env-amp{font-style:italic;color:var(--gold);}
+.env-sub{font-size:clamp(10px,2.5vw,13px);letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);opacity:0;animation:fiu 1s ease 1.4s forwards;margin-bottom:.4rem;}
+.env-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3vw,16px);font-style:italic;color:rgba(255,255,255,.5);max-width:320px;margin:1rem auto;line-height:1.8;opacity:0;animation:fiu 1s ease 1.7s forwards;}
+.btn-open{opacity:0;animation:fiu 1s ease 2.2s forwards;background:transparent;border:1px solid rgba(198,164,63,.5);color:var(--gold-light);font-family:'Jost',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;padding:13px 36px;cursor:pointer;transition:all .3s;margin-top:.5rem;}
+.btn-open:hover{background:rgba(198,164,63,.15);border-color:var(--gold);color:var(--gold);}
+.env-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.petal{position:absolute;opacity:0;animation:petalFall linear infinite;}
+@keyframes petalFall{0%{opacity:0;transform:translateY(-20px) rotate(0)}10%{opacity:.6}90%{opacity:.3}100%{opacity:0;transform:translateY(100vh) rotate(360deg)}}
+@keyframes fiu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE */
+.page-wrap{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem;opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s;}
+.page-wrap.visible{opacity:1;transform:translateY(0);}
+.spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--beige-dark);border-top-color:var(--marsala);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EN-TÊTE */
+.inv-header{text-align:center;padding:3rem 2rem 2.5rem;background:var(--white);border:1px solid var(--beige-dark);position:relative;margin-bottom:1.25rem;overflow:hidden;}
+.inv-header::before{content:'';position:absolute;inset:10px;border:1px solid var(--gold-light);pointer-events:none;}
+.inv-header::after{content:'';position:absolute;inset:15px;border:1px solid rgba(198,164,63,.18);pointer-events:none;}
+.floral-corner{position:absolute;pointer-events:none;opacity:.8;}
+.inv-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-light);margin-bottom:.5rem;}
+.inv-main-title{font-family:'Great Vibes',cursive;font-size:clamp(48px,10vw,82px);color:var(--marsala);line-height:1.05;margin-bottom:.25rem;}
+.inv-amp{font-style:italic;color:var(--gold);}
+.inv-date{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;}
+.inv-poem-main{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,3.5vw,17px);font-style:italic;color:var(--text-light);line-height:1.9;max-width:480px;margin:0 auto .4rem;}
+.inv-poem-auth{font-size:11px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;}
+.inv-welcome{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,20px);font-style:italic;color:var(--text);margin:1rem 0 .4rem;}
+.inv-guest-name{font-family:'Great Vibes',cursive;font-size:clamp(30px,7vw,48px);color:var(--marsala);line-height:1.1;}
+.inv-body{font-size:14px;color:var(--text-light);line-height:1.9;max-width:480px;margin:.75rem auto 0;}
+
+/* DIVIDER FLORAL */
+.fdiv{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:.6rem 0;color:var(--gold);font-size:11px;letter-spacing:.3em;}
+.fdiv::before,.fdiv::after{content:'';flex:1;max-width:70px;height:1px;background:linear-gradient(to right,transparent,var(--gold));}
+.fdiv::before{background:linear-gradient(to left,transparent,var(--gold));}
+
+/* DÉTAILS */
+.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;}
+.detail-card{background:var(--white);border:1px solid var(--beige-dark);padding:1.3rem 1rem;text-align:center;position:relative;overflow:hidden;}
+.detail-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold-light),transparent);}
+.detail-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-light);margin-bottom:4px;}
+.detail-val{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);}
+.detail-sub{font-size:12px;color:var(--text-light);margin-top:2px;}
+
+/* CITATION */
+.citation-block{background:linear-gradient(135deg,var(--beige) 0%,var(--cream) 100%);border:1px solid var(--beige-dark);border-left:3px solid var(--gold);padding:1.5rem 1.75rem;margin-bottom:1.25rem;text-align:center;position:relative;}
+.citation-q{position:absolute;font-family:'Cormorant Garamond',serif;font-size:80px;color:var(--gold-light);line-height:1;opacity:.35;top:-10px;left:14px;}
+.citation-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,20px);font-style:italic;color:var(--text);line-height:1.8;}
+.citation-auth{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-top:.75rem;}
+
+/* QR */
+.qr-card{background:var(--white);border:1px solid var(--beige-dark);padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.qr-card::before{content:'';position:absolute;inset:8px;border:1px solid var(--gold-pale);pointer-events:none;}
+.qr-inner{display:flex;align-items:center;gap:1.75rem;margin-bottom:1rem;}
+.qr-frame{flex-shrink:0;width:130px;height:130px;border:2px solid var(--gold);padding:7px;display:flex;align-items:center;justify-content:center;background:var(--cream);position:relative;}
+.qr-frame img{width:100%;height:100%;object-fit:contain;}
+.qr-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--marsala);margin-bottom:5px;}
+.qr-poem{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text-light);line-height:1.7;margin-bottom:10px;}
+.qr-badges{display:flex;flex-wrap:wrap;gap:6px;}
+.badge-code{display:inline-block;background:var(--beige);border:1px solid var(--beige-dark);padding:4px 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--marsala);letter-spacing:.15em;}
+.badge-table{display:inline-flex;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);}
+.qr-warn{border-top:1px solid var(--beige-dark);padding-top:.75rem;font-size:12px;font-style:italic;color:var(--text-light);text-align:center;}
+.btn-dl{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--marsala);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;}
+
+/* RSVP */
+.rsvp-card{background:var(--white);border:1px solid var(--beige-dark);padding:2rem;text-align:center;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.rsvp-card::after{content:'';position:absolute;inset:8px;border:1px solid var(--gold-pale);pointer-events:none;}
+.rsvp-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--marsala);margin-bottom:.3rem;}
+.rsvp-poem{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-light);margin-bottom:1rem;line-height:1.7;}
+.rsvp-deadline{font-size:12.5px;color:var(--text-light);margin-bottom:1.25rem;}
+.rsvp-deadline strong{color:var(--marsala);}
+.rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
+.btn-accept{padding:13px 30px;background:var(--marsala);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.btn-accept:hover{background:var(--marsala-dark);}
+.btn-decline{padding:13px 30px;background:transparent;color:var(--text-light);border:1px solid var(--beige-dark);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-decline:hover{border-color:var(--text-light);color:var(--text);}
+.rsvp-done{display:none;padding:1.25rem;border-radius:1px;}
+.rsvp-done.show{display:block;animation:fiu .5s ease;}
+.rsvp-done.accept{background:#F0FDF4;border:1px solid #BBF7D0;}
+.rsvp-done.decline{background:#FEF2F2;border:1px solid #FECACA;}
+.rsvp-done-icon{font-size:32px;margin-bottom:8px;}
+.rsvp-done-text{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:5px;}
+.rsvp-done-sub{font-size:13.5px;color:var(--text-light);line-height:1.6;}
+.alert-err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:10px 14px;font-size:13px;margin-top:.75rem;display:none;}
+.alert-err.show{display:block;}
+
+/* FOOTER */
+.inv-footer{background:var(--white);border:1px solid var(--beige-dark);padding:2rem;text-align:center;position:relative;overflow:hidden;}
+.inv-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold),transparent);}
+.footer-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);font-style:italic;color:var(--marsala);margin-bottom:.5rem;}
+.footer-sub{font-size:13px;color:var(--text-light);}
+.footer-mention{font-size:11.5px;font-style:italic;color:var(--text-light);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--beige-dark);}
+.btn-logout{background:none;border:none;font-family:'Jost',sans-serif;font-size:12px;color:var(--text-light);text-decoration:underline;cursor:pointer;}
+
+/* CONFETTIS */
+.confetti-cont{position:fixed;inset:0;pointer-events:none;z-index:50;display:none;}
+.confetti-cont.active{display:block;}
+.cp{position:absolute;top:-10px;opacity:0;animation:cfall 3s ease forwards;}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+@media(max-width:560px){
+  .qr-inner{flex-direction:column;align-items:center;}
+  .qr-info{text-align:center;}
+  .qr-badges{justify-content:center;}
+  .details-grid{grid-template-columns:1fr;}
+  .inv-header{padding:2rem 1.25rem;}
+  .inv-header::before{inset:6px;}
+  .inv-header::after{inset:10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN ENVELOPPE -->
+<div id="env-screen">
+  <div class="env-petals" id="env-petals"></div>
+  <div class="env-inner">
+    <div class="env-tagline">Une histoire d'amour s'écrit à deux…</div>
+    <div class="env-icon">💌</div>
+    <div class="env-title">Yannick <span class="env-amp">&amp;</span> Chantia</div>
+    <div class="env-sub">Vous invitent à leur mariage</div>
+    <div class="env-poem">
+      "Nous vous invitons à tourner<br>la première page de notre histoire."
+    </div>
+    <button class="btn-open" onclick="ouvrirInvitation()">✦ &nbsp;Découvrir mon invitation&nbsp; ✦</button>
+  </div>
+</div>
+
+<div class="confetti-cont" id="confetti"></div>
+
+<div class="page-wrap" id="page-wrap">
+
+  <!-- EN-TÊTE -->
+  <div class="inv-header">
+    <!-- Coins floraux SVG -->
+    <div class="floral-corner" style="top:16px;left:16px;">
+      <svg width="75" height="75" viewBox="0 0 75 75" fill="none">
+        <circle cx="16" cy="16" r="5.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="16" cy="8.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55"/>
+        <ellipse cx="23.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(90 16 16)"/>
+        <ellipse cx="16" cy="23.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(180 16 16)"/>
+        <ellipse cx="8.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(270 16 16)"/>
+        <circle cx="16" cy="16" r="3" fill="#C6A43F" opacity=".9"/>
+        <circle cx="40" cy="13" r="3.5" fill="#C6A43F" opacity=".3"/>
+        <ellipse cx="40" cy="8" rx="2" ry="4" fill="#C9897A" opacity=".4"/>
+        <ellipse cx="45" cy="13" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(90 40 13)"/>
+        <ellipse cx="40" cy="18" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(180 40 13)"/>
+        <ellipse cx="35" cy="13" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(270 40 13)"/>
+        <path d="M20 22 Q30 38 16 50" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".25"/>
+        <ellipse cx="22" cy="37" rx="6" ry="10" fill="#8B4A4A" opacity=".15" transform="rotate(-30 22 37)"/>
+        <path d="M27 27 Q40 22 44 40" stroke="#C6A43F" stroke-width=".8" fill="none" opacity=".25"/>
+        <circle cx="35" cy="40" r="2" fill="#C9897A" opacity=".3"/>
+      </svg>
+    </div>
+    <div class="floral-corner" style="top:16px;right:16px;transform:scaleX(-1);">
+      <svg width="75" height="75" viewBox="0 0 75 75" fill="none">
+        <circle cx="16" cy="16" r="5.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="16" cy="8.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55"/>
+        <ellipse cx="23.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(90 16 16)"/>
+        <ellipse cx="16" cy="23.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(180 16 16)"/>
+        <ellipse cx="8.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(270 16 16)"/>
+        <circle cx="16" cy="16" r="3" fill="#C6A43F" opacity=".9"/>
+        <circle cx="40" cy="13" r="3.5" fill="#C6A43F" opacity=".3"/>
+        <ellipse cx="40" cy="8" rx="2" ry="4" fill="#C9897A" opacity=".4"/>
+        <ellipse cx="45" cy="13" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(90 40 13)"/>
+        <ellipse cx="40" cy="18" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(180 40 13)"/>
+        <ellipse cx="35" cy="13" rx="2" ry="4" fill="#C9897A" opacity=".4" transform="rotate(270 40 13)"/>
+        <path d="M20 22 Q30 38 16 50" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".25"/>
+        <ellipse cx="22" cy="37" rx="6" ry="10" fill="#8B4A4A" opacity=".15" transform="rotate(-30 22 37)"/>
+      </svg>
+    </div>
+    <div class="floral-corner" style="bottom:16px;left:16px;transform:scaleY(-1);">
+      <svg width="75" height="75" viewBox="0 0 75 75" fill="none">
+        <circle cx="16" cy="16" r="5.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="16" cy="8.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55"/>
+        <ellipse cx="23.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(90 16 16)"/>
+        <ellipse cx="16" cy="23.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(180 16 16)"/>
+        <ellipse cx="8.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(270 16 16)"/>
+        <circle cx="16" cy="16" r="3" fill="#C6A43F" opacity=".9"/>
+        <path d="M20 22 Q30 38 16 50" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".25"/>
+        <ellipse cx="22" cy="37" rx="6" ry="10" fill="#8B4A4A" opacity=".15" transform="rotate(-30 22 37)"/>
+      </svg>
+    </div>
+    <div class="floral-corner" style="bottom:16px;right:16px;transform:scale(-1,-1);">
+      <svg width="75" height="75" viewBox="0 0 75 75" fill="none">
+        <circle cx="16" cy="16" r="5.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="16" cy="8.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55"/>
+        <ellipse cx="23.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(90 16 16)"/>
+        <ellipse cx="16" cy="23.5" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(180 16 16)"/>
+        <ellipse cx="8.5" cy="16" rx="3" ry="5.5" fill="#C9897A" opacity=".55" transform="rotate(270 16 16)"/>
+        <circle cx="16" cy="16" r="3" fill="#C6A43F" opacity=".9"/>
+        <path d="M20 22 Q30 38 16 50" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".25"/>
+        <ellipse cx="22" cy="37" rx="6" ry="10" fill="#8B4A4A" opacity=".15" transform="rotate(-30 22 37)"/>
+      </svg>
+    </div>
+
+    <!-- Branche florale centrale -->
+    <svg style="display:block;margin:0 auto .75rem;" width="320" height="50" viewBox="0 0 320 50" fill="none">
+      <path d="M40 25 Q80 18 160 22 Q240 26 280 25" stroke="#C6A43F" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="70" cy="20" r="3.5" fill="#C6A43F" opacity=".45"/>
+      <ellipse cx="70" cy="15" rx="2" ry="3.5" fill="#C9897A" opacity=".55"/>
+      <ellipse cx="75" cy="20" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(90 70 20)"/>
+      <ellipse cx="70" cy="25" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(180 70 20)"/>
+      <ellipse cx="65" cy="20" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(270 70 20)"/>
+      <circle cx="70" cy="20" r="2" fill="#C6A43F"/>
+      <circle cx="160" cy="18" r="5.5" fill="#C6A43F" opacity=".35"/>
+      <ellipse cx="160" cy="10" rx="3" ry="6" fill="#8B4A4A" opacity=".45"/>
+      <ellipse cx="168" cy="18" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(90 160 18)"/>
+      <ellipse cx="160" cy="26" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(180 160 18)"/>
+      <ellipse cx="152" cy="18" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(270 160 18)"/>
+      <ellipse cx="155" cy="12" rx="2.5" ry="5.5" fill="#C9897A" opacity=".4" transform="rotate(-45 160 18)"/>
+      <ellipse cx="165" cy="12" rx="2.5" ry="5.5" fill="#C9897A" opacity=".4" transform="rotate(45 160 18)"/>
+      <circle cx="160" cy="18" r="3.5" fill="#C6A43F"/>
+      <circle cx="250" cy="21" r="3.5" fill="#C6A43F" opacity=".45"/>
+      <ellipse cx="250" cy="16" rx="2" ry="3.5" fill="#C9897A" opacity=".55"/>
+      <ellipse cx="255" cy="21" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(90 250 21)"/>
+      <ellipse cx="250" cy="26" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(180 250 21)"/>
+      <ellipse cx="245" cy="21" rx="2" ry="3.5" fill="#C9897A" opacity=".55" transform="rotate(270 250 21)"/>
+      <circle cx="250" cy="21" r="2" fill="#C6A43F"/>
+      <ellipse cx="110" cy="22" rx="9" ry="4" fill="#8B4A4A" opacity=".15" transform="rotate(-20 110 22)"/>
+      <ellipse cx="210" cy="20" rx="9" ry="4" fill="#8B4A4A" opacity=".15" transform="rotate(20 210 20)"/>
+      <circle cx="45" cy="26" r="1.5" fill="#C6A43F" opacity=".4"/>
+      <circle cx="130" cy="19" r="1.5" fill="#C6A43F" opacity=".4"/>
+      <circle cx="185" cy="22" r="1.5" fill="#C6A43F" opacity=".4"/>
+      <circle cx="275" cy="24" r="1.5" fill="#C6A43F" opacity=".4"/>
+    </svg>
+
+    <div class="inv-label">Invitation personnelle au mariage de</div>
+    <div class="inv-main-title">Yannick <span class="inv-amp">&amp;</span> Chantia</div>
+    <div class="inv-date">✦ &nbsp;Samedi 14 juin 2026 &nbsp;✦</div>
+
+    <svg style="display:block;margin:.5rem auto;" width="160" height="18" viewBox="0 0 160 18" fill="none">
+      <path d="M10 9 Q40 4 80 9 Q120 14 150 9" stroke="#C6A43F" stroke-width="1" fill="none" opacity=".45"/>
+      <circle cx="80" cy="9" r="3" fill="#C6A43F" opacity=".55"/>
+      <circle cx="45" cy="7" r="1.5" fill="#C9897A" opacity=".4"/>
+      <circle cx="115" cy="11" r="1.5" fill="#C9897A" opacity=".4"/>
+    </svg>
+
+    <div class="inv-poem-main">
+      « L'amour ne se voit pas avec les yeux, mais avec le cœur.<br>
+      Ainsi, simplement et sincèrement, naît un rêve<br>
+      qui s'appelle <em>"Pour toujours".</em> »
+    </div>
+    <div class="inv-poem-auth">— Yannick &amp; Chantia —</div>
+
+    <svg style="display:block;margin:.75rem auto .5rem;" width="110" height="14" viewBox="0 0 110 14" fill="none">
+      <path d="M5 7 Q27 2 55 7 Q83 12 105 7" stroke="#C6A43F" stroke-width=".8" fill="none" opacity=".4"/>
+      <circle cx="55" cy="7" r="2.5" fill="#C6A43F" opacity=".5"/>
+      <circle cx="30" cy="5" r="1" fill="#C9897A" opacity=".4"/>
+      <circle cx="80" cy="9" r="1" fill="#C9897A" opacity=".4"/>
+    </svg>
+
+    <div class="inv-welcome">Nous avons l'honneur de vous accueillir,</div>
+    <div class="inv-guest-name" id="guest-nom">—</div>
+    <div class="inv-body">
+      Nous avons la joie de vous convier à la célébration de notre union
+      et serions profondément honorés de partager ce moment précieux en votre présence.<br><br>
+      <em>"Nous avons hâte de partager ce jour unique avec ceux qui nous sont chers."</em>
+    </div>
+  </div>
+
+  <!-- DÉTAILS -->
+  <div class="details-grid">
+    <div class="detail-card">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
+        <circle cx="15" cy="15" r="4.5" fill="#C6A43F" opacity=".4"/>
+        <ellipse cx="15" cy="8" rx="2.8" ry="5.5" fill="#C9897A" opacity=".5"/>
+        <ellipse cx="22" cy="15" rx="2.8" ry="5.5" fill="#C9897A" opacity=".5" transform="rotate(90 15 15)"/>
+        <ellipse cx="15" cy="22" rx="2.8" ry="5.5" fill="#C9897A" opacity=".5" transform="rotate(180 15 15)"/>
+        <ellipse cx="8" cy="15" rx="2.8" ry="5.5" fill="#C9897A" opacity=".5" transform="rotate(270 15 15)"/>
+        <circle cx="15" cy="15" r="3" fill="#C6A43F"/>
+      </svg>
+      <div class="detail-label">Cérémonie</div>
+      <div class="detail-val">Samedi 14 juin 2026</div>
+      <div class="detail-sub">Accueil dès 14h30 · Début à 15h00</div>
+    </div>
+    <div class="detail-card">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
+        <path d="M15 24 Q10 19 8 14 Q6 9 10 7 Q12.5 6 15 9 Q17.5 6 20 7 Q24 9 22 14 Q20 19 15 24Z" fill="#C9897A" opacity=".5"/>
+        <path d="M15 21 Q11 17 10 13 Q9 10 11.5 9 Q13 8.5 15 11 Q17 8.5 18.5 9 Q21 10 20 13 Q19 17 15 21Z" fill="#8B4A4A" opacity=".4"/>
+        <circle cx="15" cy="11" r="2.5" fill="#C6A43F" opacity=".7"/>
+      </svg>
+      <div class="detail-label">Lieu</div>
+      <div class="detail-val">Château de Belmont</div>
+      <div class="detail-sub">12 route des Vignes · Lyon 69005</div>
+    </div>
+    <div class="detail-card">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
+        <circle cx="15" cy="15" r="4.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="15" cy="8" rx="2.5" ry="5" fill="#8B4A4A" opacity=".45"/>
+        <ellipse cx="22" cy="15" rx="2.5" ry="5" fill="#8B4A4A" opacity=".45" transform="rotate(90 15 15)"/>
+        <ellipse cx="15" cy="22" rx="2.5" ry="5" fill="#8B4A4A" opacity=".45" transform="rotate(180 15 15)"/>
+        <ellipse cx="8" cy="15" rx="2.5" ry="5" fill="#8B4A4A" opacity=".45" transform="rotate(270 15 15)"/>
+        <ellipse cx="10" cy="10" rx="2" ry="4.5" fill="#C9897A" opacity=".4" transform="rotate(-45 15 15)"/>
+        <ellipse cx="20" cy="10" rx="2" ry="4.5" fill="#C9897A" opacity=".4" transform="rotate(45 15 15)"/>
+        <circle cx="15" cy="15" r="3" fill="#C6A43F"/>
+      </svg>
+      <div class="detail-label">Cocktail</div>
+      <div class="detail-val">Dès 17h30</div>
+      <div class="detail-sub">Jardins du château</div>
+    </div>
+    <div class="detail-card">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
+        <circle cx="15" cy="15" r="4.5" fill="#C6A43F" opacity=".35"/>
+        <ellipse cx="15" cy="8" rx="2.5" ry="5" fill="#C9897A" opacity=".45"/>
+        <ellipse cx="22" cy="15" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(90 15 15)"/>
+        <ellipse cx="15" cy="22" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(180 15 15)"/>
+        <ellipse cx="8" cy="15" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(270 15 15)"/>
+        <ellipse cx="9.5" cy="9.5" rx="2" ry="4.5" fill="#8B4A4A" opacity=".4" transform="rotate(-45 15 15)"/>
+        <ellipse cx="20.5" cy="9.5" rx="2" ry="4.5" fill="#8B4A4A" opacity=".4" transform="rotate(45 15 15)"/>
+        <ellipse cx="20.5" cy="20.5" rx="2" ry="4.5" fill="#8B4A4A" opacity=".4" transform="rotate(135 15 15)"/>
+        <ellipse cx="9.5" cy="20.5" rx="2" ry="4.5" fill="#8B4A4A" opacity=".4" transform="rotate(225 15 15)"/>
+        <circle cx="15" cy="15" r="3" fill="#C6A43F"/>
+      </svg>
+      <div class="detail-label">Dîner &amp; Soirée</div>
+      <div class="detail-val">À partir de 20h00</div>
+      <div class="detail-sub">Grande salle · Soirée dansante</div>
+    </div>
+  </div>
+
+  <!-- CITATION -->
+  <div class="citation-block">
+    <span class="citation-q">"</span>
+    <p class="citation-text">L'amour est la seule chose qui grandit quand on la partage.</p>
+    <div class="citation-auth">— Antoine de Saint-Exupéry —</div>
+  </div>
+
+  <!-- QR CODE -->
+  <div class="qr-card">
+    <div class="qr-inner">
+      <div class="qr-frame" id="qr-frame"><span class="spinner"></span></div>
+      <div class="qr-info">
+        <div class="qr-title">Votre QR code d'entrée</div>
+        <div class="qr-poem">
+          "Scannez ce code le jour J pour<br>une entrée fluide et découvrir votre table."
+        </div>
+        <div class="qr-badges">
+          <span class="badge-code" id="guest-code">…</span>
+          <span class="badge-table">🪑 Table <strong id="guest-table">…</strong></span>
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text-light);">Menu : <strong id="guest-menu">…</strong> &nbsp;·&nbsp; <span id="guest-couverts">…</span> couvert(s)</div>
+        <button class="btn-dl" onclick="telechargerQR()">⬇ Enregistrer le QR code</button>
+      </div>
+    </div>
+    <svg width="100%" height="28" viewBox="0 0 400 28" fill="none" style="display:block;margin-bottom:.75rem;">
+      <path d="M20 14 Q100 7 200 13 Q300 19 380 14" stroke="#C6A43F" stroke-width=".8" fill="none" opacity=".3"/>
+      <circle cx="200" cy="13" r="3" fill="#C6A43F" opacity=".35"/>
+      <circle cx="100" cy="9" r="1.5" fill="#C9897A" opacity=".3"/>
+      <circle cx="300" cy="17" r="1.5" fill="#C9897A" opacity=".3"/>
+      <ellipse cx="150" cy="11" rx="14" ry="5" fill="#8B4A4A" opacity=".06" transform="rotate(-10 150 11)"/>
+      <ellipse cx="260" cy="15" rx="14" ry="5" fill="#8B4A4A" opacity=".06" transform="rotate(10 260 15)"/>
+    </svg>
+    <div class="qr-warn">⚠️ Cette invitation est strictement personnelle et non transférable.<br><em>"Ceci est une invitation personnelle. Merci de ne pas la partager."</em></div>
+  </div>
+
+  <!-- RSVP -->
+  <div class="rsvp-card">
+    <svg width="200" height="38" viewBox="0 0 200 38" fill="none" style="display:block;margin:0 auto 1rem;">
+      <path d="M20 19 Q50 11 100 17 Q150 23 180 19" stroke="#C6A43F" stroke-width="1" fill="none" opacity=".4"/>
+      <circle cx="100" cy="17" r="4.5" fill="#C6A43F" opacity=".35"/>
+      <ellipse cx="100" cy="10" rx="2.5" ry="5" fill="#C9897A" opacity=".45"/>
+      <ellipse cx="107" cy="17" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(90 100 17)"/>
+      <ellipse cx="100" cy="24" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(180 100 17)"/>
+      <ellipse cx="93" cy="17" rx="2.5" ry="5" fill="#C9897A" opacity=".45" transform="rotate(270 100 17)"/>
+      <circle cx="100" cy="17" r="2.5" fill="#C6A43F" opacity=".85"/>
+      <circle cx="53" cy="14" r="2.5" fill="#C6A43F" opacity=".3"/>
+      <ellipse cx="53" cy="9"  rx="1.5" ry="3" fill="#C9897A" opacity=".35"/>
+      <ellipse cx="53" cy="19" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(180 53 14)"/>
+      <ellipse cx="58" cy="14" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(90 53 14)"/>
+      <ellipse cx="48" cy="14" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(270 53 14)"/>
+      <circle cx="53" cy="14" r="1.5" fill="#C6A43F" opacity=".65"/>
+      <circle cx="147" cy="20" r="2.5" fill="#C6A43F" opacity=".3"/>
+      <ellipse cx="147" cy="15" rx="1.5" ry="3" fill="#C9897A" opacity=".35"/>
+      <ellipse cx="147" cy="25" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(180 147 20)"/>
+      <ellipse cx="152" cy="20" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(90 147 20)"/>
+      <ellipse cx="142" cy="20" rx="1.5" ry="3" fill="#C9897A" opacity=".35" transform="rotate(270 147 20)"/>
+      <circle cx="147" cy="20" r="1.5" fill="#C6A43F" opacity=".65"/>
+    </svg>
+
+    <div id="rsvp-form">
+      <div class="rsvp-title">Confirmez votre présence</div>
+      <div class="rsvp-poem">
+        "Votre présence est notre plus beau cadeau.<br>
+        Merci de nous confirmer votre venue."
+      </div>
+      <div class="rsvp-deadline">Merci de répondre avant le <strong>1er mai 2026</strong></div>
+      <div class="rsvp-btns">
+        <button class="btn-accept" onclick="repondre('accepte')">✓ &nbsp;J'accepte avec joie</button>
+        <button class="btn-decline" onclick="repondre('refuse')">Je ne pourrai pas venir</button>
+      </div>
+      <div class="alert-err" id="rsvp-err"></div>
+    </div>
+
+    <div class="rsvp-done accept" id="rsvp-accepte">
+      <div class="rsvp-done-icon">💐</div>
+      <div class="rsvp-done-text">Merci ! Votre présence est confirmée.</div>
+      <div class="rsvp-done-sub">Nous avons hâte de vous retrouver le 14 juin.<br><em>À très bientôt !</em></div>
+    </div>
+    <div class="rsvp-done decline" id="rsvp-refuse">
+      <div class="rsvp-done-icon">💌</div>
+      <div class="rsvp-done-text">Nous sommes désolés de votre absence.</div>
+      <div class="rsvp-done-sub">Merci de nous avoir prévenus. Vous serez avec nous en pensée.</div>
+    </div>
+
+    <svg width="200" height="38" viewBox="0 0 200 38" fill="none" style="display:block;margin:1rem auto 0;">
+      <path d="M20 19 Q50 27 100 21 Q150 15 180 19" stroke="#C6A43F" stroke-width="1" fill="none" opacity=".4"/>
+      <circle cx="100" cy="21" r="3.5" fill="#C6A43F" opacity=".3"/>
+      <ellipse cx="100" cy="15" rx="2.5" ry="4.5" fill="#C9897A" opacity=".4"/>
+      <ellipse cx="100" cy="27" rx="2.5" ry="4.5" fill="#C9897A" opacity=".4" transform="rotate(180 100 21)"/>
+      <ellipse cx="106.5" cy="21" rx="2.5" ry="4.5" fill="#C9897A" opacity=".4" transform="rotate(90 100 21)"/>
+      <ellipse cx="93.5" cy="21" rx="2.5" ry="4.5" fill="#C9897A" opacity=".4" transform="rotate(270 100 21)"/>
+      <circle cx="100" cy="21" r="2" fill="#C6A43F" opacity=".75"/>
+    </svg>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="inv-footer">
+    <svg width="100%" height="50" viewBox="0 0 500 50" fill="none" style="display:block;margin-bottom:1.25rem;max-width:500px;margin-left:auto;margin-right:auto;">
+      <path d="M30 25 Q80 15 130 22 Q180 29 250 24 Q320 19 370 26 Q420 33 470 25" stroke="#C6A43F" stroke-width="1.2" fill="none" opacity=".45"/>
+      <circle cx="80" cy="20" r="4" fill="#C6A43F" opacity=".35"/>
+      <ellipse cx="80" cy="14" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45"/><ellipse cx="80" cy="26" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(180 80 20)"/>
+      <ellipse cx="86" cy="20" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(90 80 20)"/><ellipse cx="74" cy="20" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(270 80 20)"/>
+      <circle cx="80" cy="20" r="2.5" fill="#C6A43F" opacity=".85"/>
+      <circle cx="250" cy="24" r="6" fill="#C6A43F" opacity=".3"/>
+      <ellipse cx="250" cy="16" rx="3.5" ry="6" fill="#8B4A4A" opacity=".45"/><ellipse cx="250" cy="32" rx="3.5" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(180 250 24)"/>
+      <ellipse cx="258" cy="24" rx="3.5" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(90 250 24)"/><ellipse cx="242" cy="24" rx="3.5" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(270 250 24)"/>
+      <ellipse cx="245" cy="18" rx="3" ry="5.5" fill="#C9897A" opacity=".35" transform="rotate(-45 250 24)"/><ellipse cx="255" cy="18" rx="3" ry="5.5" fill="#C9897A" opacity=".35" transform="rotate(45 250 24)"/>
+      <circle cx="250" cy="24" r="4" fill="#C6A43F"/>
+      <circle cx="420" cy="27" r="4" fill="#C6A43F" opacity=".35"/>
+      <ellipse cx="420" cy="21" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45"/><ellipse cx="420" cy="33" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(180 420 27)"/>
+      <ellipse cx="426" cy="27" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(90 420 27)"/><ellipse cx="414" cy="27" rx="2.5" ry="4.5" fill="#C9897A" opacity=".45" transform="rotate(270 420 27)"/>
+      <circle cx="420" cy="27" r="2.5" fill="#C6A43F" opacity=".85"/>
+      <ellipse cx="155" cy="23" rx="14" ry="5" fill="#8B4A4A" opacity=".1" transform="rotate(-15 155 23)"/>
+      <ellipse cx="340" cy="24" rx="14" ry="5" fill="#8B4A4A" opacity=".1" transform="rotate(15 340 24)"/>
+      <circle cx="130" cy="22" r="1.5" fill="#C6A43F" opacity=".35"/><circle cx="185" cy="26" r="1.5" fill="#C6A43F" opacity=".35"/>
+      <circle cx="310" cy="21" r="1.5" fill="#C6A43F" opacity=".35"/><circle cx="370" cy="26" r="1.5" fill="#C6A43F" opacity=".35"/>
+    </svg>
+    <div class="footer-poem">"Ensemble, faisons de ce jour un souvenir éternel."</div>
+    <div class="footer-sub">Tu es mon présent, mon lendemain, et mon éternité.</div>
+    <div style="color:var(--gold);letter-spacing:.4em;font-size:16px;margin:.75rem 0;">✦ ✦ ✦</div>
+    <div style="font-size:12px;color:var(--text-light);">Questions ? Contactez-nous : <strong>yannick.chantia@email.com</strong></div>
+    <button class="btn-logout" onclick="window.location.href='/api/deconnexion'" style="margin-top:1rem;">Se déconnecter</button>
+    <div class="footer-mention">"Chaque invité compte. Chaque réponse nous aide à vous recevoir au mieux."</div>
+  </div>
+
+</div>
+
+<script>
+/* PÉTALES */
+function creerPetales(){
+  const c=document.getElementById('env-petals');
+  const emojis=['🌸','🌺','🌹','✿','❀','🌷'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');p.className='petal';
+    p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    p.style.left=Math.random()*100+'vw';
+    p.style.fontSize=(12+Math.random()*16)+'px';
+    p.style.animationDuration=(4+Math.random()*6)+'s';
+    p.style.animationDelay=(Math.random()*5)+'s';
+    c.appendChild(p);
+  }
+}
+
+/* OUVERTURE */
+function ouvrirInvitation(){
+  document.getElementById('env-screen').classList.add('hidden');
+  setTimeout(()=>{
+    const pw=document.getElementById('page-wrap');
+    pw.classList.add('visible');
+    chargerInvite();
+  },600);
+}
+
+/* DONNÉES */
+let inviteData=null,qrDataUrl=null;
+async function chargerInvite(){
+  try{
+    const res=await fetch('/api/moi');
+    if(!res.ok){window.location.href='/';return;}
+    const d=await res.json();inviteData=d;
+    document.getElementById('guest-nom').textContent=d.nom;
+    document.getElementById('guest-code').textContent=d.code_secret;
+    document.getElementById('guest-table').textContent=d.table_num||'—';
+    document.getElementById('guest-menu').textContent=d.menu||'standard';
+    document.getElementById('guest-couverts').textContent=d.nb_couverts||1;
+    chargerQR(d.code_secret);
+    if(d.statut==='accepte'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-accepte').classList.add('show');}
+    else if(d.statut==='refuse'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-refuse').classList.add('show');}
+  }catch(e){}
+}
+async function chargerQR(code){
+  try{
+    const res=await fetch('/api/qrcode/'+code);
+    const d=await res.json();
+    if(d.ok){qrDataUrl=d.qr;document.getElementById('qr-frame').innerHTML='<img src="'+d.qr+'" alt="QR">';}
+  }catch(e){document.getElementById('qr-frame').innerHTML='<span style="font-size:11px;color:#999;text-align:center;padding:8px;">QR<br>indisponible</span>';}
+}
+
+/* RSVP */
+async function repondre(statut){
+  const err=document.getElementById('rsvp-err');err.className='alert-err';
+  try{
+    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({statut})});
+    const d=await res.json();
+    if(d.ok){
+      document.getElementById('rsvp-form').style.display='none';
+      document.getElementById(statut==='accepte'?'rsvp-accepte':'rsvp-refuse').classList.add('show');
+      if(statut==='accepte')lancerConfettis();
+    }else{err.textContent=d.erreur||'Erreur.';err.className='alert-err show';}
+  }catch(e){err.textContent='Erreur réseau.';err.className='alert-err show';}
+}
+
+/* CONFETTIS */
+function lancerConfettis(){
+  const c=document.getElementById('confetti');c.innerHTML='';c.classList.add('active');
+  const colors=['#C6A43F','#8B4A4A','#C9897A','#E8D48A','#F5F0E8'];
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');p.className='cp';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.borderRadius=Math.random()>.5?'50%':'0';
+    p.style.width=(6+Math.random()*8)+'px';p.style.height=(6+Math.random()*8)+'px';
+    p.style.animationDelay=(Math.random()*1.5)+'s';
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.classList.remove('active'),4000);
+}
+
+/* DL QR */
+function telechargerQR(){
+  if(!qrDataUrl)return;
+  const a=document.createElement('a');
+  a.href=qrDataUrl;a.download='invitation-mariage-'+(inviteData?.code_secret||'qr')+'.png';a.click();
+}
+
+creerPetales();
+</script>
+</body>
+</html>
