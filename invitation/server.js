@@ -179,6 +179,7 @@ function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
     code: invite.code_secret,
     nom: invite.nom,
     table: String(invite.table_num || ''),
+    boisson: String(invite.boisson || ''),
   });
   return `${baseUrl}/valider-entree?${params.toString()}`;
 }
@@ -437,7 +438,7 @@ app.post('/api/scanner/valider', async (req, res) => {
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
-      invite: { nom: invite.nom, table_num: invite.table_num, menu: invite.menu }
+      invite: { nom: invite.nom, table_num: invite.table_num, menu: invite.menu, boisson: invite.boisson }
     });
   }
 
@@ -460,6 +461,7 @@ app.post('/api/scanner/valider', async (req, res) => {
       table_num:   invite.table_num,
       nb_couverts: invite.nb_couverts,
       menu:        invite.menu,
+      boisson:     invite.boisson,
       code_secret: invite.code_secret
     }
   });

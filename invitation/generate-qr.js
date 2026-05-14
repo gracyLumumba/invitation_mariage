@@ -18,6 +18,7 @@ async function genererQRCode(invite) {
     code: invite.code_secret,
     nom: invite.nom,
     table: String(invite.table_num || ''),
+    boisson: String(invite.boisson || ''),
   });
   const url = `${SITE_URL}/valider-entree?${params.toString()}`;
   const fichier = path.join(QR_DIR, `${invite.code_secret}.png`);

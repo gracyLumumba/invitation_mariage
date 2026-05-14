@@ -461,7 +461,7 @@ async function validerCodeInterne(code) {
 
     if (data.resultat === 'valide') {
       document.getElementById('res-nom').textContent    = data.invite.nom;
-      document.getElementById('res-detail').textContent = `${data.invite.nb_couverts} couvert(s) · Menu : ${data.invite.menu}`;
+      document.getElementById('res-detail').textContent = formatInviteDetail(data.invite);
       document.getElementById('res-table').innerHTML  = `<i data-lucide="armchair" class="icon"></i> Table ${data.invite.table_num}`; renderIcons();
       document.getElementById('res-success').classList.add('show');
       addHistory('Validé', `${data.invite.nom} · Table ${data.invite.table_num}`);
@@ -503,6 +503,12 @@ function resetScanner() {
     document.getElementById(id).classList.remove('show');
   });
   document.getElementById('manual-code').focus();
+}
+
+function formatInviteDetail(invite) {
+  const details = [`${invite.nb_couverts || 1} couvert(s)`, `Menu : ${invite.menu || 'standard'}`];
+  if (invite.boisson) details.push(`Boisson : ${invite.boisson}`);
+  return details.join(' · ');
 }
 
 function addHistory(status, detail) {

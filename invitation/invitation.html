@@ -44,8 +44,8 @@ svg{max-width:100%;}
 .page-wrap.visible{opacity:1;transform:translateY(0);}
 .page-wrap > :not(.page-ornament){position:relative;z-index:1;}
 .page-ornament{position:absolute;pointer-events:none;z-index:0;color:var(--gold);opacity:.9;filter:drop-shadow(0 8px 18px rgba(96,62,9,.16));}
-.ornament-top-left{top:.45rem;left:-1.4rem;width:min(42vw,270px);transform:rotate(-1deg);}
-.ornament-bottom-right{right:-1.6rem;bottom:2.2rem;width:min(44vw,290px);transform:rotate(180deg);}
+.ornament-top-left{top:1.2rem;left:-4.2rem;width:min(44vw,285px);transform:rotate(-8deg);}
+.ornament-bottom-right{right:-4.4rem;bottom:5.6rem;width:min(46vw,300px);transform:rotate(172deg);}
 .page-ornament path,.page-ornament circle,.page-ornament ellipse{vector-effect:non-scaling-stroke;}
 .page-ornament .gold-stroke{stroke:url(#ornamentGold);stroke-width:2.2;fill:none;stroke-linecap:round;}
 .page-ornament .gold-soft{stroke:#E8D48A;stroke-width:1.2;fill:none;opacity:.8;stroke-linecap:round;}
@@ -99,6 +99,8 @@ svg{max-width:100%;}
 .qr-badges{display:flex;flex-wrap:wrap;gap:6px;}
 .badge-code{display:inline-block;background:var(--beige);border:1px solid var(--beige-dark);padding:4px 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--marsala);letter-spacing:.15em;}
 .badge-table{display:inline-flex;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);}
+.badge-drink{display:none;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);}
+.badge-drink.show{display:inline-flex;}
 .qr-warn{border-top:1px solid var(--beige-dark);padding-top:.75rem;font-size:12px;font-style:italic;color:var(--text-light);text-align:center;}
 .btn-dl{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--marsala);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;}
 
@@ -153,8 +155,8 @@ svg{max-width:100%;}
 @media(max-width:560px){
   .page-wrap{padding:1rem .7rem 2.5rem;}
   .page-ornament{opacity:.42;}
-  .ornament-top-left{top:.2rem;left:-3.4rem;width:210px;}
-  .ornament-bottom-right{right:-3.6rem;bottom:3.1rem;width:220px;}
+  .ornament-top-left{top:1.4rem;left:-5.2rem;width:220px;}
+  .ornament-bottom-right{right:-5.4rem;bottom:5.2rem;width:230px;}
   .env-inner{width:100%;padding:1.25rem;}
   .btn-open{width:100%;font-size:11px;line-height:1.5;padding:12px 14px;}
   .floral-corner{opacity:.35;transform-origin:center;}
@@ -481,6 +483,7 @@ svg{max-width:100%;}
         <div class="qr-badges">
           <span class="badge-code" id="guest-code">…</span>
           <span class="badge-table"><i data-lucide="armchair" class="icon"></i> Table <strong id="guest-table">…</strong></span>
+          <span class="badge-drink" id="guest-drink"><i data-lucide="glass-water" class="icon"></i> <strong id="guest-drink-value"></strong></span>
         </div>
         <button class="btn-dl" id="btn-download-qr"><i data-lucide="download" class="icon"></i> Enregistrer le QR code</button>
       </div>
@@ -664,11 +667,25 @@ async function chargerInvite(){
     document.getElementById('guest-nom').textContent=d.nom;
     document.getElementById('guest-code').textContent=d.code_secret;
     document.getElementById('guest-table').textContent=d.table_num||'—';
+    afficherBoisson(d.boisson);
     chargerBoissons(d.boisson);
     chargerQR(d.code_secret);
     if(d.statut==='accepte'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-accepte').classList.add('show');}
     else if(d.statut==='refuse'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-refuse').classList.add('show');}
   }catch(e){}
+}
+function afficherBoisson(boisson){
+  const badge=document.getElementById('guest-drink');
+  const value=document.getElementById('guest-drink-value');
+  const clean=String(boisson||'').trim();
+  if(clean){
+    value.textContent=clean;
+    badge.classList.add('show');
+  }else{
+    value.textContent='';
+    badge.classList.remove('show');
+  }
+  renderIcons();
 }
 async function chargerBoissons(selected){
   const select=document.getElementById('drink-choice');
@@ -708,6 +725,11 @@ async function repondre(statut){
     let d={};
     try{d=text?JSON.parse(text):{};}catch(e){d={erreur:text};}
     if(d.ok){
+      if(statut==='accepte'){
+        inviteData={...(inviteData||{}),boisson};
+        afficherBoisson(boisson);
+        chargerQR(inviteData.code_secret);
+      }
       document.getElementById('rsvp-form').style.display='none';
       document.getElementById(statut==='accepte'?'rsvp-accepte':'rsvp-refuse').classList.add('show');
       if(statut==='accepte')lancerConfettis();
