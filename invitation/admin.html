@@ -81,6 +81,21 @@
 
   /* Table */
   .table-card { background: var(--white); border: 1px solid var(--beige-dark); border-radius: 2px; overflow: hidden; }
+  .public-link {
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-left: 3px solid var(--gold);
+    padding: .85rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    justify-content: space-between;
+  }
+  .public-link-text { min-width: 0; font-size: 13px; color: var(--text-light); }
+  .public-link-text strong { display: block; color: var(--marsala); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+  .public-link code { color: var(--text); white-space: normal; word-break: break-all; }
+  .public-warning { color: var(--danger); font-size: 12px; margin-top: 4px; }
   .table-toolbar {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--beige-dark);
@@ -128,6 +143,20 @@
     .sidebar { width: 56px; }
     .sidebar-brand, .nav-item span, .sidebar-footer { display: none; }
     .nav-item { justify-content: center; padding: 12px; }
+    .main-header { align-items: flex-start; flex-direction: column; gap: .25rem; padding: .85rem 1rem; }
+    .main-body { padding: 1rem; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .public-link { align-items: stretch; flex-direction: column; }
+    .table-toolbar { align-items: stretch; flex-direction: column; }
+    .table-search, .table-filter, .btn-csv { width: 100%; margin-left: 0; }
+    .add-form { grid-template-columns: 1fr 1fr; }
+    .add-form .mini-name { grid-column: 1 / -1; }
+    .row-actions { flex-wrap: wrap; min-width: 150px; }
+    .login-box { width: calc(100vw - 2rem); padding: 2rem 1.25rem; }
+  }
+  @media (max-width: 420px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .add-form { grid-template-columns: 1fr; }
   }
 </style>
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -199,6 +228,12 @@
 
       <!-- INVITÉS -->
       <div class="section" id="section-invites">
+        <div class="public-link" id="public-link-box">
+          <div class="public-link-text">
+            <strong>Lien a envoyer aux invites</strong>
+            <code>Chargement...</code>
+          </div>
+        </div>
         <div class="table-card">
           <div class="add-form">
             <input class="mini-input mini-name" id="new-nom" placeholder="Nom invité ou couple" />
@@ -257,6 +292,7 @@ let allInvites = [];
 let filtreTexte = '';
 let filtreStatut = '';
 let filtreTableNum = '';
+let publicInviteUrl = window.location.origin + '/';
 
 function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
 
@@ -296,6 +332,7 @@ function adminLogout() {
 
 async function chargerStats() {
   try {
+    chargerPublicUrl();
     const res  = await fetch('/api/admin/stats');
     if (!res.ok) return;
     const s = await res.json();
@@ -323,6 +360,7 @@ async function chargerStats() {
 }
 
 async function chargerInvites() {
+  chargerPublicUrl();
   const res = await fetch('/api/admin/invites');
   allInvites = await res.json();
   renderTableFilter();
@@ -367,6 +405,7 @@ function renderTable() {
       <td style="font-size:12px;color:var(--text-light);">${i.date_presence || '—'}</td>
       <td>
         <div class="row-actions">
+          <button class="btn-small" onclick="copierInvitation(${i.id})">Lien</button>
           <button class="btn-small" onclick="sauverInvite(${i.id})">OK</button>
           <button class="btn-small" onclick="resetCode(${i.id})">Code</button>
           <button class="btn-small btn-danger" onclick="supprimerInvite(${i.id})">Suppr.</button>
@@ -374,6 +413,54 @@ function renderTable() {
       </td>
     </tr>`).join('');
   renderIcons();
+}
+
+async function chargerPublicUrl() {
+  try {
+    const res = await fetch('/api/admin/public-url');
+    if (!res.ok) return;
+    const data = await res.json();
+    publicInviteUrl = data.inviteUrl || (window.location.origin + '/');
+    const holder = document.getElementById('public-link-box');
+    if (!holder) return;
+    holder.innerHTML = `
+      <div class="public-link-text">
+        <strong>Lien a envoyer aux invites</strong>
+        <code>${escapeHtml(publicInviteUrl)}</code>
+        ${data.localWarning ? '<div class="public-warning">Attention : cette adresse semble locale. Pour les invites hors de ton Wi-Fi, utilise le lien Render ou un vrai domaine public.</div>' : ''}
+      </div>
+      <button class="btn-small" onclick="copierTexte(publicInviteUrl)">Copier</button>`;
+  } catch(e) {}
+}
+
+function lienInvite(invite) {
+  return new URL('/i/' + encodeURIComponent(invite.code_secret), publicInviteUrl).toString();
+}
+
+function messageInvitation(invite) {
+  return `Bonjour ${invite.nom},
+
+Vous etes invite(s) au mariage de Yannick & Chantia le vendredi 3 juillet 2026.
+
+Lien : ${lienInvite(invite)}
+Code secret : ${invite.code_secret}
+
+Merci de confirmer votre presence depuis le site.`;
+}
+
+async function copierTexte(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('Copie.');
+  } catch(e) {
+    prompt('Copiez ce texte :', text);
+  }
+}
+
+function copierInvitation(id) {
+  const invite = allInvites.find(i => i.id === id);
+  if (!invite) return;
+  copierTexte(messageInvitation(invite));
 }
 
 function getBadge(s) {
@@ -388,6 +475,10 @@ function filtrerTableNum(t) { filtreTableNum = t; renderTable(); }
 
 function escapeAttr(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 async function ajouterInvite() {

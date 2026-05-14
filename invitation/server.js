@@ -30,10 +30,13 @@ const USE_HTTPS = process.env.HTTPS !== 'false';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
+const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
 const CERT_DIR = path.join(__dirname, 'certs');
 const CERT_KEY = path.join(CERT_DIR, 'localhost-key.pem');
 const CERT_CRT = path.join(CERT_DIR, 'localhost.pem');
+
+app.set('trust proxy', 1);
 
 function getLocalIp() {
   const ifaces = os.networkInterfaces();
@@ -56,6 +59,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:'],
@@ -144,19 +148,34 @@ function validateInput(req, res, next) {
   next();
 }
 
-function qrUrl(invite) {
+function getRequestBaseUrl(req) {
+  const configuredUrl = String(process.env.SITE_URL || '').trim().replace(/\/+$/, '');
+  const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  const proto = forwardedProto || req.protocol || (USE_HTTPS ? 'https' : 'http');
+  const host = req.get('host');
+
+  if (host) return `${proto}://${host}`;
+  return configuredUrl || SITE_URL.replace(/\/+$/, '');
+}
+
+function inviteUrl(invite, baseUrl) {
+  const params = new URLSearchParams({ code: invite.code_secret });
+  return `${baseUrl}/?${params.toString()}`;
+}
+
+function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
   const params = new URLSearchParams({
     code: invite.code_secret,
     nom: invite.nom,
     table: String(invite.table_num || ''),
   });
-  return `${SITE_URL}/valider-entree?${params.toString()}`;
+  return `${baseUrl}/valider-entree?${params.toString()}`;
 }
 
-async function ensureQrCode(invite) {
+async function ensureQrCode(invite, baseUrl) {
   fs.mkdirSync(QR_DIR, { recursive: true });
   const filePath = path.join(QR_DIR, `${invite.code_secret}.png`);
-  await QRCode.toFile(filePath, qrUrl(invite), {
+  await QRCode.toFile(filePath, qrUrl(invite, baseUrl), {
     width: 300,
     margin: 2,
     color: { dark: '#2C1F1F', light: '#FAF7F2' },
@@ -165,10 +184,10 @@ async function ensureQrCode(invite) {
   return filePath;
 }
 
-function nextInviteCode() {
+async function nextInviteCode() {
   for (let i = 1; i < 10000; i += 1) {
     const code = `YC${String(i).padStart(2, '0')}`;
-    if (!db.codeExists(code)) return code;
+    if (!(await db.codeExists(code))) return code;
   }
   throw new Error('Impossible de générer un code disponible.');
 }
@@ -191,7 +210,7 @@ function getHttpsCredentials() {
     if (install.error || install.status !== 0) {
       console.warn('[HTTPS] mkcert -install a échoué :', install.stderr || install.stdout || install.error?.message);
     }
-    const mkcertCreate = spawnSync('mkcert', ['-key-file', CERT_KEY, '-cert-file', CERT_CRT, HOST, '127.0.0.1', '::1'], { encoding: 'utf8' });
+    const mkcertCreate = spawnSync('mkcert', ['-key-file', CERT_KEY, '-cert-file', CERT_CRT, CERT_HOST, '127.0.0.1', '::1'], { encoding: 'utf8' });
     if (!mkcertCreate.error && mkcertCreate.status === 0) {
       console.log('[HTTPS] Certificat mkcert créé avec succès.');
       return {
@@ -204,7 +223,7 @@ function getHttpsCredentials() {
     console.log('[HTTPS] mkcert non trouvé, création d’un certificat auto-signé.');
   }
 
-  const attrs = [{ name: 'commonName', value: HOST }];
+  const attrs = [{ name: 'commonName', value: CERT_HOST }];
   const pems = selfsigned.generate(attrs, {
     days: 365,
     keySize: 2048,
@@ -213,7 +232,7 @@ function getHttpsCredentials() {
       {
         name: 'subjectAltName',
         altNames: [
-          { type: 2, value: HOST },
+          { type: 2, value: CERT_HOST },
           { type: 7, ip: '127.0.0.1' },
           { type: 7, ip: '::1' }
         ]
@@ -246,6 +265,10 @@ function timingSafeCompare(a, b) {
 // ============================================
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/i/:code', (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  res.redirect(`/?code=${encodeURIComponent(code)}`);
+});
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
@@ -259,32 +282,32 @@ app.post('/api/connexion', loginLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
   body('code_secret').trim().isLength({ min: 4, max: 10 }).toUpperCase().withMessage('Code invalide'),
   validateInput,
-  (req, res) => {
+  async (req, res) => {
     const { nom, code_secret } = req.body;
     const ip = getIp(req);
 
-    const invite = db.findInvite(code_secret);
+    const invite = await db.findInvite(code_secret);
 
     if (!invite) {
-      db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Code inconnu');
+      await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Code inconnu');
       return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
     }
 
     if (normaliserNom(invite.nom) !== normaliserNom(nom)) {
-      db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Nom incorrect pour ce code');
+      await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Nom incorrect pour ce code');
       return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
     }
 
     if (invite.code_utilise) {
-      db.logSecurite('fraude', code_secret, nom, ip, 'Code déjà utilisé');
+      await db.logSecurite('fraude', code_secret, nom, ip, 'Code déjà utilisé');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
       return res.status(403).json({ erreur: 'Nom ou code incorrect.' });
     }
 
     // Marquer le code comme utilisé
-    db.marquerCodeUtilise(invite.code_secret, ip);
-    db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
-    ensureQrCode(invite).catch(err => console.error('[QR] Erreur génération:', err.message));
+    await db.marquerCodeUtilise(invite.code_secret, ip);
+    await db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
+    ensureQrCode(invite, getRequestBaseUrl(req)).catch(err => console.error('[QR] Erreur génération:', err.message));
 
     // Sauvegarder la session
     req.session.invite = {
@@ -301,9 +324,9 @@ app.post('/api/connexion', loginLimiter,
 );
 
 // GET /api/moi — Données de l'invité connecté
-app.get('/api/moi', requireInvite, (req, res) => {
+app.get('/api/moi', requireInvite, async (req, res) => {
   // Recharger depuis la BDD pour avoir le statut à jour
-  const invite = db.findInvite(req.session.invite.code_secret);
+  const invite = await db.findInvite(req.session.invite.code_secret);
   res.json(invite);
 });
 
@@ -317,13 +340,13 @@ app.post('/api/repondre', requireInvite, apiLimiter,
     return res.status(400).json({ erreur: 'Statut invalide.' });
   }
 
-  const invite = db.findInvite(req.session.invite.code_secret);
+  const invite = await db.findInvite(req.session.invite.code_secret);
 
   if (invite.statut !== 'en_attente') {
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
   }
 
-  db.enregistrerReponse(invite.code_secret, statut);
+  await db.enregistrerReponse(invite.code_secret, statut);
 
   // Notification WhatsApp
   const msg = statut === 'accepte' ? wa.msgAcceptation(invite) : wa.msgRefus(invite);
@@ -340,11 +363,12 @@ app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
     return res.status(403).json({ erreur: 'Accès interdit.' });
   }
 
-  const fullInvite = db.findInvite(invite.code_secret);
-  const url = qrUrl(fullInvite);
+  const fullInvite = await db.findInvite(invite.code_secret);
+  const baseUrl = getRequestBaseUrl(req);
+  const url = qrUrl(fullInvite, baseUrl);
 
   try {
-    const filePath = await ensureQrCode(fullInvite);
+    const filePath = await ensureQrCode(fullInvite, baseUrl);
     const qrDataUrl = `data:image/png;base64,${fs.readFileSync(filePath).toString('base64')}`;
     res.json({ ok: true, qr: qrDataUrl, url, file: `/qrcodes/${fullInvite.code_secret}.png` });
   } catch (err) {
@@ -371,7 +395,7 @@ app.get('/valider-entree', (req, res) => {
 });
 
 // POST /api/scanner/valider — Validation réelle
-app.post('/api/scanner/valider', (req, res) => {
+app.post('/api/scanner/valider', async (req, res) => {
   const { code_secret, admin_token } = req.body;
 
   // Vérification accès scanner (token admin ou session admin)
@@ -381,7 +405,7 @@ app.post('/api/scanner/valider', (req, res) => {
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
-  const invite = db.findInvite(code_secret.trim().toUpperCase());
+  const invite = await db.findInvite(code_secret.trim().toUpperCase());
 
   if (!invite) {
     return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
@@ -403,7 +427,7 @@ app.post('/api/scanner/valider', (req, res) => {
   }
 
   // Valider la présence
-  db.validerPresence(invite.code_secret);
+  await db.validerPresence(invite.code_secret);
   wa.envoyerNotification(wa.msgEntreeValidee(invite));
 
   res.json({
@@ -447,12 +471,21 @@ app.get('/api/admin/logout', (req, res) => {
   });
 });
 
-app.get('/api/admin/stats', requireAdmin, (req, res) => {
-  res.json(db.getStats());
+app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+  res.json(await db.getStats());
 });
 
-app.get('/api/admin/invites', requireAdmin, (req, res) => {
-  res.json(db.getAllInvites());
+app.get('/api/admin/invites', requireAdmin, async (req, res) => {
+  res.json(await db.getAllInvites());
+});
+
+app.get('/api/admin/public-url', requireAdmin, (req, res) => {
+  const baseUrl = getRequestBaseUrl(req);
+  res.json({
+    baseUrl,
+    inviteUrl: `${baseUrl}/`,
+    localWarning: /localhost|127\.0\.0\.1|\.local|^https?:\/\/(10\.|172\.(1[6-9]|2\d|3[0-1])\.|192\.168\.)/.test(baseUrl)
+  });
 });
 
 app.post('/api/admin/invites', requireAdmin, apiLimiter,
@@ -462,24 +495,24 @@ app.post('/api/admin/invites', requireAdmin, apiLimiter,
   body('nb_couverts').optional().isInt({ min: 1, max: 10 }).withMessage('Couverts invalides'),
   body('menu').optional().isIn(['standard', 'vegetarien', 'vegan']).withMessage('Menu invalide'),
   validateInput,
-  (req, res) => {
+  async (req, res) => {
   const nom = String(req.body.nom || '').trim();
-  const code_secret = String(req.body.code_secret || nextInviteCode()).trim().toUpperCase();
+  const code_secret = String(req.body.code_secret || await nextInviteCode()).trim().toUpperCase();
   const table_num = Number(req.body.table_num || 0);
   const nb_couverts = Number(req.body.nb_couverts || 1);
   const menu = String(req.body.menu || 'standard').trim();
 
   if (!nom) return res.status(400).json({ erreur: 'Nom requis.' });
-  if (db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+  if (await db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
 
-  const result = db.createInvite({ nom, code_secret, table_num, nb_couverts, menu });
+  const result = await db.createInvite({ nom, code_secret, table_num, nb_couverts, menu });
   res.json({ ok: true, id: result.lastInsertRowid, code_secret });
 });
 
-app.put('/api/admin/invites/:id', requireAdmin, (req, res) => {
-  const current = db.findInviteById(req.params.id);
+app.put('/api/admin/invites/:id', requireAdmin, async (req, res) => {
+  const current = await db.findInviteById(req.params.id);
   if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
-  db.updateInvite(req.params.id, {
+  await db.updateInvite(req.params.id, {
     nom: String(req.body.nom || current.nom).trim(),
     table_num: Number(req.body.table_num ?? current.table_num),
     nb_couverts: Number(req.body.nb_couverts ?? current.nb_couverts),
@@ -489,29 +522,29 @@ app.put('/api/admin/invites/:id', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-app.delete('/api/admin/invites/:id', requireAdmin, (req, res) => {
-  const current = db.findInviteById(req.params.id);
+app.delete('/api/admin/invites/:id', requireAdmin, async (req, res) => {
+  const current = await db.findInviteById(req.params.id);
   if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
-  db.deleteInvite(req.params.id);
+  await db.deleteInvite(req.params.id);
   res.json({ ok: true });
 });
 
-app.post('/api/admin/invites/:id/reset-code', requireAdmin, (req, res) => {
-  const current = db.findInviteById(req.params.id);
+app.post('/api/admin/invites/:id/reset-code', requireAdmin, async (req, res) => {
+  const current = await db.findInviteById(req.params.id);
   if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
-  const newCode = String(req.body.code_secret || nextInviteCode()).trim().toUpperCase();
-  if (db.codeExists(newCode)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
-  db.resetInviteCode(req.params.id, newCode);
+  const newCode = String(req.body.code_secret || await nextInviteCode()).trim().toUpperCase();
+  if (await db.codeExists(newCode)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+  await db.resetInviteCode(req.params.id, newCode);
   res.json({ ok: true, code_secret: newCode });
 });
 
-app.get('/api/admin/logs', requireAdmin, (req, res) => {
-  res.json(db.getLogsSecurite());
+app.get('/api/admin/logs', requireAdmin, async (req, res) => {
+  res.json(await db.getLogsSecurite());
 });
 
 // Export CSV
-app.get('/api/admin/export-csv', requireAdmin, (req, res) => {
-  const invites = db.getAllInvites();
+app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
+  const invites = await db.getAllInvites();
   const header = ['ID','Nom','Code','Table','Couverts','Menu','Statut','Code utilisé','Présent','IP','Date réponse','Date présence'];
   const rows = invites.map(i => [
     i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu,
@@ -533,29 +566,36 @@ app.get('/api/admin/scanner-token', requireAdmin, (req, res) => {
 // DÉMARRAGE
 // ============================================
 
-if (USE_HTTPS) {
-  const credentials = getHttpsCredentials();
-  const localIp = getLocalIp();
-  https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
-    console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré en HTTPS !');
-    console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
-    console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
-    console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
-    console.log(`[ADMIN] Admin réseau : https://${localIp}:${PORT}/admin`);
-    console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
-    console.log(`\n📱 À envoyer aux invités : https://${localIp}:${PORT}`);
-    console.log('\n[ATTENTION]  Pensez à lancer : node init.js (première fois)');
-  });
-} else {
-  const localIp = getLocalIp();
-  app.listen(PORT, BIND_HOST, () => {
-    console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré !');
-    console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
-    console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
-    console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
-    console.log(`[ADMIN] Admin réseau : http://${localIp}:${PORT}/admin`);
-    console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
-    console.log(`\n📱 À envoyer aux invités : http://${localIp}:${PORT}`);
-    console.log('\n[ATTENTION]  Pensez à lancer : node init.js (première fois)');
-  });
+async function startServer() {
+  await db.initDb();
+
+  if (USE_HTTPS) {
+    const credentials = getHttpsCredentials();
+    const localIp = getLocalIp();
+    https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
+      console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré en HTTPS !');
+      console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
+      console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
+      console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
+      console.log(`[ADMIN] Admin réseau : https://${localIp}:${PORT}/admin`);
+      console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
+      console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
+    });
+  } else {
+    const localIp = getLocalIp();
+    app.listen(PORT, BIND_HOST, () => {
+      console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré !');
+      console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
+      console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
+      console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
+      console.log(`[ADMIN] Admin réseau : http://${localIp}:${PORT}/admin`);
+      console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
+      console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
+    });
+  }
 }
+
+startServer().catch((err) => {
+  console.error('[DEMARRAGE] Impossible de lancer le serveur:', err.message);
+  process.exit(1);
+});

@@ -49,6 +49,13 @@
   }
   .form-inner { text-align: left; }
   .loading { display: none; text-align: center; margin-top: 0.75rem; }
+  @media (max-width: 480px) {
+    body { padding: 1rem; align-items: flex-start; }
+    .login-wrap { padding-top: .5rem; }
+    .login-title { font-size: 31px; }
+    .login-subtitle { letter-spacing: .14em; }
+    .login-note { font-size: 12px; }
+  }
 </style>
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -144,6 +151,13 @@ function afficherErreur(msg) {
 document.getElementById('code').addEventListener('input', function() {
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
+
+const params = new URLSearchParams(window.location.search);
+const codeParam = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+if (codeParam) {
+  document.getElementById('code').value = codeParam;
+  document.getElementById('nom').focus();
+}
 </script>
 </body>
 </html>

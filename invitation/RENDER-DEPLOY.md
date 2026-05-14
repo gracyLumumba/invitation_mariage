@@ -1,109 +1,81 @@
-# 🚀 Guide Rapide - Déployer sur Render.com
 
-## 1️⃣ Préparer le dépôt GitHub
+# Guide rapide - Render + Supabase
 
-```bash
-cd invitation
+## 1. Creer la base Supabase
 
-# Vérifier que tout est prêt
-git status
+1. Aller sur https://supabase.com
+2. Creer un projet gratuit.
+3. Aller dans **Project Settings -> Database**.
+4. Copier la connection string PostgreSQL.
+5. Remplacer `[YOUR-PASSWORD]` par le mot de passe de la base.
 
-# S'assurer que .env n'est pas tracké
-git rm --cached .env 2>/dev/null || true
+Elle ressemble a :
 
-# Commit et push
-git add .
-git commit -m "feat: Configuration pour déploiement Render"
-git push origin main
+```text
+postgresql://postgres:VOTRE_MOT_DE_PASSE@db.xxxxx.supabase.co:5432/postgres
 ```
 
-## 2️⃣ Générer les secrets (à faire une fois)
+## 2. Deployer sur Render
 
-**Localement :**
+1. Aller sur https://dashboard.render.com
+2. Cliquer **New -> Web Service**
+3. Choisir le repo `invitation_yann`
+4. Configurer :
+
+```text
+Name: invitation-mariage
+Root Directory: invitation
+Runtime: Node
+Build Command: npm install && npm run build
+Start Command: npm start
+```
+
+## 3. Variables Render
+
+Dans Render -> Environment, ajouter :
+
+```text
+HTTPS=false
+PORT=3000
+BIND_HOST=0.0.0.0
+DB_SSL=true
+DATABASE_URL=postgresql://...depuis Supabase...
+DISPLAY_HOST=<ton-app>.onrender.com
+SITE_URL=https://<ton-app>.onrender.com
+ADMIN_PASSWORD=<mot de passe admin fort>
+SCANNER_TOKEN=<token fort>
+SESSION_SECRET=<secret fort>
+```
+
+Pour generer les secrets :
+
 ```bash
 node generate-secrets.js
 ```
 
-Cela crée un `.env` avec des credentials aléatoires.
+## 4. Liens
 
-**Copier les valeurs** :
-- `ADMIN_PASSWORD`
-- `SCANNER_TOKEN`
-- `SESSION_SECRET`
+App :
 
-## 3️⃣ Déployer sur Render
-
-1. Aller sur https://dashboard.render.com
-2. Cliquer **New → Web Service**
-3. Choisir le repo `invitation_yann`
-4. Configurer :
-   ```
-   Name: invitation-mariage
-   Root Directory: invitation
-   Runtime: Node
-   Build: npm install && npm run build
-   Start: npm start
-   ```
-
-## 4️⃣ Ajouter les variables d'environnement
-
-Dans Render Dashboard → Environment → Add Secret:
-
-| Clé | Valeur |
-|-----|--------|
-| `HTTPS` | `false` |
-| `PORT` | `3000` |
-| `BIND_HOST` | `0.0.0.0` |
-| `DISPLAY_HOST` | `*À compléter après déploiement*` |
-| `SITE_URL` | `https://*À compléter après déploiement*` |
-| `ADMIN_PASSWORD` | *Depuis generate-secrets.js* |
-| `SCANNER_TOKEN` | *Depuis generate-secrets.js* |
-| `SESSION_SECRET` | *Depuis generate-secrets.js* |
-
-> **DISPLAY_HOST et SITE_URL** : À remplir après voir l'URL Render (`https://invitation-mariage.onrender.com`)
-
-## 5️⃣ Déployer
-
-Cliquer **Deploy** et attendre 5-10 minutes ☕
-
----
-
-## ✅ C'est en ligne !
-
-- **App** : `https://invitation-mariage.onrender.com`
-- **Admin** : `https://invitation-mariage.onrender.com/admin`
-- **Mot de passe** : *Le ADMIN_PASSWORD que tu as configuré*
-
----
-
-## 📌 Notes importantes
-
-- `.env` n'est **jamais** sur GitHub (`.gitignore` le protège)
-- Les secrets sont configurés **uniquement dans Render**
-- Le HTTPS est géré **automatiquement par Render**
-- La base de données est **persistante** (SAMEAs sur Render)
-
----
-
-## 🔧 Redéployer après modifications
-
-```bash
-# Faire des changements...
-git add .
-git commit -m "fix: ..."
-git push origin main
-
-# Render redéploie automatiquement!
+```text
+https://<ton-app>.onrender.com
 ```
 
----
+Admin :
 
-## 🆘 Problèmes ?
+```text
+https://<ton-app>.onrender.com/admin
+```
 
-- **Build échoue** : Vérifier les logs Render (Dashboard → Logs)
-- **Variables manquantes** : Vérifier Render → Environment
-- **Database vide** : Render exécute `npm run build` = `node init.js` auto
+Invite direct :
 
----
+```text
+https://<ton-app>.onrender.com/i/YC05
+```
 
-**Créé pour le mariage Yannick & Chantia** 💍
+## Notes
+
+- Render heberge le site.
+- Supabase garde les invites, reponses et presences.
+- `npm run build` lance `node init.js`, donc les tables sont creees automatiquement.
+- Pour remplir la demo : `npm run seed-demo`.

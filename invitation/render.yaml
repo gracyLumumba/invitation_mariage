@@ -11,6 +11,10 @@ services:
         value: "3000"
       - key: BIND_HOST
         value: "0.0.0.0"
+      - key: DB_SSL
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
       - key: DISPLAY_HOST
         sync: false
       - key: ADMIN_PASSWORD

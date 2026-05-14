@@ -13,8 +13,10 @@
   --text:#2C1F1F;--text-light:#7A6060;--white:#FFFFFF;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
 body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;}
+button,input,select,textarea{font:inherit;}
+svg{max-width:100%;}
 .icon{width:1em;height:1em;stroke-width:1.8;vertical-align:-0.16em;}
 .icon-inline{display:inline-flex;align-items:center;justify-content:center;gap:.4em;}
 
@@ -29,7 +31,7 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);ove
 .env-amp{font-style:italic;color:var(--gold);}
 .env-sub{font-size:clamp(10px,2.5vw,13px);letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);opacity:0;animation:fiu 1s ease 1.4s forwards;margin-bottom:.4rem;}
 .env-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3vw,16px);font-style:italic;color:rgba(255,255,255,.5);max-width:320px;margin:1rem auto;line-height:1.8;opacity:0;animation:fiu 1s ease 1.7s forwards;}
-.btn-open{opacity:0;animation:fiu 1s ease 2.2s forwards;background:transparent;border:1px solid rgba(198,164,63,.5);color:var(--gold-light);font-family:'Jost',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;padding:13px 36px;cursor:pointer;transition:all .3s;margin-top:.5rem;}
+.btn-open{opacity:0;animation:fiu 1s ease 2.2s forwards;background:transparent;border:1px solid rgba(198,164,63,.5);color:var(--gold-light);font-family:'Jost',sans-serif;font-size:13px;letter-spacing:.16em;text-transform:uppercase;padding:13px 28px;cursor:pointer;transition:all .3s;margin-top:.5rem;max-width:100%;}
 .btn-open:hover{background:rgba(198,164,63,.15);border-color:var(--gold);color:var(--gold);}
 .env-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
 .petal{position:absolute;opacity:0;animation:petalFall linear infinite;}
@@ -99,9 +101,9 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);ove
 .rsvp-deadline{font-size:12.5px;color:var(--text-light);margin-bottom:1.25rem;}
 .rsvp-deadline strong{color:var(--marsala);}
 .rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
-.btn-accept{padding:13px 30px;background:var(--marsala);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.btn-accept{padding:13px 30px;background:var(--marsala);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
 .btn-accept:hover{background:var(--marsala-dark);}
-.btn-decline{padding:13px 30px;background:transparent;color:var(--text-light);border:1px solid var(--beige-dark);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-decline{padding:13px 30px;background:transparent;color:var(--text-light);border:1px solid var(--beige-dark);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
 .btn-decline:hover{border-color:var(--text-light);color:var(--text);}
 .rsvp-done{display:none;padding:1.25rem;border-radius:1px;}
 .rsvp-done.show{display:block;animation:fiu .5s ease;}
@@ -128,13 +130,32 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);ove
 @keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
 
 @media(max-width:560px){
+  .page-wrap{padding:1rem .7rem 2.5rem;}
+  .env-inner{width:100%;padding:1.25rem;}
+  .btn-open{width:100%;font-size:11px;line-height:1.5;padding:12px 14px;}
+  .floral-corner{opacity:.35;transform-origin:center;}
   .qr-inner{flex-direction:column;align-items:center;}
   .qr-info{text-align:center;}
   .qr-badges{justify-content:center;}
+  .qr-card,.rsvp-card,.inv-footer,.citation-block{padding:1.25rem;}
+  .qr-card::before,.rsvp-card::after{inset:6px;}
+  .qr-frame{width:150px;height:150px;}
   .details-grid{grid-template-columns:1fr;}
-  .inv-header{padding:2rem 1.25rem;}
+  .inv-header{padding:2rem 1rem;}
   .inv-header::before{inset:6px;}
   .inv-header::after{inset:10px;}
+  .inv-label,.inv-date{letter-spacing:.14em;}
+  .inv-main-title{font-size:clamp(44px,16vw,62px);}
+  .inv-guest-name{overflow-wrap:anywhere;}
+  .rsvp-btns{flex-direction:column;}
+  .btn-accept,.btn-decline{width:100%;padding:13px 14px;line-height:1.45;}
+  .footer-sub,.footer-mention,.qr-warn{overflow-wrap:anywhere;}
+}
+@media(max-width:380px){
+  .page-wrap{padding-left:.5rem;padding-right:.5rem;}
+  .qr-card,.rsvp-card,.inv-footer,.citation-block,.detail-card{padding:1rem;}
+  .inv-header{padding:1.7rem .85rem;}
+  .inv-body,.citation-text{line-height:1.65;}
 }
 </style>
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -539,7 +560,7 @@ async function repondre(statut){
       document.getElementById(statut==='accepte'?'rsvp-accepte':'rsvp-refuse').classList.add('show');
       if(statut==='accepte')lancerConfettis();
     }else{err.textContent=d.erreur||'Erreur.';err.className='alert-err show';}
-  }catch(e){err.textContent='Connexion perdue. Rechargez la page depuis http://127.0.0.1:3000/ et réessayez.';err.className='alert-err show';}
+  }catch(e){err.textContent='Connexion perdue. Rechargez la page puis réessayez.';err.className='alert-err show';}
 }
 
 /* CONFETTIS */
