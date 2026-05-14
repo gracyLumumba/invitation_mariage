@@ -36,6 +36,7 @@ const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
   .split(',')
   .map(v => v.trim())
   .filter(Boolean);
+const BOISSON_CHOIX_OPTIONS = BOISSON_OPTIONS.filter(v => !/^eau$/i.test(v));
 const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
 const CERT_DIR = path.join(__dirname, 'certs');
@@ -192,6 +193,19 @@ function inviteUrl(invite, baseUrl) {
 
 function isValidBoisson(boisson) {
   return BOISSON_OPTIONS.includes(String(boisson || '').trim());
+}
+
+function parseBoissons(value) {
+  return String(value || '')
+    .split(/\s*[\/,;]\s*/)
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function areValidBoissons(boisson, count) {
+  const choices = parseBoissons(boisson);
+  const expected = Math.max(1, Number(count || 1));
+  return choices.length === expected && choices.every(choice => BOISSON_CHOIX_OPTIONS.includes(choice));
 }
 
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
@@ -365,13 +379,13 @@ app.get('/api/moi', requireInvite, async (req, res) => {
 });
 
 app.get('/api/boissons', requireInvite, (req, res) => {
-  res.json({ boissons: BOISSON_OPTIONS });
+  res.json({ boissons: BOISSON_CHOIX_OPTIONS, eauAutomatique: true });
 });
 
 // POST /api/repondre — Accepter ou refuser
 app.post('/api/repondre', requireInvite, apiLimiter,
   body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
-  body('boisson').optional({ values: 'falsy' }).trim().isLength({ min: 1, max: 80 }).withMessage('Boisson invalide'),
+  body('boisson').optional({ values: 'falsy' }).trim().isLength({ min: 1, max: 200 }).withMessage('Boisson invalide'),
   validateInput,
   async (req, res) => {
   const { statut } = req.body;
@@ -380,11 +394,12 @@ app.post('/api/repondre', requireInvite, apiLimiter,
     return res.status(400).json({ erreur: 'Statut invalide.' });
   }
 
-  if (statut === 'accepte' && !isValidBoisson(boisson)) {
-    return res.status(400).json({ erreur: 'Veuillez choisir une boisson avant de confirmer votre présence.' });
-  }
-
   const invite = await db.findInvite(req.session.invite.code_secret);
+
+  if (statut === 'accepte' && !areValidBoissons(boisson, invite.nb_couverts)) {
+    const expected = Math.max(1, Number(invite.nb_couverts || 1));
+    return res.status(400).json({ erreur: expected > 1 ? `Veuillez choisir ${expected} boissons avant de confirmer votre présence. L'eau est prévue automatiquement.` : `Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.` });
+  }
 
   if (invite.statut !== 'en_attente') {
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });

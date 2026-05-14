@@ -113,6 +113,8 @@ svg{max-width:100%;}
 .rsvp-deadline strong{color:var(--marsala);}
 .drink-field{max-width:360px;margin:0 auto 1.25rem;text-align:left;}
 .drink-label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;text-align:center;}
+.drink-note{font-size:12px;color:var(--text-light);text-align:center;line-height:1.55;margin:-.35rem auto .75rem;}
+.drink-list{display:grid;gap:.65rem;}
 .drink-select{width:100%;border:1px solid var(--beige-dark);background:var(--cream);color:var(--text);padding:12px 14px;font-family:'Jost',sans-serif;font-size:14px;outline:none;border-radius:2px;}
 .drink-select:focus{border-color:var(--marsala-light);background:var(--white);}
 .rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
@@ -659,6 +661,7 @@ function toggleMusic(){
 
 /* DONNÉES */
 let inviteData=null,qrDataUrl=null;
+let drinkOptions=[];
 async function chargerInvite(){
   try{
     const res=await fetch('/api/moi');
@@ -688,17 +691,29 @@ function afficherBoisson(boisson){
   renderIcons();
 }
 async function chargerBoissons(selected){
-  const select=document.getElementById('drink-choice');
+  const field=document.querySelector('.drink-field');
+  const count=Math.max(1,Number(inviteData?.nb_couverts||1));
   try{
     const res=await fetch('/api/boissons');
     if(!res.ok)throw new Error('Boissons indisponibles');
     const d=await res.json();
-    const boissons=Array.isArray(d.boissons)?d.boissons:[];
-    select.innerHTML='<option value="">Choisir une boisson</option>'+boissons.map(b=>'<option value="'+escapeHtml(b)+'">'+escapeHtml(b)+'</option>').join('');
-    if(selected)select.value=selected;
+    drinkOptions=Array.isArray(d.boissons)?d.boissons:[];
+    const selectedValues=parseBoissonChoices(selected);
+    const selects=Array.from({length:count},(_,i)=>`
+      <select class="drink-select drink-choice" data-index="${i}">
+        <option value="">${count>1?'Boisson personne '+(i+1):'Choisir une boisson'}</option>
+        ${drinkOptions.map(b=>'<option value="'+escapeHtml(b)+'" '+(selectedValues[i]===b?'selected':'')+'>'+escapeHtml(b)+'</option>').join('')}
+      </select>`).join('');
+    field.innerHTML="<label class=\"drink-label\">Boisson souhaitée</label><div class=\"drink-note\">L'eau est prévue automatiquement pour tout le monde.</div><div class=\"drink-list\">"+selects+"</div>";
   }catch(e){
-    select.innerHTML='<option value="">Boissons indisponibles</option>';
+    field.innerHTML='<label class="drink-label">Boisson souhaitée</label><select class="drink-select drink-choice"><option value="">Boissons indisponibles</option></select>';
   }
+}
+function parseBoissonChoices(value){
+  return String(value||'').split(/\s*[\/,;]\s*/).map(v=>v.trim()).filter(Boolean);
+}
+function getSelectedBoissons(){
+  return Array.from(document.querySelectorAll('.drink-choice')).map(select=>select.value.trim());
 }
 async function chargerQR(code){
   try{
@@ -714,9 +729,10 @@ async function chargerQR(code){
 /* RSVP */
 async function repondre(statut){
   const err=document.getElementById('rsvp-err');err.className='alert-err';
-  const boisson=document.getElementById('drink-choice').value.trim();
-  if(statut==='accepte'&&!boisson){
-    err.textContent='Veuillez choisir une boisson avant de confirmer votre présence.';
+  const boissons=getSelectedBoissons();
+  const boisson=boissons.join(' / ');
+  if(statut==='accepte'&&boissons.some(v=>!v)){
+    err.textContent=boissons.length>1?"Veuillez choisir une boisson pour chaque personne. L'eau est prévue automatiquement.":"Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.";
     err.className='alert-err show';
     return;
   }
