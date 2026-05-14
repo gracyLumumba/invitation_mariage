@@ -5,8 +5,14 @@ Solution choisie : Render pour le site + Supabase PostgreSQL pour la base.
 ## Supabase
 
 1. Creer un projet sur https://supabase.com
-2. Recuperer la connection string PostgreSQL dans **Project Settings -> Database**.
+2. Recuperer la connection string **Session pooler** depuis **Connect**.
 3. Garder le mot de passe de la base sous la main.
+
+Sur Render, eviter l'URL directe `db.xxxxx.supabase.co:5432` si elle renvoie `ENETUNREACH` avec une adresse IPv6. Utiliser le pooler Supabase en mode session, qui ressemble a :
+
+```text
+postgresql://postgres.xxxxx:VOTRE_MOT_DE_PASSE@aws-0-region.pooler.supabase.com:5432/postgres
+```
 
 ## Render
 
@@ -25,7 +31,7 @@ HTTPS=false
 PORT=3000
 BIND_HOST=0.0.0.0
 DB_SSL=true
-DATABASE_URL=postgresql://...depuis Supabase...
+DATABASE_URL=postgresql://...Session pooler Supabase...
 DISPLAY_HOST=<ton-app>.onrender.com
 SITE_URL=https://<ton-app>.onrender.com
 ADMIN_PASSWORD=<mot de passe admin>

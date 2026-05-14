@@ -122,6 +122,10 @@ svg{max-width:100%;}
 .footer-sub{font-size:13px;color:var(--text-light);}
 .footer-mention{font-size:11.5px;font-style:italic;color:var(--text-light);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--beige-dark);}
 .btn-logout{background:none;border:none;font-family:'Jost',sans-serif;font-size:12px;color:var(--text-light);text-decoration:underline;cursor:pointer;}
+.music-toggle{position:fixed;right:14px;bottom:14px;z-index:80;width:42px;height:42px;border-radius:50%;border:1px solid rgba(198,164,63,.55);background:rgba(250,247,242,.92);color:var(--marsala);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(44,31,31,.14);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .25s,visibility .25s,transform .25s,background .2s;}
+.music-toggle.show{opacity:1;visibility:visible;transform:translateY(0);}
+.music-toggle:hover{background:var(--white);border-color:var(--gold);}
+.music-toggle .icon{width:20px;height:20px;}
 
 /* CONFETTIS */
 .confetti-cont{position:fixed;inset:0;pointer-events:none;z-index:50;display:none;}
@@ -161,6 +165,10 @@ svg{max-width:100%;}
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
+<audio id="wedding-music" src="/instrumentale%20mariage.webm" preload="auto" loop></audio>
+<button class="music-toggle" id="music-toggle" type="button" onclick="toggleMusic()" title="Couper la musique" aria-label="Couper la musique">
+  <i data-lucide="volume-2" class="icon"></i>
+</button>
 
 <!-- ÉCRAN ENVELOPPE -->
 <div id="env-screen">
@@ -514,11 +522,41 @@ function creerPetales(){
 /* OUVERTURE */
 function ouvrirInvitation(){
   document.getElementById('env-screen').classList.add('hidden');
+  demarrerMusique();
   setTimeout(()=>{
     const pw=document.getElementById('page-wrap');
     pw.classList.add('visible');
     chargerInvite();
   },600);
+}
+
+/* MUSIQUE */
+const music=document.getElementById('wedding-music');
+const musicToggle=document.getElementById('music-toggle');
+let musicMuted=false;
+
+function updateMusicButton(){
+  musicToggle.innerHTML='<i data-lucide="'+(musicMuted?'volume-x':'volume-2')+'" class="icon"></i>';
+  musicToggle.title=musicMuted?'Relancer la musique':'Couper la musique';
+  musicToggle.setAttribute('aria-label', musicToggle.title);
+  renderIcons();
+}
+
+function demarrerMusique(){
+  music.volume=0.35;
+  musicToggle.classList.add('show');
+  music.play().catch(()=>{ musicMuted=true; updateMusicButton(); });
+}
+
+function toggleMusic(){
+  if(music.paused){
+    musicMuted=false;
+    music.play().catch(()=>{ musicMuted=true; });
+  }else{
+    musicMuted=true;
+    music.pause();
+  }
+  updateMusicButton();
 }
 
 /* DONNÉES */

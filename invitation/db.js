@@ -15,6 +15,20 @@ const pool = new Pool({
   ssl: useSsl ? { rejectUnauthorized: false } : false,
 });
 
+function formatDbError(err) {
+  const message = err?.message || String(err);
+  const isNetworkUnreachable = err?.code === 'ENETUNREACH' || /ENETUNREACH|Network is unreachable/i.test(message);
+  const mentionsIpv6 = /\b[0-9a-f]{0,4}:[0-9a-f:]+\b/i.test(message);
+
+  if (isNetworkUnreachable && mentionsIpv6) {
+    return `${message}
+Astuce: cette URL Supabase semble utiliser la connexion directe IPv6. Sur Render, utilise l'URL "Session pooler" Supabase IPv4-compatible dans DATABASE_URL, par exemple:
+postgresql://postgres.<project-ref>:<mot-de-passe>@aws-0-<region>.pooler.supabase.com:5432/postgres`;
+  }
+
+  return message;
+}
+
 async function query(sql, params = []) {
   const result = await pool.query(sql, params);
   return result;
@@ -206,4 +220,5 @@ module.exports = {
   getLogsSecurite,
   getStats,
   close,
+  formatDbError,
 };

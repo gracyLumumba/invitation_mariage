@@ -12,7 +12,7 @@ async function main() {
 
 main()
   .catch((err) => {
-    console.error('[ERREUR] Initialisation impossible:', err.message);
+    console.error('[ERREUR] Initialisation impossible:', db.formatDbError(err));
     process.exitCode = 1;
   })
   .finally(() => db.close());

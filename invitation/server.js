@@ -60,9 +60,11 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net'],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:'],
+      mediaSrc: ["'self'"],
       connectSrc: ["'self'"],
       frameSrc: ["'none'"]
     }
@@ -596,6 +598,6 @@ async function startServer() {
 }
 
 startServer().catch((err) => {
-  console.error('[DEMARRAGE] Impossible de lancer le serveur:', err.message);
+  console.error('[DEMARRAGE] Impossible de lancer le serveur:', db.formatDbError(err));
   process.exit(1);
 });

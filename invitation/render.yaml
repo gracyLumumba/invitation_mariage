@@ -5,6 +5,8 @@ services:
     startCommand: npm start
     buildCommand: npm install && npm run build
     envVars:
+      - key: NODE_VERSION
+        value: "20"
       - key: HTTPS
         value: "false"
       - key: PORT

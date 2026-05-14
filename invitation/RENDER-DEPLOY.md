@@ -6,14 +6,16 @@
 1. Aller sur https://supabase.com
 2. Creer un projet gratuit.
 3. Aller dans **Project Settings -> Database**.
-4. Copier la connection string PostgreSQL.
+4. Cliquer **Connect** puis copier la connection string **Session pooler**.
 5. Remplacer `[YOUR-PASSWORD]` par le mot de passe de la base.
 
 Elle ressemble a :
 
 ```text
-postgresql://postgres:VOTRE_MOT_DE_PASSE@db.xxxxx.supabase.co:5432/postgres
+postgresql://postgres.xxxxx:VOTRE_MOT_DE_PASSE@aws-0-region.pooler.supabase.com:5432/postgres
 ```
+
+Important : ne pas utiliser l'URL directe `db.xxxxx.supabase.co:5432` sur Render si elle donne `ENETUNREACH` avec une adresse IPv6. Le pooler Supabase en mode session est compatible IPv4/IPv6.
 
 ## 2. Deployer sur Render
 
@@ -39,7 +41,7 @@ HTTPS=false
 PORT=3000
 BIND_HOST=0.0.0.0
 DB_SSL=true
-DATABASE_URL=postgresql://...depuis Supabase...
+DATABASE_URL=postgresql://...Session pooler Supabase...
 DISPLAY_HOST=<ton-app>.onrender.com
 SITE_URL=https://<ton-app>.onrender.com
 ADMIN_PASSWORD=<mot de passe admin fort>
@@ -77,5 +79,6 @@ https://<ton-app>.onrender.com/i/YC05
 
 - Render heberge le site.
 - Supabase garde les invites, reponses et presences.
-- `npm run build` lance `node init.js`, donc les tables sont creees automatiquement.
+- `npm run build` verifie le code sans se connecter a la base, pour eviter un echec reseau pendant le build Render.
+- Au demarrage, `npm start` lance `db.initDb()`, donc les tables sont creees automatiquement.
 - Pour remplir la demo : `npm run seed-demo`.
