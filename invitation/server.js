@@ -160,6 +160,13 @@ function requireServeur(req, res, next) {
   next();
 }
 
+function requireScanner(req, res, next) {
+  if (!req.session.scanner) {
+    return res.status(401).json({ erreur: 'Accès scanner non autorisé.' });
+  }
+  next();
+}
+
 function validateInput(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -194,7 +201,7 @@ function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
     table: String(invite.table_num || ''),
     boisson: String(invite.boisson || ''),
   });
-  return `${baseUrl}/valider-entree?${params.toString()}`;
+  return `${baseUrl}/scanner?${params.toString()}`;
 }
 
 async function ensureQrCode(invite, baseUrl) {
@@ -445,13 +452,25 @@ app.get('/valider-entree', (req, res) => {
 });
 
 // POST /api/scanner/valider — Validation réelle
-app.post('/api/scanner/valider', async (req, res) => {
-  const { code_secret, admin_token } = req.body;
-
-  // Vérification accès scanner (token scanner ou session admin)
-  if (!req.session.admin && admin_token !== SCANNER_TOKEN) {
-    return res.status(401).json({ erreur: 'Accès non autorisé au scanner.' });
+app.post('/api/scanner/login', apiLimiter,
+  body('password').isLength({ min: 1 }).withMessage('Mot de passe requis'),
+  validateInput,
+  (req, res) => {
+    const { password } = req.body;
+    try {
+      if (!timingSafeCompare(password, SCANNER_TOKEN)) {
+        return res.status(401).json({ erreur: 'Mot de passe scanner incorrect.' });
+      }
+    } catch (err) {
+      return res.status(401).json({ erreur: 'Mot de passe scanner incorrect.' });
+    }
+    req.session.scanner = true;
+    res.json({ ok: true });
   }
+);
+
+app.post('/api/scanner/valider', requireScanner, async (req, res) => {
+  const { code_secret } = req.body;
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
@@ -498,14 +517,13 @@ app.post('/api/scanner/valider', async (req, res) => {
   });
 });
 
-app.post('/api/scanner/stats', async (req, res) => {
-  const { admin_token } = req.body || {};
-
-  if (!req.session.admin && admin_token !== SCANNER_TOKEN) {
-    return res.status(401).json({ erreur: 'Accès non autorisé au scanner.' });
-  }
-
+app.post('/api/scanner/stats', requireScanner, async (req, res) => {
   res.json(await db.getStats());
+});
+
+app.get('/api/scanner/logout', (req, res) => {
+  req.session.scanner = false;
+  res.redirect('/scanner');
 });
 
 // ============================================

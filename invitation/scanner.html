@@ -327,7 +327,6 @@ function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
 window.addEventListener('load', renderIcons);
 function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
 
-let adminToken    = '';
 let cameraActive  = false;
 let cameraStream  = null;
 let scanInterval  = null;
@@ -337,19 +336,34 @@ let scanHistory   = [];
 
 // ---- LOGIN SCANNER ----
 async function scannerLogin() {
-  const token = document.getElementById('sc-pwd').value.trim();
+  const password = document.getElementById('sc-pwd').value.trim();
   const err = document.getElementById('sc-err');
   err.className = 'alert';
-  if (!token) {
+  if (!password) {
     err.textContent = 'Mot de passe requis.';
     err.className = 'alert alert-danger show';
     return;
   }
-  adminToken = token;
-  document.getElementById('scanner-login').style.display = 'none';
-  chargerStats();
-  const urlCode = new URLSearchParams(window.location.search).get('code');
-  if (urlCode) { document.getElementById('manual-code').value = extractCodeSecret(urlCode); validerCode(); }
+  try {
+    const res = await fetch('/api/scanner/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      err.textContent = data.erreur || 'Mot de passe scanner incorrect.';
+      err.className = 'alert alert-danger show';
+      return;
+    }
+    document.getElementById('scanner-login').style.display = 'none';
+    chargerStats();
+    const urlCode = new URLSearchParams(window.location.search).get('code');
+    if (urlCode) { document.getElementById('manual-code').value = extractCodeSecret(urlCode); validerCode(); }
+  } catch(e) {
+    err.textContent = 'Erreur réseau.';
+    err.className = 'alert alert-danger show';
+  }
 }
 
 // ---- CAMÉRA ----
@@ -475,7 +489,7 @@ async function validerCodeInterne(code) {
     const res  = await fetch('/api/scanner/valider', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code_secret: code, admin_token: adminToken })
+      body: JSON.stringify({ code_secret: code })
     });
     const data = await res.json().catch(() => ({}));
 
@@ -553,7 +567,7 @@ async function chargerStats() {
     const res = await fetch('/api/scanner/stats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ admin_token: adminToken })
+      body: '{}'
     });
     if (!res.ok) throw new Error('Stats indisponibles');
     const s = await res.json();

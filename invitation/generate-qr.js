@@ -20,7 +20,7 @@ async function genererQRCode(invite) {
     table: String(invite.table_num || ''),
     boisson: String(invite.boisson || ''),
   });
-  const url = `${SITE_URL}/valider-entree?${params.toString()}`;
+  const url = `${SITE_URL}/scanner?${params.toString()}`;
   const fichier = path.join(QR_DIR, `${invite.code_secret}.png`);
 
   await QRCode.toFile(fichier, url, {
