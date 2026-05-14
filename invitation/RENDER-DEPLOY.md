@@ -46,6 +46,7 @@ DISPLAY_HOST=<ton-app>.onrender.com
 SITE_URL=https://<ton-app>.onrender.com
 ADMIN_PASSWORD=<mot de passe admin fort>
 SCANNER_TOKEN=<token fort>
+SERVEUR_PASSWORD=<mot de passe serveurs fort>
 SESSION_SECRET=<secret fort>
 ```
 
@@ -67,6 +68,12 @@ Admin :
 
 ```text
 https://<ton-app>.onrender.com/admin
+```
+
+Serveurs :
+
+```text
+https://<ton-app>.onrender.com/serveurs
 ```
 
 Invite direct :

@@ -29,6 +29,7 @@ const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour 
 const USE_HTTPS = process.env.HTTPS !== 'false';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
+const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
 const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
@@ -148,6 +149,13 @@ function requireInvite(req, res, next) {
 function requireAdmin(req, res, next) {
   if (!req.session.admin) {
     return res.status(401).json({ erreur: 'Non autorisé' });
+  }
+  next();
+}
+
+function requireServeur(req, res, next) {
+  if (!req.session.serveur) {
+    return res.status(401).json({ erreur: 'Accès serveur non autorisé.' });
   }
   next();
 }
@@ -289,6 +297,7 @@ app.get('/i/:code', (req, res) => {
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
+app.get('/serveurs', (req, res) => res.sendFile(path.join(__dirname, 'serveurs.html')));
 
 // ============================================
 // API INVITÉS
@@ -374,10 +383,23 @@ app.post('/api/repondre', requireInvite, apiLimiter,
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
   }
 
-  await db.enregistrerReponse(invite.code_secret, statut, statut === 'accepte' ? boisson : null);
+  const updateResult = await db.enregistrerReponse(invite.code_secret, statut, statut === 'accepte' ? boisson : null);
+  if (updateResult.rowCount !== 1) {
+    return res.status(500).json({ erreur: 'La réponse n’a pas été enregistrée dans la base de données.' });
+  }
+  const updatedInvite = updateResult.rows[0] || {
+    ...invite,
+    statut,
+    boisson: statut === 'accepte' ? boisson : null
+  };
+  req.session.invite = {
+    ...req.session.invite,
+    statut: updatedInvite.statut,
+    boisson: updatedInvite.boisson
+  };
 
   // Notification WhatsApp
-  const msg = statut === 'accepte' ? wa.msgAcceptation(invite) : wa.msgRefus(invite);
+  const msg = statut === 'accepte' ? wa.msgAcceptation(updatedInvite) : wa.msgRefus(updatedInvite);
   const notif = await wa.envoyerNotification(msg);
   if (!notif.ok) console.error('[WhatsApp] Notification non envoyée:', notif.raison);
 
@@ -455,19 +477,23 @@ app.post('/api/scanner/valider', async (req, res) => {
   }
 
   // Valider la présence
-  await db.validerPresence(invite.code_secret);
-  wa.envoyerNotification(wa.msgEntreeValidee(invite));
+  const updateResult = await db.validerPresence(invite.code_secret);
+  if (updateResult.rowCount !== 1) {
+    return res.status(500).json({ resultat: 'erreur', message: 'La présence n’a pas été enregistrée dans la base de données.' });
+  }
+  const updatedInvite = updateResult.rows[0] || invite;
+  wa.envoyerNotification(wa.msgEntreeValidee(updatedInvite));
 
   res.json({
     resultat: 'valide',
-    message: `Bienvenue, ${invite.nom} !`,
+    message: `Bienvenue, ${updatedInvite.nom} !`,
     invite: {
-      nom:         invite.nom,
-      table_num:   invite.table_num,
-      nb_couverts: invite.nb_couverts,
-      menu:        invite.menu,
-      boisson:     invite.boisson,
-      code_secret: invite.code_secret
+      nom:         updatedInvite.nom,
+      table_num:   updatedInvite.table_num,
+      nb_couverts: updatedInvite.nb_couverts,
+      menu:        updatedInvite.menu,
+      boisson:     updatedInvite.boisson,
+      code_secret: updatedInvite.code_secret
     }
   });
 });
@@ -480,6 +506,70 @@ app.post('/api/scanner/stats', async (req, res) => {
   }
 
   res.json(await db.getStats());
+});
+
+// ============================================
+// API SERVEURS (station boissons)
+// ============================================
+
+app.post('/api/serveurs/login', apiLimiter,
+  body('password').isLength({ min: 1 }).withMessage('Mot de passe requis'),
+  validateInput,
+  (req, res) => {
+    const { password } = req.body;
+    try {
+      if (!timingSafeCompare(password, SERVEUR_PASSWORD)) {
+        return res.status(401).json({ erreur: 'Mot de passe serveur incorrect.' });
+      }
+    } catch (err) {
+      return res.status(401).json({ erreur: 'Mot de passe serveur incorrect.' });
+    }
+    req.session.serveur = true;
+    res.json({ ok: true });
+  }
+);
+
+app.get('/api/serveurs/dashboard', requireServeur, async (req, res) => {
+  const invites = await db.getServeurDashboard();
+  const tables = new Map();
+
+  for (const invite of invites) {
+    const tableKey = String(invite.table_num || 'Sans table');
+    if (!tables.has(tableKey)) {
+      tables.set(tableKey, {
+        table_num: invite.table_num || null,
+        table_label: invite.table_num ? `Table ${invite.table_num}` : 'Sans table',
+        invites: [],
+        boissons: {}
+      });
+    }
+
+    const table = tables.get(tableKey);
+    const boisson = String(invite.boisson || 'Non choisie').trim();
+    table.boissons[boisson] = (table.boissons[boisson] || 0) + 1;
+    table.invites.push({
+      id: invite.id,
+      nom: invite.nom,
+      code_secret: invite.code_secret,
+      table_num: invite.table_num,
+      nb_couverts: invite.nb_couverts,
+      menu: invite.menu,
+      boisson,
+      date_presence: invite.date_presence
+    });
+  }
+
+  res.json({
+    ok: true,
+    updated_at: new Date().toISOString(),
+    total_arrives: invites.length,
+    tables: Array.from(tables.values())
+  });
+});
+
+app.get('/api/serveurs/logout', (req, res) => {
+  req.session.serveur = false;
+  res.redirect('/serveurs');
 });
 
 // ============================================

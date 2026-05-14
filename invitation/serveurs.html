@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serveurs — Boissons Yannick & Chantia</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(198,164,63,.16), transparent 30%),
+      radial-gradient(circle at 88% 18%, rgba(201,137,122,.14), transparent 26%),
+      linear-gradient(145deg, #1A0F0F 0%, #2C1717 52%, #1A0F0F 100%);
+    color: #fff;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .9rem 1.1rem;
+    background: rgba(26,15,15,.92);
+    border-bottom: 1px solid rgba(198,164,63,.28);
+    backdrop-filter: blur(12px);
+  }
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold-light);
+    line-height: 1.1;
+  }
+  .brand small {
+    display: block;
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    margin-top: 2px;
+  }
+  .toolbar {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(140px, .75fr) auto;
+    gap: .7rem;
+  }
+  .server-input, .server-select {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.07);
+    color: #fff;
+    border-radius: 2px;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .server-select option { color: #2C1F1F; }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(198,164,63,.3);
+    color: var(--gold-light);
+    background: rgba(198,164,63,.1);
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dashboard {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 1rem 2rem;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .7rem;
+    margin-bottom: 1rem;
+  }
+  .summary-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.11);
+    padding: 1rem;
+    border-radius: 2px;
+  }
+  .summary-num {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    line-height: 1;
+    color: var(--gold-light);
+  }
+  .summary-label {
+    display: block;
+    margin-top: .35rem;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.48);
+  }
+  .tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: .9rem;
+  }
+  .table-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .table-head {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .85rem .95rem;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    background: rgba(198,164,63,.08);
+  }
+  .table-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px;
+    color: #fff;
+  }
+  .table-count {
+    color: var(--gold-light);
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding-top: 7px;
+  }
+  .drink-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: .75rem .95rem 0;
+  }
+  .drink-chip {
+    border: 1px solid rgba(198,164,63,.35);
+    background: rgba(198,164,63,.12);
+    color: var(--gold-light);
+    padding: 4px 9px;
+    border-radius: 2px;
+    font-size: 12px;
+  }
+  .guest-list { padding: .6rem .95rem .95rem; }
+  .guest-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .75rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .guest-row:last-child { border-bottom: 0; }
+  .guest-name {
+    font-weight: 500;
+    color: rgba(255,255,255,.92);
+    line-height: 1.35;
+  }
+  .guest-meta {
+    margin-top: 3px;
+    font-size: 12px;
+    color: rgba(255,255,255,.46);
+  }
+  .guest-drink {
+    align-self: start;
+    color: #fff;
+    background: rgba(139,74,74,.48);
+    border: 1px solid rgba(201,137,122,.45);
+    padding: 5px 9px;
+    font-size: 12px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .empty {
+    padding: 2.2rem 1rem;
+    text-align: center;
+    color: rgba(255,255,255,.55);
+    border: 1px dashed rgba(255,255,255,.18);
+    background: rgba(255,255,255,.04);
+  }
+  .login {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: #1A0F0F;
+  }
+  .login-box {
+    width: 100%;
+    max-width: 380px;
+    border: 1px solid rgba(198,164,63,.25);
+    background: rgba(255,255,255,.05);
+    padding: 2rem;
+    text-align: center;
+  }
+  .login-box h1 {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold-light);
+    font-size: 30px;
+    font-weight: 300;
+    margin-bottom: .45rem;
+  }
+  .login-box p {
+    color: rgba(255,255,255,.5);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 1.1rem;
+  }
+  .hidden { display: none; }
+  @media (max-width: 680px) {
+    .topbar { align-items: flex-start; flex-direction: column; }
+    .toolbar { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .summary-grid .summary-card:last-child { grid-column: 1 / -1; }
+    .guest-row { grid-template-columns: 1fr; }
+    .guest-drink { justify-self: start; }
+  }
+</style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div class="login" id="login">
+  <div class="login-box">
+    <h1>Station boissons</h1>
+    <p>Accès réservé aux serveurs. Entrez le mot de passe pour voir les invités arrivés, leur table et leur boisson.</p>
+    <input class="server-input" id="server-pwd" type="password" placeholder="Mot de passe serveur" onkeydown="if(event.key==='Enter') serveurLogin()">
+    <button class="btn btn-primary btn-full" style="margin-top:.75rem;" onclick="serveurLogin()">Entrer</button>
+    <div class="alert alert-danger" id="login-err"></div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">Yannick & Chantia <small>Tableau de bord serveurs</small></div>
+  <button class="btn btn-outline" onclick="logoutServeur()">Déconnexion</button>
+</header>
+
+<section class="toolbar">
+  <input class="server-input" id="table-filter" placeholder="Mes tables : ex. 1,2,5" oninput="renderDashboard()">
+  <select class="server-select" id="drink-filter" onchange="renderDashboard()">
+    <option value="">Toutes les boissons</option>
+  </select>
+  <div class="status-pill" id="refresh-status">Synchronisation...</div>
+</section>
+
+<main class="dashboard">
+  <section class="summary-grid">
+    <div class="summary-card">
+      <span class="summary-num" id="sum-arrives">0</span>
+      <span class="summary-label">Invités arrivés</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-num" id="sum-tables">0</span>
+      <span class="summary-label">Tables actives</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-num" id="sum-boissons">0</span>
+      <span class="summary-label">Boissons à préparer</span>
+    </div>
+  </section>
+
+  <section class="tables-grid" id="tables"></section>
+</main>
+
+<script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', () => { renderIcons(); loadDashboard(); });
+
+let dashboardData = { tables: [], total_arrives: 0 };
+let refreshTimer = null;
+
+async function serveurLogin() {
+  const password = document.getElementById('server-pwd').value.trim();
+  const err = document.getElementById('login-err');
+  err.className = 'alert';
+  if (!password) {
+    err.textContent = 'Mot de passe requis.';
+    err.className = 'alert alert-danger show';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/serveurs/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      err.textContent = data.erreur || 'Mot de passe incorrect.';
+      err.className = 'alert alert-danger show';
+      return;
+    }
+    document.getElementById('login').classList.add('hidden');
+    loadDashboard();
+  } catch(e) {
+    err.textContent = 'Erreur réseau.';
+    err.className = 'alert alert-danger show';
+  }
+}
+
+async function loadDashboard() {
+  try {
+    const res = await fetch('/api/serveurs/dashboard');
+    if (res.status === 401) {
+      document.getElementById('login').classList.remove('hidden');
+      stopRefresh();
+      return;
+    }
+    if (!res.ok) throw new Error('Dashboard indisponible');
+    dashboardData = await res.json();
+    document.getElementById('login').classList.add('hidden');
+    updateDrinkFilter();
+    renderDashboard();
+    startRefresh();
+    document.getElementById('refresh-status').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) {
+    document.getElementById('refresh-status').textContent = 'Synchronisation impossible';
+  }
+}
+
+function updateDrinkFilter() {
+  const select = document.getElementById('drink-filter');
+  const current = select.value;
+  const drinks = new Set();
+  dashboardData.tables.forEach(t => t.invites.forEach(i => drinks.add(i.boisson || 'Non choisie')));
+  select.innerHTML = '<option value="">Toutes les boissons</option>' + [...drinks].sort().map(d => `<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join('');
+  select.value = [...drinks].has(current) ? current : '';
+}
+
+function renderDashboard() {
+  const tableFilter = parseTableFilter(document.getElementById('table-filter').value);
+  const drinkFilter = document.getElementById('drink-filter').value;
+  const tables = dashboardData.tables
+    .map(table => {
+      const invites = table.invites.filter(invite => {
+        const matchTable = !tableFilter.length || tableFilter.includes(String(invite.table_num || ''));
+        const matchDrink = !drinkFilter || invite.boisson === drinkFilter;
+        return matchTable && matchDrink;
+      });
+      return { ...table, invites, boissons: countDrinks(invites) };
+    })
+    .filter(table => table.invites.length);
+
+  const totalInvites = tables.reduce((sum, table) => sum + table.invites.length, 0);
+  document.getElementById('sum-arrives').textContent = totalInvites;
+  document.getElementById('sum-tables').textContent = tables.length;
+  document.getElementById('sum-boissons').textContent = totalInvites;
+
+  const holder = document.getElementById('tables');
+  if (!tables.length) {
+    holder.innerHTML = '<div class="empty">Aucun invité arrivé pour ces filtres pour le moment.</div>';
+    return;
+  }
+
+  holder.innerHTML = tables.map(table => `
+    <article class="table-card">
+      <div class="table-head">
+        <div class="table-title">${escapeHtml(table.table_label)}</div>
+        <div class="table-count">${table.invites.length} arrivé(s)</div>
+      </div>
+      <div class="drink-summary">
+        ${Object.entries(table.boissons).map(([drink, count]) => `<span class="drink-chip">${escapeHtml(drink)} × ${count}</span>`).join('')}
+      </div>
+      <div class="guest-list">
+        ${table.invites.map(invite => `
+          <div class="guest-row">
+            <div>
+              <div class="guest-name">${escapeHtml(invite.nom)}</div>
+              <div class="guest-meta">${escapeHtml(invite.menu || 'standard')} · ${escapeHtml(invite.date_presence || '')}</div>
+            </div>
+            <div class="guest-drink">${escapeHtml(invite.boisson || 'Non choisie')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </article>
+  `).join('');
+}
+
+function countDrinks(invites) {
+  return invites.reduce((acc, invite) => {
+    const drink = invite.boisson || 'Non choisie';
+    acc[drink] = (acc[drink] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function parseTableFilter(value) {
+  return String(value || '')
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function startRefresh() {
+  if (refreshTimer) return;
+  refreshTimer = setInterval(loadDashboard, 4000);
+}
+
+function stopRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = null;
+}
+
+function logoutServeur() {
+  window.location.href = '/api/serveurs/logout';
+}
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#96;');
+}
+</script>
+</body>
+</html>

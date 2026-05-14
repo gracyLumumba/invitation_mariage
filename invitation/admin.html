@@ -59,6 +59,7 @@
     display: flex; align-items: center; justify-content: space-between;
   }
   .main-title { font-family: 'Cormorant Garamond',serif; font-size: 22px; font-weight: 400; color: var(--marsala); }
+  .refresh-status { font-size:12px;color:var(--text-light); }
   .main-body  { padding: 1.25rem 1.5rem; }
 
   /* Section */
@@ -205,6 +206,7 @@
   <div class="main">
     <div class="main-header">
       <div class="main-title" id="section-title">Tableau de bord</div>
+      <div class="refresh-status" id="refresh-status">Mise à jour automatique active</div>
       <div style="font-size:12px;color:var(--text-light);">Mariage · 3 juillet 2026</div>
     </div>
     <div class="main-body">
@@ -293,12 +295,16 @@ let filtreTexte = '';
 let filtreStatut = '';
 let filtreTableNum = '';
 let publicInviteUrl = window.location.origin + '/';
+let activeSection = 'dashboard';
+let isEditingTable = false;
+let adminRefreshTimer = null;
 
 function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
 
 const titles = { dashboard: 'Tableau de bord', invites: 'Liste des invités', logs: 'Journaux de sécurité' };
 
 function showSection(name) {
+  activeSection = name;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
@@ -318,7 +324,8 @@ async function adminLogin() {
     const data = await res.json();
     if (data.ok) {
       document.getElementById('login-overlay').style.display = 'none';
-      chargerStats();
+      refreshAdmin(true);
+      startAdminAutoRefresh();
     } else {
       err.textContent = data.erreur || 'Mot de passe incorrect.';
       err.className = 'alert alert-danger show';
@@ -328,6 +335,11 @@ async function adminLogin() {
 
 function adminLogout() {
   window.location.href = '/api/admin/logout';
+}
+
+function updateRefreshStatus() {
+  const el = document.getElementById('refresh-status');
+  if (el) el.textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
 }
 
 async function chargerStats() {
@@ -356,15 +368,19 @@ async function chargerStats() {
         <span class="badge-code">${i.code_secret}</span>
         <span style="font-size:12px;color:var(--text-light);margin-left:auto;">${i.date_reponse || ''}</span>
       </div>`).join('') : '<p style="color:var(--text-light);font-size:13px;">Aucune réponse pour l\'instant.</p>';
+    updateRefreshStatus();
   } catch(e) {}
 }
 
-async function chargerInvites() {
+async function chargerInvites(options = {}) {
+  if (options.auto && isEditingTable) return;
   chargerPublicUrl();
   const res = await fetch('/api/admin/invites');
+  if (!res.ok) return;
   allInvites = await res.json();
   renderTableFilter();
   renderTable();
+  updateRefreshStatus();
 }
 
 function renderTableFilter() {
@@ -414,6 +430,31 @@ function renderTable() {
       </td>
     </tr>`).join('');
   renderIcons();
+}
+
+document.addEventListener('focusin', event => {
+  if (event.target.closest('#section-invites') && event.target.matches('input, select, textarea')) {
+    isEditingTable = true;
+  }
+});
+
+document.addEventListener('focusout', event => {
+  if (event.target.closest('#section-invites') && event.target.matches('input, select, textarea')) {
+    setTimeout(() => {
+      isEditingTable = !!document.querySelector('#section-invites input:focus, #section-invites select:focus, #section-invites textarea:focus');
+    }, 0);
+  }
+});
+
+async function refreshAdmin(force = false) {
+  await chargerStats();
+  if (activeSection === 'invites') await chargerInvites({ auto: !force });
+  if (activeSection === 'logs') await chargerLogs();
+}
+
+function startAdminAutoRefresh() {
+  if (adminRefreshTimer) return;
+  adminRefreshTimer = setInterval(() => refreshAdmin(false), 5000);
 }
 
 async function chargerPublicUrl() {
@@ -547,9 +588,9 @@ async function chargerLogs() {
   renderIcons();
 }
 
-// Auto-refresh stats toutes les 30s
-chargerStats();
-setInterval(chargerStats, 30000);
+// Auto-refresh admin toutes les 5s
+refreshAdmin(true);
+startAdminAutoRefresh();
 </script>
 </body>
 </html>

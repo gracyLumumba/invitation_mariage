@@ -123,7 +123,12 @@ async function marquerCodeUtilise(code_secret, ip) {
 async function enregistrerReponse(code_secret, statut, boisson = null) {
   const now = new Date().toLocaleString('fr-FR');
   return query(
-    'UPDATE invites SET statut = $1, date_reponse = $2, boisson = $3 WHERE UPPER(code_secret) = UPPER($4)',
+    `UPDATE invites
+     SET statut = $1,
+         date_reponse = $2,
+         boisson = $3
+     WHERE UPPER(code_secret) = UPPER($4)
+     RETURNING *`,
     [statut, now, boisson, code_secret]
   );
 }
@@ -131,13 +136,40 @@ async function enregistrerReponse(code_secret, statut, boisson = null) {
 async function validerPresence(code_secret) {
   const now = new Date().toLocaleString('fr-FR');
   return query(
-    'UPDATE invites SET presente = true, date_presence = $1 WHERE UPPER(code_secret) = UPPER($2)',
+    `UPDATE invites
+     SET presente = true,
+         date_presence = $1,
+         statut = CASE WHEN statut = 'en_attente' THEN 'accepte' ELSE statut END,
+         date_reponse = CASE WHEN statut = 'en_attente' THEN COALESCE(date_reponse, $1) ELSE date_reponse END
+     WHERE UPPER(code_secret) = UPPER($2)
+     RETURNING *`,
     [now, code_secret]
   );
 }
 
 async function getAllInvites() {
   const result = await query('SELECT * FROM invites ORDER BY table_num, nom');
+  return result.rows.map(normalizeInvite);
+}
+
+async function getServeurDashboard() {
+  const result = await query(`
+    SELECT
+      id,
+      nom,
+      code_secret,
+      table_num,
+      nb_couverts,
+      menu,
+      boisson,
+      statut,
+      presente,
+      date_presence
+    FROM invites
+    WHERE presente = true
+      AND statut != 'refuse'
+    ORDER BY table_num NULLS LAST, date_presence DESC, nom
+  `);
   return result.rows.map(normalizeInvite);
 }
 
@@ -228,6 +260,7 @@ module.exports = {
   enregistrerReponse,
   validerPresence,
   getAllInvites,
+  getServeurDashboard,
   updateInvite,
   createInvite,
   deleteInvite,
