@@ -6,8 +6,8 @@ require('dotenv').config();
 const db = require('./db');
 
 const invitesDemoData = [
-  { nom: 'Robert Dupont',          code_secret: 'YC01', table_num: 5, nb_couverts: 1, menu: 'standard' },
-  { nom: 'Jeanne & Paul Martin',   code_secret: 'YC02', table_num: 3, nb_couverts: 2, menu: 'standard' },
+  { nom: 'Jeanne & Paul Martin',   code_secret: 'YC01', table_num: 3, nb_couverts: 2, menu: 'standard' },
+  { nom: 'Robert Dupont',          code_secret: 'YC02', table_num: 5, nb_couverts: 1, menu: 'standard' },
   { nom: 'Sophie Lambert',         code_secret: 'YC03', table_num: 7, nb_couverts: 1, menu: 'vegetarien' },
   { nom: 'Thomas & Laura Petit',   code_secret: 'YC04', table_num: 3, nb_couverts: 2, menu: 'standard' },
   { nom: 'Martine Chantia Sr.',    code_secret: 'YC05', table_num: 1, nb_couverts: 1, menu: 'standard' },

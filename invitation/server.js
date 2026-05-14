@@ -292,18 +292,18 @@ app.post('/api/connexion', loginLimiter,
 
     if (!invite) {
       await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Code inconnu');
-      return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
+      return res.status(401).json({ erreur: 'Code secret introuvable. Vérifiez le code indiqué sur votre invitation.' });
     }
 
     if (normaliserNom(invite.nom) !== normaliserNom(nom)) {
       await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Nom incorrect pour ce code');
-      return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
+      return res.status(401).json({ erreur: 'Ce code existe, mais le nom saisi ne correspond pas à cette invitation.' });
     }
 
     if (invite.code_utilise) {
       await db.logSecurite('fraude', code_secret, nom, ip, 'Code déjà utilisé');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
-      return res.status(403).json({ erreur: 'Nom ou code incorrect.' });
+      return res.status(403).json({ erreur: 'Ce code a déjà été utilisé. Contactez Yannick ou Chantia si vous pensez qu’il s’agit d’une erreur.' });
     }
 
     // Marquer le code comme utilisé
