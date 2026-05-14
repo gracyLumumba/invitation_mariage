@@ -77,8 +77,7 @@
         <label class="form-label" for="nom">Votre nom</label>
         <input class="form-input" id="nom" type="text"
                placeholder="ex: Robert Dupont"
-               autocomplete="name"
-               onkeydown="if(event.key==='Enter') seConnecter()" />
+               autocomplete="name" />
       </div>
       <div class="form-group">
         <label class="form-label" for="code">Votre code secret</label>
@@ -86,10 +85,9 @@
                placeholder="ex: YC01"
                maxlength="6"
                autocomplete="off"
-               style="text-transform:uppercase;letter-spacing:0.15em;font-size:16px;text-align:center;"
-               onkeydown="if(event.key==='Enter') seConnecter()" />
+               style="text-transform:uppercase;letter-spacing:0.15em;font-size:16px;text-align:center;" />
       </div>
-      <button class="btn btn-primary btn-full" onclick="seConnecter()" id="btn-login">
+      <button class="btn btn-primary btn-full" id="btn-login">
         Accéder à mon invitation
       </button>
       <div class="loading" id="loading"><span class="spinner"></span></div>
@@ -150,6 +148,14 @@ function afficherErreur(msg) {
 // Formater automatiquement en majuscules
 document.getElementById('code').addEventListener('input', function() {
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+document.getElementById('btn-login').addEventListener('click', seConnecter);
+document.getElementById('nom').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') seConnecter();
+});
+document.getElementById('code').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') seConnecter();
 });
 
 const params = new URLSearchParams(window.location.search);
