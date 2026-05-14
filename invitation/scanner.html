@@ -219,9 +219,9 @@
     <span style="font-size:28px;display:block;margin-bottom:0.5rem;"><i data-lucide="smartphone" class="icon"></i></span>
     <h2>Contrôle d'entrée<br>Yannick & Chantia</h2>
     <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:1.25rem;">
-      Saisissez le mot de passe admin pour activer le scanner.
+      Saisissez le mot de passe du contrôle d'entrée pour activer le scanner.
     </p>
-    <input class="dark-input" id="sc-pwd" type="password" placeholder="Mot de passe admin"
+    <input class="dark-input" id="sc-pwd" type="password" placeholder="Mot de passe contrôle"
            onkeydown="if(event.key==='Enter') scannerLogin()" />
     <button class="btn btn-primary btn-full" onclick="scannerLogin()">Accéder au scanner</button>
     <div class="alert" id="sc-err" style="margin-top:0.5rem;"></div>
@@ -337,26 +337,19 @@ let scanHistory   = [];
 
 // ---- LOGIN SCANNER ----
 async function scannerLogin() {
-  const pwd = document.getElementById('sc-pwd').value;
+  const token = document.getElementById('sc-pwd').value.trim();
   const err = document.getElementById('sc-err');
   err.className = 'alert';
-  try {
-    const res  = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pwd}) });
-    const data = await res.json();
-    if (data.ok) {
-      const res2 = await fetch('/api/admin/scanner-token');
-      const d2   = await res2.json();
-      adminToken = d2.token;
-      document.getElementById('scanner-login').style.display = 'none';
-      chargerStats();
-      // Vérifier si un code est dans l'URL (depuis QR scan direct)
-      const urlCode = new URLSearchParams(window.location.search).get('code');
-      if (urlCode) { document.getElementById('manual-code').value = urlCode.toUpperCase(); validerCode(); }
-    } else {
-      err.textContent = data.erreur || 'Mot de passe incorrect.';
-      err.className = 'alert alert-danger show';
-    }
-  } catch(e) { err.textContent = 'Erreur réseau.'; err.className = 'alert alert-danger show'; }
+  if (!token) {
+    err.textContent = 'Mot de passe requis.';
+    err.className = 'alert alert-danger show';
+    return;
+  }
+  adminToken = token;
+  document.getElementById('scanner-login').style.display = 'none';
+  chargerStats();
+  const urlCode = new URLSearchParams(window.location.search).get('code');
+  if (urlCode) { document.getElementById('manual-code').value = urlCode.toUpperCase(); validerCode(); }
 }
 
 // ---- CAMÉRA ----

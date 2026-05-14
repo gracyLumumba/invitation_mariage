@@ -420,7 +420,7 @@ app.get('/valider-entree', (req, res) => {
 app.post('/api/scanner/valider', async (req, res) => {
   const { code_secret, admin_token } = req.body;
 
-  // Vérification accès scanner (token admin ou session admin)
+  // Vérification accès scanner (token scanner ou session admin)
   if (!req.session.admin && admin_token !== SCANNER_TOKEN) {
     return res.status(401).json({ erreur: 'Accès non autorisé au scanner.' });
   }
