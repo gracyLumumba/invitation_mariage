@@ -159,6 +159,119 @@
     .stats-row { grid-template-columns: 1fr; }
     .add-form { grid-template-columns: 1fr; }
   }
+
+  @media (max-width: 900px) {
+    body { overflow-x: hidden; }
+    .layout { display: block; min-height: 100vh; }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      width: 100%;
+      padding: 0;
+      min-height: 0;
+      flex-direction: row;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+    .sidebar-brand {
+      width: 82px;
+      flex-shrink: 0;
+      padding: .7rem .5rem;
+      border-bottom: 0;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      font-size: 15px;
+    }
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      padding: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+    .nav-item {
+      min-height: 56px;
+      flex: 1 0 92px;
+      justify-content: center;
+      padding: .55rem .45rem;
+      border-left: 0;
+      border-bottom: 3px solid transparent;
+      text-align: center;
+      gap: 5px;
+      flex-direction: column;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .nav-item.active { border-left-color: transparent; border-bottom-color: var(--gold); }
+    .sidebar-footer {
+      display: block;
+      width: 56px;
+      padding: .45rem;
+      border-top: 0;
+      border-left: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-logout-admin {
+      min-height: 40px;
+      padding: 0;
+      font-size: 0;
+    }
+    .btn-logout-admin::before {
+      content: '⎋';
+      font-size: 18px;
+    }
+    .main { overflow: visible; }
+    .main-header {
+      position: sticky;
+      top: 57px;
+      z-index: 35;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: .25rem;
+      padding: .8rem 1rem;
+    }
+    .main-header > div[style] { display: none; }
+    .main-title { font-size: 20px; }
+    .main-body { padding: .85rem; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .stat-card { padding: .8rem; }
+    .stat-num { font-size: 30px; }
+    .stat-label { font-size: 9.5px; letter-spacing: .07em; }
+    .card { padding: 1rem; }
+    .public-link { align-items: stretch; flex-direction: column; padding: .8rem; }
+    .table-toolbar { align-items: stretch; flex-direction: column; padding: .75rem; gap: .55rem; }
+    .table-search, .table-filter, .btn-csv { width: 100%; min-height: 40px; margin-left: 0; }
+    .add-form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: .75rem;
+    }
+    .add-form .mini-name { grid-column: 1 / -1; min-width: 0; }
+    .mini-input, .mini-select { min-height: 38px; min-width: 92px; }
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-top: 1px solid var(--beige-dark);
+    }
+    table { min-width: 1180px; }
+    thead th, tbody td { padding: 8px 9px; }
+    .row-actions { flex-wrap: nowrap; min-width: 190px; }
+    .btn-small { min-height: 34px; padding: 6px 9px; }
+  }
+
+  @media (max-width: 520px) {
+    .sidebar-brand { display: none; }
+    .sidebar-footer { width: 48px; }
+    .nav-item {
+      flex-basis: 74px;
+      min-height: 54px;
+      font-size: 10px;
+    }
+    .nav-icon { font-size: 18px; }
+    .main-header { top: 54px; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .add-form { grid-template-columns: 1fr; }
+    .login-box { width: calc(100vw - 1.5rem); padding: 1.5rem 1rem; }
+  }
 </style>
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
