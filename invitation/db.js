@@ -39,6 +39,7 @@ function normalizeInvite(row) {
   return {
     ...row,
     code_utilise: row.code_utilise ? 1 : 0,
+    acces_count: Number(row.acces_count || 0),
     presente: row.presente ? 1 : 0,
   };
 }
@@ -55,7 +56,9 @@ async function initDb() {
       code_utilise  BOOLEAN DEFAULT false,
       statut        TEXT DEFAULT 'en_attente',
       date_reponse  TEXT DEFAULT NULL,
+      boisson       TEXT DEFAULT NULL,
       ip_connexion  TEXT DEFAULT NULL,
+      acces_count   INTEGER DEFAULT 0,
       presente      BOOLEAN DEFAULT false,
       date_presence TEXT DEFAULT NULL,
       created_at    TIMESTAMPTZ DEFAULT now()
@@ -76,6 +79,14 @@ async function initDb() {
       token      TEXT NOT NULL UNIQUE,
       created_at TIMESTAMPTZ DEFAULT now()
     );
+  `);
+
+  await query(`
+    ALTER TABLE invites ADD COLUMN IF NOT EXISTS boisson TEXT DEFAULT NULL;
+    ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_count INTEGER DEFAULT 0;
+    UPDATE invites
+    SET acces_count = 1
+    WHERE code_utilise = true AND COALESCE(acces_count, 0) = 0;
   `);
 }
 
@@ -100,16 +111,20 @@ async function codeExists(code_secret) {
 
 async function marquerCodeUtilise(code_secret, ip) {
   return query(
-    'UPDATE invites SET code_utilise = true, ip_connexion = $1 WHERE UPPER(code_secret) = UPPER($2)',
+    `UPDATE invites
+     SET acces_count = COALESCE(acces_count, 0) + 1,
+         code_utilise = (COALESCE(acces_count, 0) + 1) >= 3,
+         ip_connexion = $1
+     WHERE UPPER(code_secret) = UPPER($2)`,
     [ip, code_secret]
   );
 }
 
-async function enregistrerReponse(code_secret, statut) {
+async function enregistrerReponse(code_secret, statut, boisson = null) {
   const now = new Date().toLocaleString('fr-FR');
   return query(
-    'UPDATE invites SET statut = $1, date_reponse = $2 WHERE UPPER(code_secret) = UPPER($3)',
-    [statut, now, code_secret]
+    'UPDATE invites SET statut = $1, date_reponse = $2, boisson = $3 WHERE UPPER(code_secret) = UPPER($4)',
+    [statut, now, boisson, code_secret]
   );
 }
 
@@ -127,10 +142,10 @@ async function getAllInvites() {
 }
 
 async function updateInvite(id, data) {
-  const { nom, table_num, nb_couverts, menu, statut } = data;
+  const { nom, table_num, nb_couverts, menu, statut, boisson } = data;
   return query(
-    'UPDATE invites SET nom = $1, table_num = $2, nb_couverts = $3, menu = $4, statut = $5 WHERE id = $6',
-    [nom, table_num, nb_couverts, menu, statut, id]
+    'UPDATE invites SET nom = $1, table_num = $2, nb_couverts = $3, menu = $4, statut = $5, boisson = $6 WHERE id = $7',
+    [nom, table_num, nb_couverts, menu, statut, boisson, id]
   );
 }
 
@@ -154,6 +169,7 @@ async function resetInviteCode(id, newCode) {
     `UPDATE invites
      SET code_secret = UPPER($1),
          code_utilise = false,
+         acces_count = 0,
          ip_connexion = NULL,
          presente = false,
          date_presence = NULL

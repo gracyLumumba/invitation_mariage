@@ -30,6 +30,11 @@ const USE_HTTPS = process.env.HTTPS !== 'false';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
+const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
+const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
+  .split(',')
+  .map(v => v.trim())
+  .filter(Boolean);
 const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
 const CERT_DIR = path.join(__dirname, 'certs');
@@ -163,6 +168,10 @@ function getRequestBaseUrl(req) {
 function inviteUrl(invite, baseUrl) {
   const params = new URLSearchParams({ code: invite.code_secret });
   return `${baseUrl}/?${params.toString()}`;
+}
+
+function isValidBoisson(boisson) {
+  return BOISSON_OPTIONS.includes(String(boisson || '').trim());
 }
 
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
@@ -300,10 +309,10 @@ app.post('/api/connexion', loginLimiter,
       return res.status(401).json({ erreur: 'Ce code existe, mais le nom saisi ne correspond pas à cette invitation.' });
     }
 
-    if (invite.code_utilise) {
-      await db.logSecurite('fraude', code_secret, nom, ip, 'Code déjà utilisé');
+    if (Number(invite.acces_count || 0) >= MAX_INVITE_ACCES) {
+      await db.logSecurite('fraude', code_secret, nom, ip, 'Limite d’accès atteinte');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
-      return res.status(403).json({ erreur: 'Ce code a déjà été utilisé. Contactez Yannick ou Chantia si vous pensez qu’il s’agit d’une erreur.' });
+      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${MAX_INVITE_ACCES} fois. Contactez Yannick ou Chantia si vous pensez qu’il s’agit d’une erreur.` });
     }
 
     // Marquer le code comme utilisé
@@ -318,6 +327,7 @@ app.post('/api/connexion', loginLimiter,
       table_num:   invite.table_num,
       nb_couverts: invite.nb_couverts,
       menu:        invite.menu,
+      boisson:     invite.boisson,
       statut:      invite.statut
     };
 
@@ -332,14 +342,24 @@ app.get('/api/moi', requireInvite, async (req, res) => {
   res.json(invite);
 });
 
+app.get('/api/boissons', requireInvite, (req, res) => {
+  res.json({ boissons: BOISSON_OPTIONS });
+});
+
 // POST /api/repondre — Accepter ou refuser
 app.post('/api/repondre', requireInvite, apiLimiter,
   body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
+  body('boisson').optional().trim().isLength({ min: 1, max: 80 }).withMessage('Boisson invalide'),
   validateInput,
   async (req, res) => {
   const { statut } = req.body;
+  const boisson = String(req.body.boisson || '').trim();
   if (!['accepte', 'refuse'].includes(statut)) {
     return res.status(400).json({ erreur: 'Statut invalide.' });
+  }
+
+  if (statut === 'accepte' && !isValidBoisson(boisson)) {
+    return res.status(400).json({ erreur: 'Veuillez choisir une boisson avant de confirmer votre présence.' });
   }
 
   const invite = await db.findInvite(req.session.invite.code_secret);
@@ -348,7 +368,7 @@ app.post('/api/repondre', requireInvite, apiLimiter,
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
   }
 
-  await db.enregistrerReponse(invite.code_secret, statut);
+  await db.enregistrerReponse(invite.code_secret, statut, statut === 'accepte' ? boisson : null);
 
   // Notification WhatsApp
   const msg = statut === 'accepte' ? wa.msgAcceptation(invite) : wa.msgRefus(invite);
@@ -519,6 +539,7 @@ app.put('/api/admin/invites/:id', requireAdmin, async (req, res) => {
     table_num: Number(req.body.table_num ?? current.table_num),
     nb_couverts: Number(req.body.nb_couverts ?? current.nb_couverts),
     menu: String(req.body.menu || current.menu).trim(),
+    boisson: String(req.body.boisson ?? current.boisson ?? '').trim() || null,
     statut: String(req.body.statut || current.statut),
   });
   res.json({ ok: true });
@@ -547,10 +568,10 @@ app.get('/api/admin/logs', requireAdmin, async (req, res) => {
 // Export CSV
 app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   const invites = await db.getAllInvites();
-  const header = ['ID','Nom','Code','Table','Couverts','Menu','Statut','Code utilisé','Présent','IP','Date réponse','Date présence'];
+  const header = ['ID','Nom','Code','Table','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
   const rows = invites.map(i => [
-    i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu,
-    i.statut, i.code_utilise ? 'oui' : 'non', i.presente ? 'oui' : 'non',
+    i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
+    i.statut, `${i.acces_count || 0}/${MAX_INVITE_ACCES}`, i.presente ? 'oui' : 'non',
     i.ip_connexion || '', i.date_reponse || '', i.date_presence || ''
   ]);
   const csv = [header, ...rows].map(r => r.join(',')).join('\n');

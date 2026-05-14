@@ -261,7 +261,7 @@
               <thead>
                 <tr>
                   <th>ID</th><th>Nom</th><th>Code</th><th>Table</th><th>Couverts</th>
-                  <th>Menu</th><th>Statut</th><th>Code utilisé</th>
+                  <th>Menu</th><th>Boisson</th><th>Statut</th><th>Accès</th>
                   <th>Présent J</th><th>IP</th><th>Date réponse</th><th>Date présence</th><th>Actions</th>
                 </tr>
               </thead>
@@ -391,6 +391,7 @@ function renderTable() {
       <td><input class="mini-input" type="number" value="${i.table_num || 0}" data-field="table_num" /></td>
       <td><input class="mini-input" type="number" min="1" value="${i.nb_couverts}" data-field="nb_couverts" /></td>
       <td><input class="mini-input" value="${escapeAttr(i.menu)}" data-field="menu" /></td>
+      <td><input class="mini-input" value="${escapeAttr(i.boisson || '')}" data-field="boisson" /></td>
       <td>
         <select class="mini-select" data-field="statut">
           <option value="en_attente" ${i.statut === 'en_attente' ? 'selected' : ''}>En attente</option>
@@ -398,7 +399,7 @@ function renderTable() {
           <option value="refuse" ${i.statut === 'refuse' ? 'selected' : ''}>Refusé</option>
         </select>
       </td>
-      <td style="text-align:center;">${i.code_utilise ? '<i data-lucide="circle-check" class="icon"></i>' : '—'}</td>
+      <td style="text-align:center;">${i.acces_count || 0}/3</td>
       <td style="text-align:center;">${i.presente ? '<span class="badge badge-present">Présent</span>' : '—'}</td>
       <td><code>${i.ip_connexion || '—'}</code></td>
       <td style="font-size:12px;color:var(--text-light);">${i.date_reponse || '—'}</td>

@@ -44,8 +44,8 @@ svg{max-width:100%;}
 .page-wrap.visible{opacity:1;transform:translateY(0);}
 .page-wrap > :not(.page-ornament){position:relative;z-index:1;}
 .page-ornament{position:absolute;pointer-events:none;z-index:0;color:var(--gold);opacity:.9;filter:drop-shadow(0 8px 18px rgba(96,62,9,.16));}
-.ornament-top-left{top:.45rem;left:-3.9rem;width:min(48vw,330px);transform:rotate(-1deg);}
-.ornament-bottom-right{right:-4.7rem;bottom:2.2rem;width:min(50vw,360px);transform:rotate(180deg);}
+.ornament-top-left{top:.45rem;left:-1.4rem;width:min(42vw,270px);transform:rotate(-1deg);}
+.ornament-bottom-right{right:-1.6rem;bottom:2.2rem;width:min(44vw,290px);transform:rotate(180deg);}
 .page-ornament path,.page-ornament circle,.page-ornament ellipse{vector-effect:non-scaling-stroke;}
 .page-ornament .gold-stroke{stroke:url(#ornamentGold);stroke-width:2.2;fill:none;stroke-linecap:round;}
 .page-ornament .gold-soft{stroke:#E8D48A;stroke-width:1.2;fill:none;opacity:.8;stroke-linecap:round;}
@@ -109,6 +109,10 @@ svg{max-width:100%;}
 .rsvp-poem{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-light);margin-bottom:1rem;line-height:1.7;}
 .rsvp-deadline{font-size:12.5px;color:var(--text-light);margin-bottom:1.25rem;}
 .rsvp-deadline strong{color:var(--marsala);}
+.drink-field{max-width:360px;margin:0 auto 1.25rem;text-align:left;}
+.drink-label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;text-align:center;}
+.drink-select{width:100%;border:1px solid var(--beige-dark);background:var(--cream);color:var(--text);padding:12px 14px;font-family:'Jost',sans-serif;font-size:14px;outline:none;border-radius:2px;}
+.drink-select:focus{border-color:var(--marsala-light);background:var(--white);}
 .rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
 .btn-accept{padding:13px 30px;background:var(--marsala);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
 .btn-accept:hover{background:var(--marsala-dark);}
@@ -149,8 +153,8 @@ svg{max-width:100%;}
 @media(max-width:560px){
   .page-wrap{padding:1rem .7rem 2.5rem;}
   .page-ornament{opacity:.42;}
-  .ornament-top-left{top:.2rem;left:-5.2rem;width:260px;}
-  .ornament-bottom-right{right:-5.8rem;bottom:3.1rem;width:280px;}
+  .ornament-top-left{top:.2rem;left:-3.4rem;width:210px;}
+  .ornament-bottom-right{right:-3.6rem;bottom:3.1rem;width:220px;}
   .env-inner{width:100%;padding:1.25rem;}
   .btn-open{width:100%;font-size:11px;line-height:1.5;padding:12px 14px;}
   .floral-corner{opacity:.35;transform-origin:center;}
@@ -523,6 +527,12 @@ svg{max-width:100%;}
         Merci de nous confirmer votre venue."
       </div>
       <div class="rsvp-deadline">Merci de répondre avant le <strong>1er juin 2026</strong></div>
+      <div class="drink-field">
+        <label class="drink-label" for="drink-choice">Boisson souhaitée</label>
+        <select class="drink-select" id="drink-choice" required>
+          <option value="">Choisir une boisson</option>
+        </select>
+      </div>
       <div class="rsvp-btns">
         <button class="btn-accept" id="btn-rsvp-accept"><i data-lucide="check" class="icon"></i> &nbsp;J'accepte avec joie</button>
         <button class="btn-decline" id="btn-rsvp-decline">Je ne pourrai pas venir</button>
@@ -654,10 +664,23 @@ async function chargerInvite(){
     document.getElementById('guest-nom').textContent=d.nom;
     document.getElementById('guest-code').textContent=d.code_secret;
     document.getElementById('guest-table').textContent=d.table_num||'—';
+    chargerBoissons(d.boisson);
     chargerQR(d.code_secret);
     if(d.statut==='accepte'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-accepte').classList.add('show');}
     else if(d.statut==='refuse'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-refuse').classList.add('show');}
   }catch(e){}
+}
+async function chargerBoissons(selected){
+  const select=document.getElementById('drink-choice');
+  try{
+    const res=await fetch('/api/boissons');
+    const d=await res.json();
+    const boissons=Array.isArray(d.boissons)?d.boissons:[];
+    select.innerHTML='<option value="">Choisir une boisson</option>'+boissons.map(b=>'<option value="'+escapeHtml(b)+'">'+escapeHtml(b)+'</option>').join('');
+    if(selected)select.value=selected;
+  }catch(e){
+    select.innerHTML='<option value="">Boissons indisponibles</option>';
+  }
 }
 async function chargerQR(code){
   try{
@@ -673,8 +696,14 @@ async function chargerQR(code){
 /* RSVP */
 async function repondre(statut){
   const err=document.getElementById('rsvp-err');err.className='alert-err';
+  const boisson=document.getElementById('drink-choice').value.trim();
+  if(statut==='accepte'&&!boisson){
+    err.textContent='Veuillez choisir une boisson avant de confirmer votre présence.';
+    err.className='alert-err show';
+    return;
+  }
   try{
-    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({statut})});
+    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({statut,boisson})});
     const text=await res.text();
     let d={};
     try{d=text?JSON.parse(text):{};}catch(e){d={erreur:text};}
@@ -684,6 +713,10 @@ async function repondre(statut){
       if(statut==='accepte')lancerConfettis();
     }else{err.textContent=d.erreur||'Erreur.';err.className='alert-err show';}
   }catch(e){err.textContent='Connexion perdue. Rechargez la page puis réessayez.';err.className='alert-err show';}
+}
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 /* CONFETTIS */
