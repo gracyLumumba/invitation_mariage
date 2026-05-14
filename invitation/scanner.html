@@ -179,6 +179,10 @@
   .qs-label { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
   .qs-num.g { color: #86EFAC; }
   .qs-num.b { color: #93C5FD; }
+  .scan-history { margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .history-title { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .history-item { padding: 0.55rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.75); }
+  .history-item:last-child { border-bottom: none; }
 
   /* Login scanner */
   .scanner-login {
@@ -205,13 +209,14 @@
     border-radius: 2px; outline: none; margin-bottom: 0.75rem;
   }
 </style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
 <!-- LOGIN SCANNER -->
 <div class="scanner-login" id="scanner-login">
   <div class="scanner-login-box">
-    <span style="font-size:28px;display:block;margin-bottom:0.5rem;">📱</span>
+    <span style="font-size:28px;display:block;margin-bottom:0.5rem;"><i data-lucide="smartphone" class="icon"></i></span>
     <h2>Contrôle d'entrée<br>Yannick & Chantia</h2>
     <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:1.25rem;">
       Saisissez le mot de passe admin pour activer le scanner.
@@ -225,8 +230,8 @@
 
 <!-- INTERFACE SCANNER -->
 <div class="scanner-header">
-  <div class="scanner-brand">✦ Yannick & Chantia</div>
-  <div class="scanner-badge">📱 Scanner d'entrée</div>
+  <div class="scanner-brand"><i data-lucide="sparkles" class="icon"></i> Yannick & Chantia</div>
+  <div class="scanner-badge"><i data-lucide="smartphone" class="icon"></i> Scanner d'entrée</div>
 </div>
 
 <div class="scanner-body">
@@ -236,7 +241,7 @@
     <div class="cam-label">Scan caméra</div>
     <div class="cam-frame" id="cam-frame">
       <div class="cam-placeholder" id="cam-placeholder">
-        <span>📷</span>
+        <span><i data-lucide="camera" class="icon"></i></span>
         Appuyez sur "Activer la caméra"<br>pour scanner les QR codes
       </div>
       <video id="preview" style="display:none;" playsinline></video>
@@ -252,7 +257,7 @@
       </div>
       <div class="cam-status" id="cam-status" style="display:none;">Caméra active · Pointez vers le QR code</div>
     </div>
-    <button class="btn-cam" id="btn-cam" onclick="toggleCamera()">📷 &nbsp;Activer la caméra</button>
+    <button class="btn-cam" id="btn-cam" onclick="toggleCamera()"><i data-lucide="camera" class="icon"></i> &nbsp;Activer la caméra</button>
   </div>
 
   <!-- SAISIE MANUELLE -->
@@ -269,25 +274,25 @@
 
   <!-- RÉSULTAT -->
   <div class="result result-success" id="res-success">
-    <div class="result-icon">✅</div>
+    <div class="result-icon"><i data-lucide="circle-check" class="icon"></i></div>
     <div class="result-name" id="res-nom">—</div>
     <div class="result-detail" id="res-detail">—</div>
     <div class="result-table" id="res-table">Table —</div>
-    <button class="btn-reset" onclick="resetScanner()">✦ Invité suivant</button>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Invité suivant</button>
   </div>
 
   <div class="result result-warning" id="res-warning">
-    <div class="result-icon">⚠️</div>
+    <div class="result-icon"><i data-lucide="triangle-alert" class="icon"></i></div>
     <div class="result-name">Déjà enregistré</div>
     <div class="result-detail" id="res-warn-detail">Cet invité a déjà validé son entrée.</div>
-    <button class="btn-reset" onclick="resetScanner()">✦ Invité suivant</button>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Invité suivant</button>
   </div>
 
   <div class="result result-danger" id="res-danger">
-    <div class="result-icon">❌</div>
+    <div class="result-icon"><i data-lucide="circle-x" class="icon"></i></div>
     <div class="result-name" id="res-danger-titre">Accès refusé</div>
     <div class="result-detail" id="res-danger-detail">Code non reconnu ou invitation invalide.</div>
-    <button class="btn-reset" onclick="resetScanner()">✦ Réessayer</button>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Réessayer</button>
   </div>
 
   <!-- STATS RAPIDES -->
@@ -306,17 +311,29 @@
     </div>
   </div>
 
+  <div class="scan-history">
+    <div class="history-title">Dernières entrées</div>
+    <div id="scan-history-list">
+      <div class="history-item">Aucun scan pour le moment.</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- jsQR pour le décodage des QR codes -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', renderIcons);
+function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
+
 let adminToken    = '';
 let cameraActive  = false;
 let cameraStream  = null;
 let scanInterval  = null;
 let lastScanned   = '';
 let lastScannedAt = 0;
+let scanHistory   = [];
 
 // ---- LOGIN SCANNER ----
 async function scannerLogin() {
@@ -363,7 +380,7 @@ async function toggleCamera() {
     document.getElementById('cam-placeholder').style.display = 'none';
     document.getElementById('cam-overlay').style.display     = 'flex';
     document.getElementById('cam-status').style.display      = 'block';
-    document.getElementById('btn-cam').textContent = '⏹ Arrêter la caméra';
+    document.getElementById('btn-cam').innerHTML = '<i data-lucide="square" class="icon"></i> Arrêter la caméra'; renderIcons();
     document.getElementById('btn-cam').classList.add('active');
     cameraActive = true;
 
@@ -386,7 +403,7 @@ function stopCamera() {
   document.getElementById('cam-placeholder').style.display = 'flex';
   document.getElementById('cam-overlay').style.display     = 'none';
   document.getElementById('cam-status').style.display      = 'none';
-  document.getElementById('btn-cam').textContent = '📷  Activer la caméra';
+  document.getElementById('btn-cam').innerHTML = '<i data-lucide="camera" class="icon"></i>  Activer la caméra'; renderIcons();
   document.getElementById('btn-cam').classList.remove('active');
   cameraActive = false;
 }
@@ -452,32 +469,37 @@ async function validerCodeInterne(code) {
     if (data.resultat === 'valide') {
       document.getElementById('res-nom').textContent    = data.invite.nom;
       document.getElementById('res-detail').textContent = `${data.invite.nb_couverts} couvert(s) · Menu : ${data.invite.menu}`;
-      document.getElementById('res-table').textContent  = `🪑 Table ${data.invite.table_num}`;
+      document.getElementById('res-table').innerHTML  = `<i data-lucide="armchair" class="icon"></i> Table ${data.invite.table_num}`; renderIcons();
       document.getElementById('res-success').classList.add('show');
+      addHistory('Validé', `${data.invite.nom} · Table ${data.invite.table_num}`);
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       chargerStats();
 
     } else if (data.resultat === 'deja_entre') {
       document.getElementById('res-warn-detail').textContent = data.message;
       document.getElementById('res-warning').classList.add('show');
+      addHistory('Déjà validé', data.message);
       if (navigator.vibrate) navigator.vibrate([300]);
 
     } else if (data.resultat === 'refuse') {
       document.getElementById('res-danger-titre').textContent  = 'Invitation déclinée';
       document.getElementById('res-danger-detail').textContent = data.message;
       document.getElementById('res-danger').classList.add('show');
+      addHistory('Refusé', data.message);
       if (navigator.vibrate) navigator.vibrate([500]);
 
     } else {
       document.getElementById('res-danger-titre').textContent  = 'Code non reconnu';
       document.getElementById('res-danger-detail').textContent = data.message || 'Ce code n\'existe pas dans la liste des invités.';
       document.getElementById('res-danger').classList.add('show');
+      addHistory('Inconnu', code);
       if (navigator.vibrate) navigator.vibrate([500]);
     }
   } catch(e) {
     document.getElementById('res-danger-titre').textContent  = 'Erreur réseau';
     document.getElementById('res-danger-detail').textContent = 'Vérifiez la connexion internet.';
     document.getElementById('res-danger').classList.add('show');
+    addHistory('Erreur', code);
   }
 
   document.getElementById('manual-code').value = '';
@@ -488,6 +510,14 @@ function resetScanner() {
     document.getElementById(id).classList.remove('show');
   });
   document.getElementById('manual-code').focus();
+}
+
+function addHistory(status, detail) {
+  scanHistory.unshift({ status, detail, time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) });
+  scanHistory = scanHistory.slice(0, 8);
+  document.getElementById('scan-history-list').innerHTML = scanHistory.map(item => `
+    <div class="history-item"><strong>${item.time} · ${item.status}</strong><br>${item.detail}</div>
+  `).join('');
 }
 
 // ---- STATS ----

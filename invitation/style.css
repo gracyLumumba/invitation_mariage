@@ -46,10 +46,27 @@ body {
 .ornament {
   color: var(--gold);
   font-size: 18px;
-  letter-spacing: 0.4em;
-  display: block;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
   text-align: center;
   margin-bottom: 0.5rem;
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  stroke-width: 1.8;
+  vertical-align: -0.16em;
+}
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .divider-gold {
   width: 60px;

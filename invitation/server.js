@@ -1,0 +1,561 @@
+// server.js — Serveur principal Express
+// Démarrer avec : node server.js  (ou  npm run dev  avec nodemon)
+
+require('dotenv').config();
+
+const express      = require('express');
+const session      = require('express-session');
+const helmet       = require('helmet');
+const rateLimit    = require('express-rate-limit');
+const path         = require('path');
+const fs           = require('fs');
+const https        = require('https');
+const os           = require('os');
+const crypto       = require('crypto');
+const { spawnSync } = require('child_process');
+const selfsigned   = require('selfsigned');
+const QRCode       = require('qrcode');
+const csurf        = require('csurf');
+const mongoSanitize = require('express-mongo-sanitize');
+const { body, validationResult } = require('express-validator');
+
+const db = require('./db');
+const wa = require('./whatsapp');
+
+const app  = express();
+const PORT = process.env.PORT || 3000;
+const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les interfaces
+const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
+const USE_HTTPS = process.env.HTTPS !== 'false';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
+const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
+const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
+const QR_DIR = path.join(__dirname, 'qrcodes');
+const CERT_DIR = path.join(__dirname, 'certs');
+const CERT_KEY = path.join(CERT_DIR, 'localhost-key.pem');
+const CERT_CRT = path.join(CERT_DIR, 'localhost.pem');
+
+function getLocalIp() {
+  const ifaces = os.networkInterfaces();
+  for (const name of Object.keys(ifaces)) {
+    for (const iface of ifaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal && iface.address.startsWith('192.')) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+// ============================================
+// MIDDLEWARES
+// ============================================
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"]
+    }
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  noSniff: true,
+  xssFilter: true
+}));
+app.use(mongoSanitize());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/css', express.static(__dirname));
+app.use(express.static(__dirname));
+
+// Sessions
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'mariage2026secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }
+}));
+
+// CSRF Protection
+const csrfProtection = csurf({ cookie: false });
+
+// Rate limiting
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Réduit de 20 à 5
+  message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' },
+  standardHeaders: false,
+  skip: (req) => req.session?.admin // Admin ne sont pas limités
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30,
+  standardHeaders: false
+});
+
+// Servir les QR codes
+app.use('/qrcodes', (req, res, next) => {
+  next();
+}, express.static(path.join(__dirname, 'qrcodes')));
+
+
+// ============================================
+// UTILITAIRES
+// ============================================
+
+function getIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'inconnue';
+}
+
+function normaliserNom(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' et ')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function requireInvite(req, res, next) {
+  if (!req.session.invite) return res.redirect('/');
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.session.admin) {
+    return res.status(401).json({ erreur: 'Non autorisé' });
+  }
+  next();
+}
+
+function validateInput(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ erreur: 'Données invalides', details: errors.array() });
+  }
+  next();
+}
+
+function qrUrl(invite) {
+  const params = new URLSearchParams({
+    code: invite.code_secret,
+    nom: invite.nom,
+    table: String(invite.table_num || ''),
+  });
+  return `${SITE_URL}/valider-entree?${params.toString()}`;
+}
+
+async function ensureQrCode(invite) {
+  fs.mkdirSync(QR_DIR, { recursive: true });
+  const filePath = path.join(QR_DIR, `${invite.code_secret}.png`);
+  await QRCode.toFile(filePath, qrUrl(invite), {
+    width: 300,
+    margin: 2,
+    color: { dark: '#2C1F1F', light: '#FAF7F2' },
+    errorCorrectionLevel: 'H'
+  });
+  return filePath;
+}
+
+function nextInviteCode() {
+  for (let i = 1; i < 10000; i += 1) {
+    const code = `YC${String(i).padStart(2, '0')}`;
+    if (!db.codeExists(code)) return code;
+  }
+  throw new Error('Impossible de générer un code disponible.');
+}
+
+function getHttpsCredentials() {
+  fs.mkdirSync(CERT_DIR, { recursive: true });
+
+  if (fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT)) {
+    console.log('[HTTPS] Certificats locaux existants trouvés.');
+    return {
+      key: fs.readFileSync(CERT_KEY),
+      cert: fs.readFileSync(CERT_CRT)
+    };
+  }
+
+  const mkcertCheck = spawnSync('mkcert', ['-version'], { encoding: 'utf8' });
+  if (!mkcertCheck.error && mkcertCheck.status === 0) {
+    console.log('[HTTPS] mkcert trouvé, génération de certificat local approuvé…');
+    const install = spawnSync('mkcert', ['-install'], { encoding: 'utf8' });
+    if (install.error || install.status !== 0) {
+      console.warn('[HTTPS] mkcert -install a échoué :', install.stderr || install.stdout || install.error?.message);
+    }
+    const mkcertCreate = spawnSync('mkcert', ['-key-file', CERT_KEY, '-cert-file', CERT_CRT, HOST, '127.0.0.1', '::1'], { encoding: 'utf8' });
+    if (!mkcertCreate.error && mkcertCreate.status === 0) {
+      console.log('[HTTPS] Certificat mkcert créé avec succès.');
+      return {
+        key: fs.readFileSync(CERT_KEY),
+        cert: fs.readFileSync(CERT_CRT)
+      };
+    }
+    console.warn('[HTTPS] Génération mkcert échouée, fallback vers certificat auto-signé.');
+  } else {
+    console.log('[HTTPS] mkcert non trouvé, création d’un certificat auto-signé.');
+  }
+
+  const attrs = [{ name: 'commonName', value: HOST }];
+  const pems = selfsigned.generate(attrs, {
+    days: 365,
+    keySize: 2048,
+    algorithm: 'sha256',
+    extensions: [
+      {
+        name: 'subjectAltName',
+        altNames: [
+          { type: 2, value: HOST },
+          { type: 7, ip: '127.0.0.1' },
+          { type: 7, ip: '::1' }
+        ]
+      }
+    ]
+  });
+
+  fs.writeFileSync(CERT_KEY, pems.private, 'utf8');
+  fs.writeFileSync(CERT_CRT, pems.cert, 'utf8');
+
+  return {
+    key: fs.readFileSync(CERT_KEY),
+    cert: fs.readFileSync(CERT_CRT)
+  };
+}
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3, // Strictement limité
+  skipSuccessfulRequests: true,
+  message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' }
+});
+
+function timingSafeCompare(a, b) {
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
+// ============================================
+// PAGES HTML
+// ============================================
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
+
+// ============================================
+// API INVITÉS
+// ============================================
+
+// POST /api/connexion — Vérification nom + code secret
+app.post('/api/connexion', loginLimiter,
+  body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
+  body('code_secret').trim().isLength({ min: 4, max: 10 }).toUpperCase().withMessage('Code invalide'),
+  validateInput,
+  (req, res) => {
+    const { nom, code_secret } = req.body;
+    const ip = getIp(req);
+
+    const invite = db.findInvite(code_secret);
+
+    if (!invite) {
+      db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Code inconnu');
+      return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
+    }
+
+    if (normaliserNom(invite.nom) !== normaliserNom(nom)) {
+      db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Nom incorrect pour ce code');
+      return res.status(401).json({ erreur: 'Nom ou code incorrect.' });
+    }
+
+    if (invite.code_utilise) {
+      db.logSecurite('fraude', code_secret, nom, ip, 'Code déjà utilisé');
+      wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
+      return res.status(403).json({ erreur: 'Nom ou code incorrect.' });
+    }
+
+    // Marquer le code comme utilisé
+    db.marquerCodeUtilise(invite.code_secret, ip);
+    db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
+    ensureQrCode(invite).catch(err => console.error('[QR] Erreur génération:', err.message));
+
+    // Sauvegarder la session
+    req.session.invite = {
+      code_secret: invite.code_secret,
+      nom:         invite.nom,
+      table_num:   invite.table_num,
+      nb_couverts: invite.nb_couverts,
+      menu:        invite.menu,
+      statut:      invite.statut
+    };
+
+    res.json({ ok: true, redirect: '/invitation' });
+  }
+);
+
+// GET /api/moi — Données de l'invité connecté
+app.get('/api/moi', requireInvite, (req, res) => {
+  // Recharger depuis la BDD pour avoir le statut à jour
+  const invite = db.findInvite(req.session.invite.code_secret);
+  res.json(invite);
+});
+
+// POST /api/repondre — Accepter ou refuser
+app.post('/api/repondre', requireInvite, apiLimiter,
+  body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
+  validateInput,
+  async (req, res) => {
+  const { statut } = req.body;
+  if (!['accepte', 'refuse'].includes(statut)) {
+    return res.status(400).json({ erreur: 'Statut invalide.' });
+  }
+
+  const invite = db.findInvite(req.session.invite.code_secret);
+
+  if (invite.statut !== 'en_attente') {
+    return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
+  }
+
+  db.enregistrerReponse(invite.code_secret, statut);
+
+  // Notification WhatsApp
+  const msg = statut === 'accepte' ? wa.msgAcceptation(invite) : wa.msgRefus(invite);
+  const notif = await wa.envoyerNotification(msg);
+  if (!notif.ok) console.error('[WhatsApp] Notification non envoyée:', notif.raison);
+
+  res.json({ ok: true, statut });
+});
+
+// GET /api/qrcode/:code — Génère le QR code à la volée (image PNG base64)
+app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
+  const invite = req.session.invite;
+  if (invite.code_secret !== req.params.code.toUpperCase()) {
+    return res.status(403).json({ erreur: 'Accès interdit.' });
+  }
+
+  const fullInvite = db.findInvite(invite.code_secret);
+  const url = qrUrl(fullInvite);
+
+  try {
+    const filePath = await ensureQrCode(fullInvite);
+    const qrDataUrl = `data:image/png;base64,${fs.readFileSync(filePath).toString('base64')}`;
+    res.json({ ok: true, qr: qrDataUrl, url, file: `/qrcodes/${fullInvite.code_secret}.png` });
+  } catch (err) {
+    res.status(500).json({ erreur: 'Erreur génération QR.' });
+  }
+});
+
+// GET /api/deconnexion
+app.get('/api/deconnexion', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/');
+  });
+});
+
+// ============================================
+// API SCANNER (accueil le jour J)
+// ============================================
+
+// GET /valider-entree?code=YC01&table=5
+// Appelé par le scan du QR code
+app.get('/valider-entree', (req, res) => {
+  res.redirect(`/scanner?code=${req.query.code || ''}`);
+});
+
+// POST /api/scanner/valider — Validation réelle
+app.post('/api/scanner/valider', (req, res) => {
+  const { code_secret, admin_token } = req.body;
+
+  // Vérification accès scanner (token admin ou session admin)
+  if (!req.session.admin && admin_token !== SCANNER_TOKEN) {
+    return res.status(401).json({ erreur: 'Accès non autorisé au scanner.' });
+  }
+
+  if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
+
+  const invite = db.findInvite(code_secret.trim().toUpperCase());
+
+  if (!invite) {
+    return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
+  }
+
+  if (invite.presente) {
+    return res.json({
+      resultat: 'deja_entre',
+      message: `${invite.nom} est déjà enregistré(e).`,
+      invite: { nom: invite.nom, table_num: invite.table_num, menu: invite.menu }
+    });
+  }
+
+  if (invite.statut === 'refuse') {
+    return res.json({
+      resultat: 'refuse',
+      message: `${invite.nom} a décliné l'invitation.`
+    });
+  }
+
+  // Valider la présence
+  db.validerPresence(invite.code_secret);
+  wa.envoyerNotification(wa.msgEntreeValidee(invite));
+
+  res.json({
+    resultat: 'valide',
+    message: `Bienvenue, ${invite.nom} !`,
+    invite: {
+      nom:         invite.nom,
+      table_num:   invite.table_num,
+      nb_couverts: invite.nb_couverts,
+      menu:        invite.menu,
+      code_secret: invite.code_secret
+    }
+  });
+});
+
+// ============================================
+// API ADMIN
+// ============================================
+
+app.post('/api/admin/login', adminLimiter,
+  body('password').isLength({ min: 1 }).withMessage('Mot de passe requis'),
+  validateInput,
+  (req, res) => {
+    const { password } = req.body;
+    try {
+      if (!timingSafeCompare(password, ADMIN_PASSWORD)) {
+        return res.status(401).json({ erreur: 'Mot de passe incorrect.' });
+      }
+    } catch (err) {
+      return res.status(401).json({ erreur: 'Mot de passe incorrect.' });
+    }
+    req.session.admin = true;
+    res.json({ ok: true });
+  }
+);
+
+app.get('/api/admin/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/admin');
+  });
+});
+
+app.get('/api/admin/stats', requireAdmin, (req, res) => {
+  res.json(db.getStats());
+});
+
+app.get('/api/admin/invites', requireAdmin, (req, res) => {
+  res.json(db.getAllInvites());
+});
+
+app.post('/api/admin/invites', requireAdmin, apiLimiter,
+  body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
+  body('code_secret').optional().trim().isLength({ min: 4, max: 10 }).withMessage('Code invalide'),
+  body('table_num').optional().isInt({ min: 0 }).withMessage('Numéro table invalide'),
+  body('nb_couverts').optional().isInt({ min: 1, max: 10 }).withMessage('Couverts invalides'),
+  body('menu').optional().isIn(['standard', 'vegetarien', 'vegan']).withMessage('Menu invalide'),
+  validateInput,
+  (req, res) => {
+  const nom = String(req.body.nom || '').trim();
+  const code_secret = String(req.body.code_secret || nextInviteCode()).trim().toUpperCase();
+  const table_num = Number(req.body.table_num || 0);
+  const nb_couverts = Number(req.body.nb_couverts || 1);
+  const menu = String(req.body.menu || 'standard').trim();
+
+  if (!nom) return res.status(400).json({ erreur: 'Nom requis.' });
+  if (db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+
+  const result = db.createInvite({ nom, code_secret, table_num, nb_couverts, menu });
+  res.json({ ok: true, id: result.lastInsertRowid, code_secret });
+});
+
+app.put('/api/admin/invites/:id', requireAdmin, (req, res) => {
+  const current = db.findInviteById(req.params.id);
+  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  db.updateInvite(req.params.id, {
+    nom: String(req.body.nom || current.nom).trim(),
+    table_num: Number(req.body.table_num ?? current.table_num),
+    nb_couverts: Number(req.body.nb_couverts ?? current.nb_couverts),
+    menu: String(req.body.menu || current.menu).trim(),
+    statut: String(req.body.statut || current.statut),
+  });
+  res.json({ ok: true });
+});
+
+app.delete('/api/admin/invites/:id', requireAdmin, (req, res) => {
+  const current = db.findInviteById(req.params.id);
+  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  db.deleteInvite(req.params.id);
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/invites/:id/reset-code', requireAdmin, (req, res) => {
+  const current = db.findInviteById(req.params.id);
+  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  const newCode = String(req.body.code_secret || nextInviteCode()).trim().toUpperCase();
+  if (db.codeExists(newCode)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+  db.resetInviteCode(req.params.id, newCode);
+  res.json({ ok: true, code_secret: newCode });
+});
+
+app.get('/api/admin/logs', requireAdmin, (req, res) => {
+  res.json(db.getLogsSecurite());
+});
+
+// Export CSV
+app.get('/api/admin/export-csv', requireAdmin, (req, res) => {
+  const invites = db.getAllInvites();
+  const header = ['ID','Nom','Code','Table','Couverts','Menu','Statut','Code utilisé','Présent','IP','Date réponse','Date présence'];
+  const rows = invites.map(i => [
+    i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu,
+    i.statut, i.code_utilise ? 'oui' : 'non', i.presente ? 'oui' : 'non',
+    i.ip_connexion || '', i.date_reponse || '', i.date_presence || ''
+  ]);
+  const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="invites_mariage.csv"');
+  res.send('\uFEFF' + csv); // BOM UTF-8 pour Excel
+});
+
+// Token scanner (pour sécuriser le scanner sans session)
+app.get('/api/admin/scanner-token', requireAdmin, (req, res) => {
+  res.json({ token: SCANNER_TOKEN });
+});
+
+// ============================================
+// DÉMARRAGE
+// ============================================
+
+if (USE_HTTPS) {
+  const credentials = getHttpsCredentials();
+  const localIp = getLocalIp();
+  https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
+    console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré en HTTPS !');
+    console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
+    console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
+    console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
+    console.log(`[ADMIN] Admin réseau : https://${localIp}:${PORT}/admin`);
+    console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
+    console.log(`\n📱 À envoyer aux invités : https://${localIp}:${PORT}`);
+    console.log('\n[ATTENTION]  Pensez à lancer : node init.js (première fois)');
+  });
+} else {
+  const localIp = getLocalIp();
+  app.listen(PORT, BIND_HOST, () => {
+    console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré !');
+    console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
+    console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
+    console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
+    console.log(`[ADMIN] Admin réseau : http://${localIp}:${PORT}/admin`);
+    console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
+    console.log(`\n📱 À envoyer aux invités : http://${localIp}:${PORT}`);
+    console.log('\n[ATTENTION]  Pensez à lancer : node init.js (première fois)');
+  });
+}

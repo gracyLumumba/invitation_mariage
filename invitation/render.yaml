@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: invitation-mariage
+    runtime: node
+    startCommand: npm start
+    buildCommand: npm install && npm run build
+    envVars:
+      - key: HTTPS
+        value: "false"
+      - key: PORT
+        value: "3000"
+      - key: BIND_HOST
+        value: "0.0.0.0"
+      - key: DISPLAY_HOST
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SCANNER_TOKEN
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: SITE_URL
+        sync: false

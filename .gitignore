@@ -1,0 +1,5 @@
+invitation/.env
+invitation/node_modules/
+invitation/mariage.db
+invitation/mariage.db-*
+invitation/qrcodes/

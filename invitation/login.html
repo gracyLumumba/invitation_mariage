@@ -50,21 +50,29 @@
   .form-inner { text-align: left; }
   .loading { display: none; text-align: center; margin-top: 0.75rem; }
 </style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 <div class="login-wrap">
   <div class="card-framed login-card">
-    <span class="ornament">✦ ✦ ✦</span>
+    <span class="ornament"><i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i></span>
     <div class="login-subtitle">Invitation au mariage de</div>
     <div class="login-title">Yannick<br><span class="login-amp">&amp;</span> Chantia</div>
-    <div class="login-date">Samedi 14 juin 2026</div>
+    <div class="login-date">Vendredi 3 juillet 2026</div>
     <div class="divider-gold"></div>
     <p class="login-note">
       Cette invitation est strictement personnelle.<br>
-      Veuillez saisir votre code secret pour accéder à votre invitation.
+      Veuillez saisir votre nom et votre code secret pour accéder à votre invitation.
     </p>
 
     <div class="form-inner">
+      <div class="form-group">
+        <label class="form-label" for="nom">Votre nom</label>
+        <input class="form-input" id="nom" type="text"
+               placeholder="ex: Robert Dupont"
+               autocomplete="name"
+               onkeydown="if(event.key==='Enter') seConnecter()" />
+      </div>
       <div class="form-group">
         <label class="form-label" for="code">Votre code secret</label>
         <input class="form-input" id="code" type="text"
@@ -83,19 +91,23 @@
   </div>
 
   <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:1rem;letter-spacing:0.05em;">
-    Votre code vous a été communiqué par les mariés.<br>
+    Votre nom et votre code vous ont été communiqués par les mariés.<br>
     En cas de problème, contactez Yannick ou Chantia.
   </p>
 </div>
 
 <script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', renderIcons);
 async function seConnecter() {
+  const nom = document.getElementById('nom').value.trim();
   const code = document.getElementById('code').value.trim().toUpperCase();
   const errEl = document.getElementById('err-msg');
   const btn   = document.getElementById('btn-login');
   const load  = document.getElementById('loading');
 
   errEl.className = 'alert';
+  if (!nom) { afficherErreur('Veuillez saisir votre nom.'); return; }
   if (!code) { afficherErreur('Veuillez saisir votre code secret.'); return; }
 
   btn.disabled = true;
@@ -105,14 +117,14 @@ async function seConnecter() {
     const res = await fetch('/api/connexion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code_secret: code })
+      body: JSON.stringify({ nom, code_secret: code })
     });
     const data = await res.json();
 
     if (data.ok) {
       window.location.href = '/invitation';
     } else {
-      afficherErreur(data.erreur || 'Code incorrect. Vérifiez et réessayez.');
+      afficherErreur(data.erreur || 'Nom ou code incorrect. Vérifiez et réessayez.');
     }
   } catch(e) {
     afficherErreur('Erreur de connexion. Vérifiez votre connexion internet.');

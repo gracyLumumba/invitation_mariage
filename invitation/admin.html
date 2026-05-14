@@ -90,6 +90,13 @@
   .table-filter { padding: 7px 10px; border: 1px solid var(--beige-dark); background: var(--cream); font-family:'Jost',sans-serif; font-size:13px; color:var(--text); border-radius:2px; outline:none; }
   .btn-csv { padding: 7px 14px; background: transparent; color: var(--marsala); border: 1px solid var(--marsala-light); font-family:'Jost',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-radius:2px; margin-left:auto; }
   .btn-csv:hover { background: var(--beige); }
+  .btn-small { padding: 5px 8px; border: 1px solid var(--beige-dark); background: var(--cream); color: var(--text); cursor: pointer; border-radius: 2px; font-size: 11px; }
+  .btn-small:hover { background: var(--beige); }
+  .btn-danger { color: var(--danger); border-color: var(--danger-border); }
+  .mini-input, .mini-select { width: 100%; min-width: 74px; padding: 5px 6px; border: 1px solid var(--beige-dark); background: var(--white); font-family:'Jost',sans-serif; font-size:12px; border-radius:2px; }
+  .mini-name { min-width: 160px; }
+  .add-form { display:grid; grid-template-columns: minmax(180px,1.5fr) 90px 80px 90px 130px auto; gap: .5rem; padding: .75rem 1rem; border-bottom: 1px solid var(--beige-dark); background: var(--cream); }
+  .row-actions { display:flex; gap:4px; align-items:center; }
   .table-wrap { overflow-x: auto; }
   table { width:100%; border-collapse:collapse; min-width:700px; }
   thead th { padding:9px 12px; text-align:left; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-light); font-weight:500; border-bottom:1px solid var(--beige-dark); background:var(--beige); white-space:nowrap; }
@@ -123,13 +130,14 @@
     .nav-item { justify-content: center; padding: 12px; }
   }
 </style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-box">
-    <span class="ornament" style="font-size:16px;">✦</span>
+    <span class="ornament" style="font-size:16px;"><i data-lucide="sparkles" class="icon"></i></span>
     <h2>Administration</h2>
     <div class="form-group" style="text-align:left;">
       <label class="form-label">Mot de passe</label>
@@ -145,18 +153,18 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      ✦<br>Y &amp; C<br>
+      <i data-lucide="sparkles" class="icon"></i><br>Y &amp; C<br>
       <span style="font-size:11px;font-weight:300;color:rgba(255,255,255,0.5);">Administration</span>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="showSection('dashboard')">
-        <span class="nav-icon">📊</span><span>Tableau de bord</span>
+        <span class="nav-icon"><i data-lucide="layout-dashboard" class="icon"></i></span><span>Tableau de bord</span>
       </div>
       <div class="nav-item" onclick="showSection('invites')">
-        <span class="nav-icon">👥</span><span>Invités</span>
+        <span class="nav-icon"><i data-lucide="users" class="icon"></i></span><span>Invités</span>
       </div>
       <div class="nav-item" onclick="showSection('logs')">
-        <span class="nav-icon">🔒</span><span>Sécurité</span>
+        <span class="nav-icon"><i data-lucide="shield-check" class="icon"></i></span><span>Sécurité</span>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -168,7 +176,7 @@
   <div class="main">
     <div class="main-header">
       <div class="main-title" id="section-title">Tableau de bord</div>
-      <div style="font-size:12px;color:var(--text-light);">Mariage · 14 juin 2026</div>
+      <div style="font-size:12px;color:var(--text-light);">Mariage · 3 juillet 2026</div>
     </div>
     <div class="main-body">
 
@@ -181,6 +189,7 @@
           <div class="stat-card o"><span class="stat-num" id="s-attente">—</span><span class="stat-label">En attente</span></div>
           <div class="stat-card b"><span class="stat-num" id="s-presents">—</span><span class="stat-label">Présents J</span></div>
           <div class="stat-card"><span class="stat-num" id="s-couverts">—</span><span class="stat-label">Couverts</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-taux">—</span><span class="stat-label">Taux réponse</span></div>
         </div>
         <div class="card" style="margin-bottom:1rem;">
           <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:1rem;color:var(--marsala);">Réponses en temps réel</h3>
@@ -191,6 +200,14 @@
       <!-- INVITÉS -->
       <div class="section" id="section-invites">
         <div class="table-card">
+          <div class="add-form">
+            <input class="mini-input mini-name" id="new-nom" placeholder="Nom invité ou couple" />
+            <input class="mini-input" id="new-code" placeholder="Code auto" />
+            <input class="mini-input" id="new-table" type="number" min="0" placeholder="Table" />
+            <input class="mini-input" id="new-couverts" type="number" min="1" value="1" />
+            <input class="mini-input" id="new-menu" placeholder="Menu" value="standard" />
+            <button class="btn-small" onclick="ajouterInvite()">Ajouter</button>
+          </div>
           <div class="table-toolbar">
             <input class="table-search" type="text" placeholder="Rechercher…" oninput="filtrerTable(this.value)" />
             <select class="table-filter" onchange="filtrerStatut(this.value)">
@@ -199,15 +216,18 @@
               <option value="accepte">Acceptés</option>
               <option value="refuse">Refusés</option>
             </select>
-            <button class="btn-csv" onclick="exportCSV()">⬇ Export CSV</button>
+            <select class="table-filter" id="table-filter" onchange="filtrerTableNum(this.value)">
+              <option value="">Toutes les tables</option>
+            </select>
+            <button class="btn-csv" onclick="exportCSV()"><i data-lucide="download" class="icon"></i> Export CSV</button>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Nom</th><th>Code</th><th>Table</th><th>Couverts</th>
+                  <th>ID</th><th>Nom</th><th>Code</th><th>Table</th><th>Couverts</th>
                   <th>Menu</th><th>Statut</th><th>Code utilisé</th>
-                  <th>Présent J</th><th>Date réponse</th>
+                  <th>Présent J</th><th>IP</th><th>Date réponse</th><th>Date présence</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="invites-tbody"></tbody>
@@ -231,9 +251,14 @@
 </div>
 
 <script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', renderIcons);
 let allInvites = [];
 let filtreTexte = '';
 let filtreStatut = '';
+let filtreTableNum = '';
+
+function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
 
 const titles = { dashboard: 'Tableau de bord', invites: 'Liste des invités', logs: 'Journaux de sécurité' };
 
@@ -243,6 +268,7 @@ function showSection(name) {
   document.getElementById('section-' + name).classList.add('active');
   document.querySelectorAll('.nav-item')[['dashboard','invites','logs'].indexOf(name)].classList.add('active');
   document.getElementById('section-title').textContent = titles[name];
+  renderIcons();
   if (name === 'invites') chargerInvites();
   if (name === 'logs')    chargerLogs();
 }
@@ -279,6 +305,7 @@ async function chargerStats() {
     document.getElementById('s-attente').textContent  = s.en_attente;
     document.getElementById('s-presents').textContent = s.presents;
     document.getElementById('s-couverts').textContent = s.couverts;
+    document.getElementById('s-taux').textContent = `${s.taux_reponse || 0}%`;
 
     // Quick list
     const res2 = await fetch('/api/admin/invites');
@@ -287,7 +314,7 @@ async function chargerStats() {
     const recent = inv.filter(i => i.statut !== 'en_attente').slice(0, 8);
     document.getElementById('quick-list').innerHTML = recent.length ? recent.map(i => `
       <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--beige);">
-        <span class="badge ${i.statut === 'accepte' ? 'badge-accept' : 'badge-decline'}">${i.statut === 'accepte' ? '✓ Accepté' : '✗ Refusé'}</span>
+        <span class="badge ${i.statut === 'accepte' ? 'badge-accept' : 'badge-decline'}">${i.statut === 'accepte' ? '<i data-lucide="check" class="icon"></i> Accepté' : '<i data-lucide="x" class="icon"></i> Refusé'}</span>
         <strong style="font-size:13px;">${i.nom}</strong>
         <span class="badge-code">${i.code_secret}</span>
         <span style="font-size:12px;color:var(--text-light);margin-left:auto;">${i.date_reponse || ''}</span>
@@ -298,7 +325,16 @@ async function chargerStats() {
 async function chargerInvites() {
   const res = await fetch('/api/admin/invites');
   allInvites = await res.json();
+  renderTableFilter();
   renderTable();
+}
+
+function renderTableFilter() {
+  const select = document.getElementById('table-filter');
+  const current = select.value;
+  const tables = [...new Set(allInvites.map(i => i.table_num).filter(Boolean))].sort((a, b) => a - b);
+  select.innerHTML = '<option value="">Toutes les tables</option>' + tables.map(t => `<option value="${t}">Table ${t}</option>`).join('');
+  select.value = current;
 }
 
 function renderTable() {
@@ -306,30 +342,97 @@ function renderTable() {
     const q = filtreTexte.toLowerCase();
     const matchText  = !q || i.nom.toLowerCase().includes(q) || i.code_secret.toLowerCase().includes(q);
     const matchStatut = !filtreStatut || i.statut === filtreStatut;
-    return matchText && matchStatut;
+    const matchTable = !filtreTableNum || String(i.table_num) === filtreTableNum;
+    return matchText && matchStatut && matchTable;
   });
   document.getElementById('invites-tbody').innerHTML = data.map(i => `
-    <tr>
-      <td><strong>${i.nom}</strong></td>
+    <tr data-id="${i.id}">
+      <td>${i.id}</td>
+      <td><input class="mini-input mini-name" value="${escapeAttr(i.nom)}" data-field="nom" /></td>
       <td><span class="badge-code">${i.code_secret}</span></td>
-      <td style="text-align:center;">${i.table_num || '—'}</td>
-      <td style="text-align:center;">${i.nb_couverts}</td>
-      <td>${i.menu}</td>
-      <td>${getBadge(i.statut)}</td>
-      <td style="text-align:center;">${i.code_utilise ? '✅' : '—'}</td>
+      <td><input class="mini-input" type="number" value="${i.table_num || 0}" data-field="table_num" /></td>
+      <td><input class="mini-input" type="number" min="1" value="${i.nb_couverts}" data-field="nb_couverts" /></td>
+      <td><input class="mini-input" value="${escapeAttr(i.menu)}" data-field="menu" /></td>
+      <td>
+        <select class="mini-select" data-field="statut">
+          <option value="en_attente" ${i.statut === 'en_attente' ? 'selected' : ''}>En attente</option>
+          <option value="accepte" ${i.statut === 'accepte' ? 'selected' : ''}>Accepté</option>
+          <option value="refuse" ${i.statut === 'refuse' ? 'selected' : ''}>Refusé</option>
+        </select>
+      </td>
+      <td style="text-align:center;">${i.code_utilise ? '<i data-lucide="circle-check" class="icon"></i>' : '—'}</td>
       <td style="text-align:center;">${i.presente ? '<span class="badge badge-present">Présent</span>' : '—'}</td>
+      <td><code>${i.ip_connexion || '—'}</code></td>
       <td style="font-size:12px;color:var(--text-light);">${i.date_reponse || '—'}</td>
+      <td style="font-size:12px;color:var(--text-light);">${i.date_presence || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-small" onclick="sauverInvite(${i.id})">OK</button>
+          <button class="btn-small" onclick="resetCode(${i.id})">Code</button>
+          <button class="btn-small btn-danger" onclick="supprimerInvite(${i.id})">Suppr.</button>
+        </div>
+      </td>
     </tr>`).join('');
+  renderIcons();
 }
 
 function getBadge(s) {
-  if (s === 'accepte') return '<span class="badge badge-accept">✓ Accepté</span>';
-  if (s === 'refuse')  return '<span class="badge badge-decline">✗ Refusé</span>';
-  return '<span class="badge badge-wait">⏳ En attente</span>';
+  if (s === 'accepte') return '<span class="badge badge-accept"><i data-lucide="check" class="icon"></i> Accepté</span>';
+  if (s === 'refuse')  return '<span class="badge badge-decline"><i data-lucide="x" class="icon"></i> Refusé</span>';
+  return '<span class="badge badge-wait"><i data-lucide="clock-3" class="icon"></i> En attente</span>';
 }
 
 function filtrerTable(q)  { filtreTexte  = q; renderTable(); }
 function filtrerStatut(s) { filtreStatut = s; renderTable(); }
+function filtrerTableNum(t) { filtreTableNum = t; renderTable(); }
+
+function escapeAttr(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+async function ajouterInvite() {
+  const payload = {
+    nom: document.getElementById('new-nom').value,
+    code_secret: document.getElementById('new-code').value,
+    table_num: document.getElementById('new-table').value,
+    nb_couverts: document.getElementById('new-couverts').value,
+    menu: document.getElementById('new-menu').value,
+  };
+  const res = await fetch('/api/admin/invites', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const data = await res.json();
+  if (!res.ok) { alert(data.erreur || 'Ajout impossible.'); return; }
+  document.getElementById('new-nom').value = '';
+  document.getElementById('new-code').value = '';
+  chargerInvites();
+  chargerStats();
+}
+
+async function sauverInvite(id) {
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  const payload = {};
+  row.querySelectorAll('[data-field]').forEach(el => payload[el.dataset.field] = el.value);
+  const res = await fetch(`/api/admin/invites/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  if (!res.ok) { alert('Modification impossible.'); return; }
+  chargerInvites();
+  chargerStats();
+}
+
+async function resetCode(id) {
+  if (!confirm('Générer un nouveau code pour cet invité ?')) return;
+  const res = await fetch(`/api/admin/invites/${id}/reset-code`, { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+  const data = await res.json();
+  if (!res.ok) { alert(data.erreur || 'Reset impossible.'); return; }
+  alert(`Nouveau code : ${data.code_secret}`);
+  chargerInvites();
+}
+
+async function supprimerInvite(id) {
+  if (!confirm('Supprimer cet invité ?')) return;
+  const res = await fetch(`/api/admin/invites/${id}`, { method:'DELETE' });
+  if (!res.ok) { alert('Suppression impossible.'); return; }
+  chargerInvites();
+  chargerStats();
+}
 
 function exportCSV() {
   window.location.href = '/api/admin/export-csv';
@@ -338,16 +441,18 @@ function exportCSV() {
 async function chargerLogs() {
   const res  = await fetch('/api/admin/logs');
   const logs = await res.json();
-  const icons = { fraude: '🚨', tentative_invalide: '⚠️', connexion: '✅' };
+  const icons = { fraude: '<i data-lucide="siren" class="icon"></i>', tentative_invalide: '<i data-lucide="triangle-alert" class="icon"></i>', connexion: '<i data-lucide="circle-check" class="icon"></i>' };
   document.getElementById('logs-list').innerHTML = logs.length
     ? logs.map(l => `
       <div class="log-item ${l.type === 'fraude' ? 'log-fraude' : ''}">
         <strong>${icons[l.type] || '•'} ${l.message || l.type}</strong>
+        ${l.nom_tente ? `· Nom : <code>${l.nom_tente}</code>` : ''}
         ${l.code_tente ? `· Code : <code>${l.code_tente}</code>` : ''}
         ${l.ip ? `· IP : <code>${l.ip}</code>` : ''}
         <div class="log-time">${l.created_at}</div>
       </div>`).join('')
     : '<div class="log-item" style="color:var(--text-light);">Aucun événement enregistré.</div>';
+  renderIcons();
 }
 
 // Auto-refresh stats toutes les 30s
