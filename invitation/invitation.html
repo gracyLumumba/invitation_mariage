@@ -532,13 +532,13 @@ svg{max-width:100%;}
       <div class="rsvp-deadline">Merci de répondre avant le <strong>1er juin 2026</strong></div>
       <div class="drink-field">
         <label class="drink-label" for="drink-choice">Boisson souhaitée</label>
-        <select class="drink-select" id="drink-choice" required>
+        <select class="drink-select" id="drink-choice">
           <option value="">Choisir une boisson</option>
         </select>
       </div>
       <div class="rsvp-btns">
-        <button class="btn-accept" id="btn-rsvp-accept"><i data-lucide="check" class="icon"></i> &nbsp;J'accepte avec joie</button>
-        <button class="btn-decline" id="btn-rsvp-decline">Je ne pourrai pas venir</button>
+        <button class="btn-accept" id="btn-rsvp-accept" type="button"><i data-lucide="check" class="icon"></i> &nbsp;J'accepte avec joie</button>
+        <button class="btn-decline" id="btn-rsvp-decline" type="button">Je ne pourrai pas venir</button>
       </div>
       <div class="alert-err" id="rsvp-err"></div>
     </div>
@@ -691,6 +691,7 @@ async function chargerBoissons(selected){
   const select=document.getElementById('drink-choice');
   try{
     const res=await fetch('/api/boissons');
+    if(!res.ok)throw new Error('Boissons indisponibles');
     const d=await res.json();
     const boissons=Array.isArray(d.boissons)?d.boissons:[];
     select.innerHTML='<option value="">Choisir une boisson</option>'+boissons.map(b=>'<option value="'+escapeHtml(b)+'">'+escapeHtml(b)+'</option>').join('');
@@ -720,7 +721,8 @@ async function repondre(statut){
     return;
   }
   try{
-    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({statut,boisson})});
+    const payload=statut==='accepte'?{statut,boisson}:{statut};
+    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const text=await res.text();
     let d={};
     try{d=text?JSON.parse(text):{};}catch(e){d={erreur:text};}
@@ -773,8 +775,8 @@ function deconnexionInvite(){
 document.getElementById('btn-open-invitation').addEventListener('click', ouvrirInvitation);
 document.getElementById('music-toggle').addEventListener('click', toggleMusic);
 document.getElementById('btn-download-qr').addEventListener('click', telechargerQR);
-document.getElementById('btn-rsvp-accept').addEventListener('click', () => repondre('accepte'));
-document.getElementById('btn-rsvp-decline').addEventListener('click', () => repondre('refuse'));
+document.getElementById('btn-rsvp-accept').addEventListener('click', event => {event.preventDefault();repondre('accepte');});
+document.getElementById('btn-rsvp-decline').addEventListener('click', event => {event.preventDefault();repondre('refuse');});
 document.getElementById('btn-logout').addEventListener('click', deconnexionInvite);
 
 creerPetales();

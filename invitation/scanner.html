@@ -349,7 +349,7 @@ async function scannerLogin() {
   document.getElementById('scanner-login').style.display = 'none';
   chargerStats();
   const urlCode = new URLSearchParams(window.location.search).get('code');
-  if (urlCode) { document.getElementById('manual-code').value = urlCode.toUpperCase(); validerCode(); }
+  if (urlCode) { document.getElementById('manual-code').value = extractCodeSecret(urlCode); validerCode(); }
 }
 
 // ---- CAMÉRA ----
@@ -415,7 +415,7 @@ function scanFrame() {
 
   if (code && code.data) {
     // Extraire le code secret de l'URL encodée dans le QR
-    let codeSecret = code.data;
+    let codeSecret = extractCodeSecret(code.data);
     try {
       const url    = new URL(code.data);
       const param  = url.searchParams.get('code');
@@ -423,7 +423,7 @@ function scanFrame() {
     } catch(e) {
       // Si ce n'est pas une URL, utiliser directement la valeur
     }
-    codeSecret = codeSecret.toUpperCase().trim();
+    codeSecret = extractCodeSecret(codeSecret);
 
     // Éviter les doublons en moins de 3 secondes
     const now = Date.now();
@@ -440,9 +440,29 @@ function scanFrame() {
 
 // ---- VALIDATION ----
 async function validerCode() {
-  const code = document.getElementById('manual-code').value.trim().toUpperCase();
+  const code = extractCodeSecret(document.getElementById('manual-code').value);
   if (!code) return;
   validerCodeInterne(code);
+}
+
+function extractCodeSecret(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    const param = url.searchParams.get('code');
+    if (param) return cleanCodeSecret(param);
+
+    const invitePath = url.pathname.match(/\/i\/([^/?#]+)/i);
+    if (invitePath) return cleanCodeSecret(invitePath[1]);
+  } catch(e) {}
+
+  return cleanCodeSecret(raw);
+}
+
+function cleanCodeSecret(value) {
+  return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
 }
 
 async function validerCodeInterne(code) {
@@ -457,7 +477,15 @@ async function validerCodeInterne(code) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code_secret: code, admin_token: adminToken })
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      document.getElementById('res-danger-titre').textContent  = res.status === 401 ? 'Accès scanner refusé' : 'Erreur scanner';
+      document.getElementById('res-danger-detail').textContent = data.erreur || 'Impossible de valider ce code pour le moment.';
+      document.getElementById('res-danger').classList.add('show');
+      addHistory('Erreur', data.erreur || code);
+      return;
+    }
 
     if (data.resultat === 'valide') {
       document.getElementById('res-nom').textContent    = data.invite.nom;
@@ -522,12 +550,23 @@ function addHistory(status, detail) {
 // ---- STATS ----
 async function chargerStats() {
   try {
-    const res = await fetch('/api/admin/stats');
-    const s   = await res.json();
-    document.getElementById('qs-attendus').textContent  = s.acceptes;
-    document.getElementById('qs-arrives').textContent   = s.presents;
-    document.getElementById('qs-restants').textContent  = Math.max(0, s.acceptes - s.presents);
-  } catch(e) {}
+    const res = await fetch('/api/scanner/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ admin_token: adminToken })
+    });
+    if (!res.ok) throw new Error('Stats indisponibles');
+    const s = await res.json();
+    const acceptes = Number(s.acceptes || 0);
+    const presents = Number(s.presents || 0);
+    document.getElementById('qs-attendus').textContent = acceptes;
+    document.getElementById('qs-arrives').textContent = presents;
+    document.getElementById('qs-restants').textContent = Math.max(0, acceptes - presents);
+  } catch(e) {
+    document.getElementById('qs-attendus').textContent = '—';
+    document.getElementById('qs-arrives').textContent = '—';
+    document.getElementById('qs-restants').textContent = '—';
+  }
 }
 
 // Rafraîchir stats toutes les 30s

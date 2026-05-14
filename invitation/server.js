@@ -136,7 +136,12 @@ function normaliserNom(value) {
 }
 
 function requireInvite(req, res, next) {
-  if (!req.session.invite) return res.redirect('/');
+  if (!req.session.invite) {
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ erreur: 'Session expirée. Veuillez vous reconnecter.' });
+    }
+    return res.redirect('/');
+  }
   next();
 }
 
@@ -350,7 +355,7 @@ app.get('/api/boissons', requireInvite, (req, res) => {
 // POST /api/repondre — Accepter ou refuser
 app.post('/api/repondre', requireInvite, apiLimiter,
   body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
-  body('boisson').optional().trim().isLength({ min: 1, max: 80 }).withMessage('Boisson invalide'),
+  body('boisson').optional({ values: 'falsy' }).trim().isLength({ min: 1, max: 80 }).withMessage('Boisson invalide'),
   validateInput,
   async (req, res) => {
   const { statut } = req.body;
@@ -465,6 +470,16 @@ app.post('/api/scanner/valider', async (req, res) => {
       code_secret: invite.code_secret
     }
   });
+});
+
+app.post('/api/scanner/stats', async (req, res) => {
+  const { admin_token } = req.body || {};
+
+  if (!req.session.admin && admin_token !== SCANNER_TOKEN) {
+    return res.status(401).json({ erreur: 'Accès non autorisé au scanner.' });
+  }
+
+  res.json(await db.getStats());
 });
 
 // ============================================
