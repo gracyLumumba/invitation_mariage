@@ -40,8 +40,17 @@ svg{max-width:100%;}
 @keyframes fiu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 /* PAGE */
-.page-wrap{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem;opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s;}
+.page-wrap{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem;opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s;position:relative;}
 .page-wrap.visible{opacity:1;transform:translateY(0);}
+.page-wrap > :not(.page-ornament){position:relative;z-index:1;}
+.page-ornament{position:absolute;pointer-events:none;z-index:0;color:var(--gold);opacity:.9;filter:drop-shadow(0 8px 18px rgba(96,62,9,.16));}
+.ornament-top-left{top:.45rem;left:-3.9rem;width:min(48vw,330px);transform:rotate(-1deg);}
+.ornament-bottom-right{right:-4.7rem;bottom:2.2rem;width:min(50vw,360px);transform:rotate(180deg);}
+.page-ornament path,.page-ornament circle,.page-ornament ellipse{vector-effect:non-scaling-stroke;}
+.page-ornament .gold-stroke{stroke:url(#ornamentGold);stroke-width:2.2;fill:none;stroke-linecap:round;}
+.page-ornament .gold-soft{stroke:#E8D48A;stroke-width:1.2;fill:none;opacity:.8;stroke-linecap:round;}
+.page-ornament .rose-fill{fill:url(#ornamentGold);}
+.page-ornament .leaf-fill{fill:#E8D48A;stroke:#9A711D;stroke-width:.7;}
 .spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--beige-dark);border-top-color:var(--marsala);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -121,6 +130,10 @@ svg{max-width:100%;}
 .footer-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);font-style:italic;color:var(--marsala);margin-bottom:.5rem;}
 .footer-sub{font-size:13px;color:var(--text-light);}
 .footer-mention{font-size:11.5px;font-style:italic;color:var(--text-light);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--beige-dark);}
+.footer-credit{font-size:10.5px;color:var(--text-light);line-height:1.7;margin-top:.85rem;opacity:.82;overflow-wrap:anywhere;}
+.footer-credit strong{color:var(--marsala);font-weight:500;}
+.footer-credit a{color:var(--text-light);text-decoration:none;}
+.footer-credit a:hover{color:var(--marsala);text-decoration:underline;}
 .btn-logout{background:none;border:none;font-family:'Jost',sans-serif;font-size:12px;color:var(--text-light);text-decoration:underline;cursor:pointer;}
 .music-toggle{position:fixed;right:14px;bottom:14px;z-index:80;width:42px;height:42px;border-radius:50%;border:1px solid rgba(198,164,63,.55);background:rgba(250,247,242,.92);color:var(--marsala);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(44,31,31,.14);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .25s,visibility .25s,transform .25s,background .2s;}
 .music-toggle.show{opacity:1;visibility:visible;transform:translateY(0);}
@@ -135,6 +148,9 @@ svg{max-width:100%;}
 
 @media(max-width:560px){
   .page-wrap{padding:1rem .7rem 2.5rem;}
+  .page-ornament{opacity:.42;}
+  .ornament-top-left{top:.2rem;left:-5.2rem;width:260px;}
+  .ornament-bottom-right{right:-5.8rem;bottom:3.1rem;width:280px;}
   .env-inner{width:100%;padding:1.25rem;}
   .btn-open{width:100%;font-size:11px;line-height:1.5;padding:12px 14px;}
   .floral-corner{opacity:.35;transform-origin:center;}
@@ -153,7 +169,7 @@ svg{max-width:100%;}
   .inv-guest-name{overflow-wrap:anywhere;}
   .rsvp-btns{flex-direction:column;}
   .btn-accept,.btn-decline{width:100%;padding:13px 14px;line-height:1.45;}
-  .footer-sub,.footer-mention,.qr-warn{overflow-wrap:anywhere;}
+  .footer-sub,.footer-mention,.footer-credit,.qr-warn{overflow-wrap:anywhere;}
 }
 @media(max-width:380px){
   .page-wrap{padding-left:.5rem;padding-right:.5rem;}
@@ -188,6 +204,71 @@ svg{max-width:100%;}
 <div class="confetti-cont" id="confetti"></div>
 
 <div class="page-wrap" id="page-wrap">
+  <svg class="page-ornament ornament-top-left" viewBox="0 0 360 360" aria-hidden="true">
+    <defs>
+      <linearGradient id="ornamentGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFF3BA"/>
+        <stop offset=".28" stop-color="#C6A43F"/>
+        <stop offset=".56" stop-color="#7D520B"/>
+        <stop offset=".82" stop-color="#E8D48A"/>
+        <stop offset="1" stop-color="#A87818"/>
+      </linearGradient>
+    </defs>
+    <path class="gold-stroke" d="M30 318 C72 256 96 206 92 148 C89 105 106 62 160 34"/>
+    <path class="gold-stroke" d="M56 42 C132 68 196 64 318 30"/>
+    <path class="gold-soft" d="M86 270 C154 254 162 188 108 178"/>
+    <path class="gold-soft" d="M110 92 C150 138 216 116 196 58"/>
+    <path class="gold-stroke" d="M42 280 C78 226 58 190 110 154 C154 124 198 122 320 104"/>
+    <path class="gold-soft" d="M124 286 C172 268 154 220 116 226"/>
+    <path class="gold-soft" d="M210 70 C232 104 282 88 274 48"/>
+    <circle class="rose-fill" cx="74" cy="84" r="34"/>
+    <circle cx="74" cy="84" r="21" fill="#F7E8A5" opacity=".85"/>
+    <path d="M50 84 C58 58 90 58 98 84 C88 72 62 72 50 84Z" fill="#8A5B10" opacity=".42"/>
+    <path d="M54 98 C70 76 92 78 102 98 C86 91 69 91 54 98Z" fill="#B8871D" opacity=".58"/>
+    <circle class="rose-fill" cx="122" cy="222" r="25"/>
+    <circle cx="122" cy="222" r="15" fill="#F7E8A5" opacity=".82"/>
+    <circle class="rose-fill" cx="180" cy="48" r="20"/>
+    <circle cx="180" cy="48" r="12" fill="#F7E8A5" opacity=".82"/>
+    <ellipse class="leaf-fill" cx="58" cy="140" rx="10" ry="23" transform="rotate(-28 58 140)"/>
+    <ellipse class="leaf-fill" cx="146" cy="154" rx="9" ry="21" transform="rotate(52 146 154)"/>
+    <ellipse class="leaf-fill" cx="238" cy="80" rx="8" ry="18" transform="rotate(72 238 80)"/>
+    <ellipse class="leaf-fill" cx="102" cy="292" rx="8" ry="18" transform="rotate(42 102 292)"/>
+    <circle cx="202" cy="98" r="4" fill="#E8D48A"/>
+    <circle cx="220" cy="94" r="3.5" fill="#D4B24E"/>
+    <circle cx="238" cy="88" r="3" fill="#C6A43F"/>
+  </svg>
+  <svg class="page-ornament ornament-bottom-right" viewBox="0 0 360 360" aria-hidden="true">
+    <defs>
+      <linearGradient id="ornamentGoldBottom" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFF3BA"/>
+        <stop offset=".28" stop-color="#C6A43F"/>
+        <stop offset=".56" stop-color="#7D520B"/>
+        <stop offset=".82" stop-color="#E8D48A"/>
+        <stop offset="1" stop-color="#A87818"/>
+      </linearGradient>
+    </defs>
+    <path d="M30 318 C76 254 100 210 96 152 C92 106 112 58 168 30" stroke="url(#ornamentGoldBottom)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M58 42 C138 72 214 66 330 28" stroke="url(#ornamentGoldBottom)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path class="gold-soft" d="M92 274 C166 252 170 190 112 174"/>
+    <path class="gold-soft" d="M118 96 C158 142 226 116 204 58"/>
+    <path d="M42 282 C82 224 62 190 114 154 C160 122 204 120 326 104" stroke="url(#ornamentGoldBottom)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path class="gold-soft" d="M126 286 C178 270 158 218 118 226"/>
+    <circle cx="78" cy="86" r="34" fill="url(#ornamentGoldBottom)"/>
+    <circle cx="78" cy="86" r="21" fill="#F7E8A5" opacity=".85"/>
+    <path d="M54 86 C62 60 94 60 102 86 C92 74 66 74 54 86Z" fill="#8A5B10" opacity=".42"/>
+    <path d="M58 100 C74 78 96 80 106 100 C90 93 73 93 58 100Z" fill="#B8871D" opacity=".58"/>
+    <circle cx="124" cy="224" r="25" fill="url(#ornamentGoldBottom)"/>
+    <circle cx="124" cy="224" r="15" fill="#F7E8A5" opacity=".82"/>
+    <circle cx="184" cy="48" r="20" fill="url(#ornamentGoldBottom)"/>
+    <circle cx="184" cy="48" r="12" fill="#F7E8A5" opacity=".82"/>
+    <ellipse class="leaf-fill" cx="60" cy="142" rx="10" ry="23" transform="rotate(-28 60 142)"/>
+    <ellipse class="leaf-fill" cx="148" cy="154" rx="9" ry="21" transform="rotate(52 148 154)"/>
+    <ellipse class="leaf-fill" cx="240" cy="80" rx="8" ry="18" transform="rotate(72 240 80)"/>
+    <ellipse class="leaf-fill" cx="104" cy="292" rx="8" ry="18" transform="rotate(42 104 292)"/>
+    <circle cx="206" cy="98" r="4" fill="#E8D48A"/>
+    <circle cx="224" cy="94" r="3.5" fill="#D4B24E"/>
+    <circle cx="242" cy="88" r="3" fill="#C6A43F"/>
+  </svg>
 
   <!-- EN-TÊTE -->
   <div class="inv-header">
@@ -497,6 +578,10 @@ svg{max-width:100%;}
     <div class="footer-sub">Tu es mon présent, mon lendemain, et mon éternité.</div>
     <div style="color:var(--gold);letter-spacing:.4em;font-size:16px;margin:.75rem 0;"><i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i></div>
     <div style="font-size:12px;color:var(--text-light);">Questions ? Contactez-nous : <strong>gracylumumba26@gmail.com</strong></div>
+    <div class="footer-credit">
+      Conçu et développé par <strong>Gracy Lumumba</strong><br>
+      <a href="mailto:gracylumumba26@gmail.com">gracylumumba26@gmail.com</a> · <a href="tel:+243971755175">+243 971 755 175</a>
+    </div>
     <button class="btn-logout" id="btn-logout" style="margin-top:1rem;">Se déconnecter</button>
     <div class="footer-mention">"Chaque invité compte. Chaque réponse nous aide à vous recevoir au mieux."</div>
   </div>
