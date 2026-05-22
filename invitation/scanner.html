@@ -324,7 +324,15 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
-window.addEventListener('load', renderIcons);
+window.addEventListener('load', () => {
+  renderIcons();
+  const loginError = new URLSearchParams(window.location.search).get('erreur');
+  if (loginError) {
+    const err = document.getElementById('sc-err');
+    err.textContent = loginError;
+    err.className = 'alert alert-danger show';
+  }
+});
 function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
 
 let cameraActive  = false;
@@ -345,11 +353,20 @@ async function scannerLogin() {
     return;
   }
   try {
-    const res = await fetch('/api/scanner/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
-    });
+    let res;
+    try {
+      res = await fetch('/api/scanner/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ password })
+      });
+    } catch (postError) {
+      res = await fetch('/api/scanner/login?password=' + encodeURIComponent(password), {
+        method: 'GET',
+        credentials: 'same-origin'
+      });
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) {
       err.textContent = data.erreur || 'Mot de passe scanner incorrect.';
@@ -361,8 +378,8 @@ async function scannerLogin() {
     const urlCode = new URLSearchParams(window.location.search).get('code');
     if (urlCode) { document.getElementById('manual-code').value = extractCodeSecret(urlCode); validerCode(); }
   } catch(e) {
-    err.textContent = 'Erreur réseau.';
-    err.className = 'alert alert-danger show';
+    const code = new URLSearchParams(window.location.search).get('code') || '';
+    window.location.href = '/scanner-auth?' + new URLSearchParams({ password, code }).toString();
   }
 }
 
@@ -489,6 +506,7 @@ async function validerCodeInterne(code) {
     const res  = await fetch('/api/scanner/valider', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({ code_secret: code })
     });
     const data = await res.json().catch(() => ({}));

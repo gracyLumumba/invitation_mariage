@@ -3,17 +3,29 @@
 const { Pool } = require('pg');
 
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-
-if (!connectionString) {
-  throw new Error('DATABASE_URL manquant. Cree la base Supabase puis ajoute DATABASE_URL dans .env et Render.');
-}
+const useDemoDb = !connectionString;
 
 const useSsl = process.env.DB_SSL !== 'false';
 
-const pool = new Pool({
-  connectionString,
-  ssl: useSsl ? { rejectUnauthorized: false } : false,
-});
+const pool = connectionString
+  ? new Pool({
+      connectionString,
+      ssl: useSsl ? { rejectUnauthorized: false } : false,
+    })
+  : null;
+
+const demoInvites = [
+  { id: 1, nom: 'Jeanne & Paul Martin', code_secret: 'YC01', table_num: 3, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 2, nom: 'Robert Dupont', code_secret: 'YC02', table_num: 5, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 3, nom: 'Sophie Lambert', code_secret: 'YC03', table_num: 7, nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 4, nom: 'Thomas & Laura Petit', code_secret: 'YC04', table_num: 3, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 5, nom: 'Martine Chantia Sr.', code_secret: 'YC05', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 6, nom: 'Eric Yannick Sr.', code_secret: 'YC06', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 7, nom: 'Cedric Mbaye', code_secret: 'YC07', table_num: 4, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 8, nom: 'Aline & Jacques Renaud', code_secret: 'YC08', table_num: 6, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 9, nom: 'Fatou Diallo', code_secret: 'YC09', table_num: 8, nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 10, nom: 'Pierre & Claire Moreau', code_secret: 'YC10', table_num: 2, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+];
 
 function formatDbError(err) {
   const message = err?.message || String(err);
@@ -30,6 +42,9 @@ postgresql://postgres.<project-ref>:<mot-de-passe>@aws-0-<region>.pooler.supabas
 }
 
 async function query(sql, params = []) {
+  if (!pool) {
+    throw new Error('DATABASE_URL manquant. Serveur lance en mode demo local sans PostgreSQL.');
+  }
   const result = await pool.query(sql, params);
   return result;
 }
@@ -45,6 +60,11 @@ function normalizeInvite(row) {
 }
 
 async function initDb() {
+  if (useDemoDb) {
+    console.warn('[DB] DATABASE_URL manquant : mode demo local active (sans PostgreSQL).');
+    return;
+  }
+
   await query(`
     CREATE TABLE IF NOT EXISTS invites (
       id            BIGSERIAL PRIMARY KEY,
@@ -93,6 +113,11 @@ async function initDb() {
 // ---- INVITES ----
 
 async function findInvite(code_secret) {
+  if (useDemoDb) {
+    const invite = demoInvites.find(row => row.code_secret.toUpperCase() === String(code_secret || '').toUpperCase());
+    return normalizeInvite(invite);
+  }
+
   const result = await query(
     'SELECT * FROM invites WHERE UPPER(code_secret) = UPPER($1)',
     [code_secret]
@@ -101,7 +126,33 @@ async function findInvite(code_secret) {
 }
 
 async function findInviteById(id) {
+  if (useDemoDb) {
+    const invite = demoInvites.find(row => Number(row.id) === Number(id));
+    return normalizeInvite(invite);
+  }
+
   const result = await query('SELECT * FROM invites WHERE id = $1', [id]);
+  return normalizeInvite(result.rows[0]);
+}
+
+async function findInviteByNameTable(nom, tableNum) {
+  if (useDemoDb) {
+    const normalizedName = String(nom || '').trim().toLowerCase();
+    const invite = demoInvites.find(row =>
+      row.nom.trim().toLowerCase() === normalizedName &&
+      Number(row.table_num) === Number(tableNum)
+    );
+    return normalizeInvite(invite);
+  }
+
+  const result = await query(
+    `SELECT *
+     FROM invites
+     WHERE LOWER(TRIM(nom)) = LOWER(TRIM($1))
+       AND table_num = $2
+     LIMIT 1`,
+    [nom, tableNum]
+  );
   return normalizeInvite(result.rows[0]);
 }
 
@@ -247,6 +298,7 @@ async function getStats() {
 }
 
 async function close() {
+  if (!pool) return;
   await pool.end();
 }
 
@@ -255,6 +307,7 @@ module.exports = {
   query,
   findInvite,
   findInviteById,
+  findInviteByNameTable,
   codeExists,
   marquerCodeUtilise,
   enregistrerReponse,

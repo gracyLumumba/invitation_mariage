@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Invitation — Yannick & Chantia</title>
+
+<!-- Librairies PDF/Image + QR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --marsala: #8B4A4A;
+  --marsala-dk: #6B3535;
+  --gold: #C6A43F;
+  --gold-lt: #E8D48A;
+  --beige: #F5F0E8;
+  --cream: #FDFAF5;
+  --text: #2C1F1F;
+  --text-lt: #7A6050;
+}
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: #C8B89A;
+  background-image: radial-gradient(ellipse at 15% 20%, rgba(198,164,63,0.12) 0%, transparent 65%),
+                    radial-gradient(ellipse at 85% 80%, rgba(139,74,74,0.1) 0%, transparent 65%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 4rem;
+}
+
+.print-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 660px;
+}
+
+.btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 26px;
+  background: var(--marsala);
+  color: white;
+  border: none;
+  font-size: 0.85rem;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  border-radius: 40px;
+  transition: 0.25s;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+}
+.btn-print:hover {
+  background: var(--marsala-dk);
+  transform: translateY(-2px);
+}
+
+.invitation-card {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  background: var(--cream);
+  box-shadow: 0 25px 45px rgba(44,31,31,0.2);
+  overflow: hidden;
+  margin-bottom: 2.2rem;
+  border-radius: 8px;
+}
+
+.card-border-frame {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  border: 1px solid rgba(198,164,63,0.5);
+  pointer-events: none;
+  z-index: 8;
+  border-radius: 4px;
+}
+
+.flowers-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(253,250,245,0.1) 0%, var(--cream) 98%);
+  padding: 2rem 2rem 0.5rem 2rem;
+}
+.top-flower-img {
+  display: block;
+  width: 68%;
+  max-width: 360px;
+  height: auto;
+  border-radius: 28px;
+  box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+  object-fit: cover;
+  aspect-ratio: 4/3;
+}
+
+.card-body {
+  padding: 0.5rem 2rem 2rem 2rem;
+  text-align: center;
+}
+
+.inv-label {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-lt);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.inv-label svg { width: 14px; height: 14px; fill: var(--gold); }
+
+.couple-names {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 3.2rem;
+  font-weight: 500;
+  color: var(--marsala);
+  margin-bottom: 0.2rem;
+}
+.couple-names span { color: var(--gold); font-style: italic; }
+
+.wedding-date {
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  border-bottom: 1px solid var(--gold-lt);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+.wedding-date svg { width: 14px; height: 14px; fill: var(--gold); }
+
+.inv-poem {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text-lt);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(245,240,232,0.3);
+  padding: 10px 16px;
+  border-radius: 60px;
+}
+
+.venue-details {
+  margin-bottom: 1.8rem;
+  background: rgba(245,240,232,0.5);
+  padding: 1rem;
+  border-radius: 32px;
+}
+.venue-item { margin-bottom: 1rem; }
+.venue-title {
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  color: var(--gold);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.venue-title svg { width: 13px; height: 13px; fill: var(--gold); }
+.venue-val { font-size: 1rem; color: var(--text); font-weight: bold; }
+.venue-sub { font-size: 0.75rem; color: var(--text-lt); font-style: italic; }
+
+.qr-container {
+  display: none;
+  margin: 1rem auto;
+  padding: 0.6rem;
+  background: white;
+  width: 130px;
+  height: 130px;
+  border-radius: 14px;
+  border: 1px solid var(--gold-lt);
+  align-items: center;
+  justify-content: center;
+}
+#qrcode canvas, #qrcode img { width: 112px !important; height: 112px !important; }
+
+.guest-badge {
+  display: none;
+  background: var(--beige);
+  padding: 8px 16px;
+  border-left: 5px solid var(--gold);
+  margin-top: 0.5rem;
+  color: var(--marsala);
+  font-weight: bold;
+  font-size: 0.8rem;
+  border-radius: 40px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  gap: 8px;
+}
+.guest-badge svg { width: 14px; height: 14px; fill: var(--marsala); }
+
+.footer-poem {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-lt);
+  margin-top: 1rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--gold-lt);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.footer-poem svg { width: 13px; height: 13px; fill: var(--gold); }
+
+.flowers-footer {
+  margin-top: 0rem;
+  padding: 0 1rem 1.5rem 1rem;
+  text-align: center;
+}
+.bottom-flower-img {
+  width: 44%;
+  max-width: 180px;
+  display: inline-block;
+  opacity: 0.7;
+  border-radius: 30px 8px 30px 8px;
+}
+
+.login-section {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(245,240,232,0.96);
+  padding: 2rem;
+  border: 1px solid var(--gold-lt);
+  text-align: center;
+  border-radius: 32px;
+}
+.login-section h2 {
+  color: var(--marsala);
+  font-size: 1rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.form-group label {
+  font-size: 0.7rem;
+  color: var(--text-lt);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd2be;
+  background: white;
+  font-family: 'Georgia', serif;
+  border-radius: 60px;
+}
+.btn-verify {
+  background: var(--gold);
+  color: #2c1f1f;
+  border: none;
+  padding: 10px 18px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 0.85rem;
+  border-radius: 60px;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: 0.2s;
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-verify:hover { background: var(--marsala); color: white; }
+.btn-verify:hover svg { fill: white; }
+#error-msg { color: #b1624b; font-size: 0.75rem; margin-top: 0.9rem; display: none; }
+
+@media print {
+  .login-section, .print-controls { display: none; }
+  body { background: white; padding: 0; }
+}
+@media (max-width: 550px) {
+  .couple-names { font-size: 2.4rem; }
+  .top-flower-img { width: 85%; }
+}
+</style>
+</head>
+<body>
+
+<div class="print-controls">
+  <button class="btn-print" id="downloadPDFBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    Télécharger en PDF
+  </button>
+  <button class="btn-print" id="downloadImageBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M21 19v-6h-2v6H5V5h6V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-7-2l-2.5-3.2L9 16l-2-2.5L4 18h14l-4-5z"/></svg>
+    Télécharger l'image (PNG)
+  </button>
+</div>
+
+<article class="invitation-card" id="invitation-card">
+  <div class="card-border-frame"></div>
+  
+  <!-- IMAGE DU HAUT : chemin LOCAL exact -->
+  <div class="flowers-header">
+    <img class="top-flower-img" 
+         src="C:\Users\Dr_Denise\Documents\GitHub\invitation_yann\invitation\la photo de fleur du bas.png" 
+         alt="Fleurs élégantes"
+         crossorigin="anonymous">
+  </div>
+
+  <div class="card-body">
+    <p class="inv-label">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+      INVITATION AU MARIAGE DE
+    </p>
+    <h1 class="couple-names">Yannick <span>&amp;</span> Chantia</h1>
+    <div class="wedding-date">
+      <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg>
+      VENDREDI 3 JUILLET 2026
+    </div>
+    
+    <div class="inv-poem">
+      « L'amour ne se voit pas avec les yeux, mais avec le cœur.<br> 
+      Ainsi, simplement et sincèrement, naît un rêve qui s'appelle "Pour toujours". »
+    </div>
+
+    <div class="venue-details">
+      <div class="venue-item">
+        <div class="venue-title">✶ CÉRÉMONIE ✶</div>
+        <div class="venue-val">Château de Belmont</div>
+        <div class="venue-sub">Accueil dès 14h30 · Début à 15h00</div>
+      </div>
+      <div class="venue-item">
+        <div class="venue-title">ADRESSE</div>
+        <div class="venue-sub">12 route des Vignes · Lyon 69005</div>
+      </div>
+      <div class="venue-item">
+        <div class="venue-title">COCKTAIL & SOIRÉE</div>
+        <div class="venue-sub">Cocktail à 17h30 · Dîner à 20h00</div>
+      </div>
+    </div>
+
+    <div id="qr-result" class="qr-container">
+      <div id="qrcode"></div>
+    </div>
+    <div id="guest-badge" class="guest-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/></svg>
+      Bienvenue <span id="display-name"></span> — Table n°<span id="display-table"></span>
+    </div>
+
+    <p class="footer-poem">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      « Ensemble, faisons de ce jour un souvenir éternel. »
+    </p>
+  </div>
+
+  <!-- IMAGE DU BAS : utilise la MÊME image locale que celle du haut (conformément à votre demande) -->
+  <div class="flowers-footer">
+    <img class="bottom-flower-img" 
+         src="C:\Users\Dr_Denise\Documents\GitHub\invitation_yann\invitation\la photo de fleur du bas.png" 
+         alt="Décor floral"
+         crossorigin="anonymous">
+  </div>
+</article>
+
+<section class="login-section" id="login-form">
+  <h2>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#8B4A4A"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+    Accéder à mon QR Code
+  </h2>
+  <div class="form-group">
+    <label>👤 Votre Nom Complet</label>
+    <input type="text" id="input-name" placeholder="Yannick Martin, Chantia Dubois">
+  </div>
+  <div class="form-group">
+    <label>🔢 Numéro de Table</label>
+    <input type="text" id="input-table" placeholder="Ex: 1, 12, 7">
+  </div>
+  <button class="btn-verify" id="verifyBtn">✓ Vérifier & dévoiler mon QR</button>
+  <p id="error-msg">❌ Informations non reconnues.</p>
+</section>
+
+<script>
+// ========== VALIDATION + QR CODE ==========
+function verifyInvitation() {
+  const name = document.getElementById('input-name').value.trim();
+  const table = document.getElementById('input-table').value.trim();
+  const errorMsg = document.getElementById('error-msg');
+  
+  if (!name || !table) {
+    alert("Veuillez saisir votre nom complet et votre numéro de table.");
+    return;
+  }
+  
+  // Simulation succès (dans un vrai projet, valider côté serveur)
+  const qrPayload = `MARIAGE-YANNICK&CHANTIA-${name.toUpperCase().replace(/\s/g, '_')}-TABLE_${table}`;
+  
+  document.getElementById('qr-result').style.display = 'flex';
+  document.getElementById('guest-badge').style.display = 'flex';
+  document.getElementById('display-name').innerText = name;
+  document.getElementById('display-table').innerText = table;
+  errorMsg.style.display = 'none';
+  
+  const qrcodeDiv = document.getElementById('qrcode');
+  qrcodeDiv.innerHTML = '';
+  new QRCode(qrcodeDiv, {
+    text: qrPayload,
+    width: 112,
+    height: 112,
+    colorDark: "#6B3535",
+    colorLight: "#FDFAF5",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  
+  document.getElementById('invitation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ========== TÉLÉCHARGEMENT EN IMAGE (PNG) ==========
+async function downloadAsImage() {
+  const card = document.getElementById('invitation-card');
+  if (!card) return;
+  
+  // Sauvegarde des styles pour le rendu
+  const originalBg = card.style.background;
+  
+  try {
+    // Afficher un petit indicateur de chargement
+    const btn = document.getElementById('downloadImageBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ Génération...";
+    btn.disabled = true;
+    
+    const canvas = await html2canvas(card, {
+      scale: 3.2,
+      backgroundColor: '#FDFAF5',
+      logging: false,
+      useCORS: false,  // false pour images locales
+      allowTaint: true,
+      foreignObjectRendering: false
+    });
+    
+    const link = document.createElement('a');
+    link.download = 'invitation_yannick_chantia.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  } catch (err) {
+    console.error('Erreur détaillée:', err);
+    alert("Erreur lors de la génération de l'image. Vérifiez que les images locales existent bien.\n" + err.message);
+    document.getElementById('downloadImageBtn').innerHTML = "🖼️ Télécharger l'image (PNG)";
+    document.getElementById('downloadImageBtn').disabled = false;
+  }
+}
+
+// ========== TÉLÉCHARGEMENT EN PDF ==========
+async function downloadAsPDF() {
+  const card = document.getElementById('invitation-card');
+  if (!card) return;
+  
+  try {
+    const btn = document.getElementById('downloadPDFBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ Génération PDF...";
+    btn.disabled = true;
+    
+    const canvas = await html2canvas(card, {
+      scale: 3,
+      backgroundColor: '#FDFAF5',
+      logging: false,
+      useCORS: false,
+      allowTaint: true
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const imgWidth = 190; // mm (A4 largeur utile)
+    const pageHeight = 277;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let pdf = new jsPDF('p', 'mm', 'a4');
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+    pdf.save('invitation_yannick_chantia.pdf');
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  } catch (err) {
+    console.error('Erreur PDF:', err);
+    alert("Erreur lors de la création du PDF.\n" + err.message);
+    document.getElementById('downloadPDFBtn').innerHTML = "📄 Télécharger en PDF";
+    document.getElementById('downloadPDFBtn').disabled = false;
+  }
+}
+
+// ========== INITIALISATION DES ÉVÉNEMENTS ==========
+document.addEventListener('DOMContentLoaded', () => {
+  const verifyBtn = document.getElementById('verifyBtn');
+  if (verifyBtn) {
+    const newBtn = verifyBtn.cloneNode(true);
+    verifyBtn.parentNode.replaceChild(newBtn, verifyBtn);
+    newBtn.addEventListener('click', verifyInvitation);
+  }
+  
+  const pdfBtn = document.getElementById('downloadPDFBtn');
+  const imgBtn = document.getElementById('downloadImageBtn');
+  if (pdfBtn) pdfBtn.addEventListener('click', downloadAsPDF);
+  if (imgBtn) imgBtn.addEventListener('click', downloadAsImage);
+  
+  // Petit message console pour rassurer
+  console.log("✅ Invitation chargée — Images locales : C:\\Users\\Dr_Denise\\Documents\\GitHub\\invitation_yann\\invitation\\la photo de fleur du bas.png");
+});
+</script>
+</body>
+</html>

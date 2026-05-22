@@ -47,14 +47,19 @@ app.set('trust proxy', 1);
 
 function getLocalIp() {
   const ifaces = os.networkInterfaces();
+  const candidates = [];
   for (const name of Object.keys(ifaces)) {
     for (const iface of ifaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal && iface.address.startsWith('192.')) {
-        return iface.address;
+      if (iface.family === 'IPv4' && !iface.internal) {
+        candidates.push(iface.address);
       }
     }
   }
-  return 'localhost';
+  return candidates.find(ip => /^192\.168\./.test(ip)) ||
+    candidates.find(ip => /^10\./.test(ip)) ||
+    candidates.find(ip => /^172\.(1[6-9]|2\d|3[0-1])\./.test(ip)) ||
+    candidates[0] ||
+    'localhost';
 }
 
 // ============================================
@@ -181,8 +186,17 @@ function getRequestBaseUrl(req) {
   const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
   const proto = forwardedProto || req.protocol || (USE_HTTPS ? 'https' : 'http');
   const host = req.get('host');
+  const localIp = getLocalIp();
 
-  if (host) return `${proto}://${host}`;
+  if (host) {
+    const hostParts = host.split(':');
+    const hostname = hostParts[0];
+    const port = hostParts.slice(1).join(':');
+    if ((hostname === 'localhost' || hostname === '127.0.0.1') && localIp !== 'localhost') {
+      return `${proto}://${localIp}${port ? `:${port}` : ''}`;
+    }
+    return `${proto}://${host}`;
+  }
   return configuredUrl || SITE_URL.replace(/\/+$/, '');
 }
 
@@ -211,11 +225,9 @@ function areValidBoissons(boisson, count) {
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
   const params = new URLSearchParams({
     code: invite.code_secret,
-    nom: invite.nom,
     table: String(invite.table_num || ''),
-    boisson: String(invite.boisson || ''),
   });
-  return `${baseUrl}/scanner?${params.toString()}`;
+  return `${baseUrl}/valider-entree?${params.toString()}`;
 }
 
 async function ensureQrCode(invite, baseUrl) {
@@ -228,6 +240,20 @@ async function ensureQrCode(invite, baseUrl) {
     errorCorrectionLevel: 'H'
   });
   return filePath;
+}
+
+async function publicInvitationPayload(invite, baseUrl) {
+  const qrFilePath = await ensureQrCode(invite, baseUrl);
+  return {
+    nom: invite.nom,
+    code_secret: invite.code_secret,
+    table_num: invite.table_num,
+    nb_couverts: invite.nb_couverts,
+    menu: invite.menu,
+    statut: invite.statut,
+    qr_url: qrUrl(invite, baseUrl),
+    qr_image: `data:image/png;base64,${fs.readFileSync(qrFilePath).toString('base64')}`
+  };
 }
 
 async function nextInviteCode() {
@@ -448,6 +474,52 @@ app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
   }
 });
 
+// GET /api/invitation-physique/:code — Données publiques pour une invitation imprimable
+app.get('/api/invitation-physique/:code', async (req, res) => {
+  const code = String(req.params.code || '').trim().toUpperCase();
+  if (!code) return res.status(400).json({ ok: false, erreur: 'Code requis.' });
+
+  const invite = await db.findInvite(code);
+  if (!invite) {
+    return res.status(404).json({ ok: false, erreur: 'Invitation introuvable.' });
+  }
+
+  const baseUrl = getRequestBaseUrl(req);
+  res.json({
+    ok: true,
+    invite: await publicInvitationPayload(invite, baseUrl)
+  });
+});
+
+// POST /api/invitation-physique/verifier — Recherche publique par nom + table
+app.post('/api/invitation-physique/verifier', apiLimiter,
+  body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
+  body('table_num').isInt({ min: 0 }).withMessage('Numéro de table invalide'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ ok: false, erreur: errors.array()[0].msg });
+    }
+
+    const nom = String(req.body.nom || '').trim();
+    const tableNum = Number(req.body.table_num);
+
+    const invite = await db.findInviteByNameTable(nom, tableNum);
+    if (!invite) {
+      return res.status(404).json({
+        ok: false,
+        erreur: 'Informations non reconnues. Vérifiez le nom complet et le numéro de table.'
+      });
+    }
+
+    const baseUrl = getRequestBaseUrl(req);
+    res.json({
+      ok: true,
+      invite: await publicInvitationPayload(invite, baseUrl)
+    });
+  }
+);
+
 // GET /api/deconnexion
 app.get('/api/deconnexion', (req, res) => {
   req.session.destroy(() => {
@@ -483,6 +555,33 @@ app.post('/api/scanner/login', apiLimiter,
     res.json({ ok: true });
   }
 );
+
+app.get('/api/scanner/login', apiLimiter, (req, res) => {
+  const password = String(req.query.password || '');
+  try {
+    if (!timingSafeCompare(password, SCANNER_TOKEN)) {
+      return res.status(401).json({ erreur: 'Mot de passe scanner incorrect.' });
+    }
+  } catch (err) {
+    return res.status(401).json({ erreur: 'Mot de passe scanner incorrect.' });
+  }
+  req.session.scanner = true;
+  res.json({ ok: true });
+});
+
+app.get('/scanner-auth', apiLimiter, (req, res) => {
+  const password = String(req.query.password || '');
+  const code = String(req.query.code || '').trim();
+  try {
+    if (!timingSafeCompare(password, SCANNER_TOKEN)) {
+      return res.redirect(`/scanner?${new URLSearchParams({ code, erreur: 'Mot de passe scanner incorrect.' }).toString()}`);
+    }
+  } catch (err) {
+    return res.redirect(`/scanner?${new URLSearchParams({ code, erreur: 'Mot de passe scanner incorrect.' }).toString()}`);
+  }
+  req.session.scanner = true;
+  res.redirect(`/scanner?${new URLSearchParams({ code }).toString()}`);
+});
 
 app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   const { code_secret } = req.body;
