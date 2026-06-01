@@ -1,0 +1,709 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — Mariage Tresor & Future mariee</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body { background: var(--beige); }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--marsala);
+    padding: 1.5rem 0;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--gold-light);
+    text-align: center;
+    padding: 0 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    line-height: 1.3;
+  }
+  .sidebar-nav { padding: 1rem 0; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 1.25rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover  { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.15); color: #fff; border-left-color: var(--gold); }
+  .nav-icon { font-size: 16px; }
+  .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.15); }
+  .btn-logout-admin {
+    width: 100%; padding: 8px;
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.2);
+    font-family: 'Jost',sans-serif; font-size: 12px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    transition: all 0.15s;
+  }
+  .btn-logout-admin:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+  /* Main content */
+  .main { flex: 1; overflow: auto; }
+  .main-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--beige-dark);
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .main-title { font-family: 'Cormorant Garamond',serif; font-size: 22px; font-weight: 400; color: var(--marsala); }
+  .refresh-status { font-size:12px;color:var(--text-light); }
+  .main-body  { padding: 1.25rem 1.5rem; }
+
+  /* Section */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--beige-dark);
+    border-radius: 2px; padding: 1rem 1.2rem;
+    border-top: 3px solid var(--marsala);
+  }
+  .stat-card.g { border-top-color: #22C55E; }
+  .stat-card.r { border-top-color: #EF4444; }
+  .stat-card.o { border-top-color: var(--gold); }
+  .stat-card.b { border-top-color: #3B82F6; }
+  .stat-num   { font-family: 'Cormorant Garamond',serif; font-size: 36px; font-weight: 300; display: block; }
+  .stat-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); }
+
+  /* Table */
+  .table-card { background: var(--white); border: 1px solid var(--beige-dark); border-radius: 2px; overflow: hidden; }
+  .public-link {
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-left: 3px solid var(--gold);
+    padding: .85rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    justify-content: space-between;
+  }
+  .public-link-text { min-width: 0; font-size: 13px; color: var(--text-light); }
+  .public-link-text strong { display: block; color: var(--marsala); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+  .public-link code { color: var(--text); white-space: normal; word-break: break-all; }
+  .public-warning { color: var(--danger); font-size: 12px; margin-top: 4px; }
+  .table-toolbar {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--beige-dark);
+    display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .table-search { padding: 7px 12px; border: 1px solid var(--beige-dark); background: var(--cream); font-family:'Jost',sans-serif; font-size:13px; color:var(--text); border-radius:2px; outline:none; width:220px; }
+  .table-filter { padding: 7px 10px; border: 1px solid var(--beige-dark); background: var(--cream); font-family:'Jost',sans-serif; font-size:13px; color:var(--text); border-radius:2px; outline:none; }
+  .btn-csv { padding: 7px 14px; background: transparent; color: var(--marsala); border: 1px solid var(--marsala-light); font-family:'Jost',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-radius:2px; margin-left:auto; }
+  .btn-csv:hover { background: var(--beige); }
+  .btn-small { padding: 5px 8px; border: 1px solid var(--beige-dark); background: var(--cream); color: var(--text); cursor: pointer; border-radius: 2px; font-size: 11px; }
+  .btn-small:hover { background: var(--beige); }
+  .btn-danger { color: var(--danger); border-color: var(--danger-border); }
+  .mini-input, .mini-select { width: 100%; min-width: 74px; padding: 5px 6px; border: 1px solid var(--beige-dark); background: var(--white); font-family:'Jost',sans-serif; font-size:12px; border-radius:2px; }
+  .mini-name { min-width: 160px; }
+  .add-form { display:grid; grid-template-columns: minmax(180px,1.5fr) 90px 80px 90px 130px auto; gap: .5rem; padding: .75rem 1rem; border-bottom: 1px solid var(--beige-dark); background: var(--cream); }
+  .row-actions { display:flex; gap:4px; align-items:center; }
+  .table-wrap { overflow-x: auto; }
+  table { width:100%; border-collapse:collapse; min-width:700px; }
+  thead th { padding:9px 12px; text-align:left; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-light); font-weight:500; border-bottom:1px solid var(--beige-dark); background:var(--beige); white-space:nowrap; }
+  tbody tr { border-bottom:1px solid var(--beige); transition:background 0.15s; }
+  tbody tr:hover { background:var(--cream); }
+  tbody tr:last-child { border-bottom:none; }
+  tbody td { padding:9px 12px; font-size:13px; color:var(--text); white-space:nowrap; }
+
+  /* Logs */
+  .log-item { padding: 10px 14px; border-bottom: 1px solid var(--beige); font-size: 13px; }
+  .log-item:last-child { border-bottom: none; }
+  .log-fraude { background: var(--danger-bg); }
+  .log-time   { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* Login overlay */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: rgba(44,31,31,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+  }
+  .login-box {
+    background: var(--white); border-radius: 2px;
+    padding: 2.5rem 2rem; width: 360px; text-align: center;
+  }
+  .login-box h2 { font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--marsala); margin-bottom:1.5rem; }
+
+  @media (max-width: 700px) {
+    .sidebar { width: 56px; }
+    .sidebar-brand, .nav-item span, .sidebar-footer { display: none; }
+    .nav-item { justify-content: center; padding: 12px; }
+    .main-header { align-items: flex-start; flex-direction: column; gap: .25rem; padding: .85rem 1rem; }
+    .main-body { padding: 1rem; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .public-link { align-items: stretch; flex-direction: column; }
+    .table-toolbar { align-items: stretch; flex-direction: column; }
+    .table-search, .table-filter, .btn-csv { width: 100%; margin-left: 0; }
+    .add-form { grid-template-columns: 1fr 1fr; }
+    .add-form .mini-name { grid-column: 1 / -1; }
+    .row-actions { flex-wrap: wrap; min-width: 150px; }
+    .login-box { width: calc(100vw - 2rem); padding: 2rem 1.25rem; }
+  }
+  @media (max-width: 420px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .add-form { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 900px) {
+    body { overflow-x: hidden; }
+    .layout { display: block; min-height: 100vh; }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      width: 100%;
+      padding: 0;
+      min-height: 0;
+      flex-direction: row;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+    .sidebar-brand {
+      width: 82px;
+      flex-shrink: 0;
+      padding: .7rem .5rem;
+      border-bottom: 0;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      font-size: 15px;
+    }
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      padding: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+    .nav-item {
+      min-height: 56px;
+      flex: 1 0 92px;
+      justify-content: center;
+      padding: .55rem .45rem;
+      border-left: 0;
+      border-bottom: 3px solid transparent;
+      text-align: center;
+      gap: 5px;
+      flex-direction: column;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .nav-item.active { border-left-color: transparent; border-bottom-color: var(--gold); }
+    .sidebar-footer {
+      display: block;
+      width: 56px;
+      padding: .45rem;
+      border-top: 0;
+      border-left: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-logout-admin {
+      min-height: 40px;
+      padding: 0;
+      font-size: 0;
+    }
+    .btn-logout-admin::before {
+      content: '⎋';
+      font-size: 18px;
+    }
+    .main { overflow: visible; }
+    .main-header {
+      position: sticky;
+      top: 57px;
+      z-index: 35;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: .25rem;
+      padding: .8rem 1rem;
+    }
+    .main-header > div[style] { display: none; }
+    .main-title { font-size: 20px; }
+    .main-body { padding: .85rem; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .stat-card { padding: .8rem; }
+    .stat-num { font-size: 30px; }
+    .stat-label { font-size: 9.5px; letter-spacing: .07em; }
+    .card { padding: 1rem; }
+    .public-link { align-items: stretch; flex-direction: column; padding: .8rem; }
+    .table-toolbar { align-items: stretch; flex-direction: column; padding: .75rem; gap: .55rem; }
+    .table-search, .table-filter, .btn-csv { width: 100%; min-height: 40px; margin-left: 0; }
+    .add-form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: .75rem;
+    }
+    .add-form .mini-name { grid-column: 1 / -1; min-width: 0; }
+    .mini-input, .mini-select { min-height: 38px; min-width: 92px; }
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-top: 1px solid var(--beige-dark);
+    }
+    table { min-width: 1180px; }
+    thead th, tbody td { padding: 8px 9px; }
+    .row-actions { flex-wrap: nowrap; min-width: 190px; }
+    .btn-small { min-height: 34px; padding: 6px 9px; }
+  }
+
+  @media (max-width: 520px) {
+    .sidebar-brand { display: none; }
+    .sidebar-footer { width: 48px; }
+    .nav-item {
+      flex-basis: 74px;
+      min-height: 54px;
+      font-size: 10px;
+    }
+    .nav-icon { font-size: 18px; }
+    .main-header { top: 54px; }
+    .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .add-form { grid-template-columns: 1fr; }
+    .login-box { width: calc(100vw - 1.5rem); padding: 1.5rem 1rem; }
+  }
+</style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <span class="ornament" style="font-size:16px;"><i data-lucide="sparkles" class="icon"></i></span>
+    <h2>Administration</h2>
+    <div class="form-group" style="text-align:left;">
+      <label class="form-label">Mot de passe</label>
+      <input class="form-input" id="admin-pwd" type="password" placeholder="Mot de passe admin"
+             onkeydown="if(event.key==='Enter') adminLogin()" />
+    </div>
+    <button class="btn btn-primary btn-full" onclick="adminLogin()">Accéder</button>
+    <div class="alert" id="login-err"></div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <i data-lucide="sparkles" class="icon"></i><br>Y &amp; C<br>
+      <span style="font-size:11px;font-weight:300;color:rgba(255,255,255,0.5);">Administration</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon"><i data-lucide="layout-dashboard" class="icon"></i></span><span>Tableau de bord</span>
+      </div>
+      <div class="nav-item" onclick="showSection('invites')">
+        <span class="nav-icon"><i data-lucide="users" class="icon"></i></span><span>Invités</span>
+      </div>
+      <div class="nav-item" onclick="showSection('logs')">
+        <span class="nav-icon"><i data-lucide="shield-check" class="icon"></i></span><span>Sécurité</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout-admin" onclick="adminLogout()">⎋ Déconnexion</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <div class="main-title" id="section-title">Tableau de bord</div>
+      <div class="refresh-status" id="refresh-status">Mise à jour automatique active</div>
+      <div style="font-size:12px;color:var(--text-light);">Mariage · la date choisie</div>
+    </div>
+    <div class="main-body">
+
+      <!-- DASHBOARD -->
+      <div class="section active" id="section-dashboard">
+        <div class="stats-row" id="stats-row">
+          <div class="stat-card"><span class="stat-num" id="s-total">—</span><span class="stat-label">Invités</span></div>
+          <div class="stat-card g"><span class="stat-num" id="s-acceptes">—</span><span class="stat-label">Acceptés</span></div>
+          <div class="stat-card r"><span class="stat-num" id="s-refuses">—</span><span class="stat-label">Refusés</span></div>
+          <div class="stat-card o"><span class="stat-num" id="s-attente">—</span><span class="stat-label">En attente</span></div>
+          <div class="stat-card b"><span class="stat-num" id="s-presents">—</span><span class="stat-label">Présents J</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-couverts">—</span><span class="stat-label">Couverts</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-taux">—</span><span class="stat-label">Taux réponse</span></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem;">
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:1rem;color:var(--marsala);">Réponses en temps réel</h3>
+          <div id="quick-list">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- INVITÉS -->
+      <div class="section" id="section-invites">
+        <div class="public-link" id="public-link-box">
+          <div class="public-link-text">
+            <strong>Lien a envoyer aux invites</strong>
+            <code>Chargement...</code>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="add-form">
+            <input class="mini-input mini-name" id="new-nom" placeholder="Nom invité ou couple" />
+            <input class="mini-input" id="new-code" placeholder="Code auto" />
+            <input class="mini-input" id="new-table" type="number" min="0" placeholder="Table" />
+            <input class="mini-input" id="new-couverts" type="number" min="1" value="1" />
+            <input class="mini-input" id="new-menu" placeholder="Menu" value="standard" />
+            <button class="btn-small" onclick="ajouterInvite()">Ajouter</button>
+          </div>
+          <div class="table-toolbar">
+            <input class="table-search" type="text" placeholder="Rechercher…" oninput="filtrerTable(this.value)" />
+            <select class="table-filter" onchange="filtrerStatut(this.value)">
+              <option value="">Tous les statuts</option>
+              <option value="en_attente">En attente</option>
+              <option value="accepte">Acceptés</option>
+              <option value="refuse">Refusés</option>
+            </select>
+            <select class="table-filter" id="table-filter" onchange="filtrerTableNum(this.value)">
+              <option value="">Toutes les tables</option>
+            </select>
+            <button class="btn-csv" onclick="exportCSV()"><i data-lucide="download" class="icon"></i> Export CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Nom</th><th>Code</th><th>Table</th><th>Couverts</th>
+                  <th>Menu</th><th>Boisson</th><th>Statut</th><th>Accès</th>
+                  <th>Présent J</th><th>IP</th><th>Date réponse</th><th>Date présence</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invites-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGS -->
+      <div class="section" id="section-logs">
+        <div class="table-card">
+          <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--beige-dark);font-size:13px;font-weight:500;">
+            Journaux de sécurité (100 dernières entrées)
+          </div>
+          <div id="logs-list">Chargement…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', renderIcons);
+let allInvites = [];
+let filtreTexte = '';
+let filtreStatut = '';
+let filtreTableNum = '';
+let publicInviteUrl = window.location.origin + '/';
+let activeSection = 'dashboard';
+let isEditingTable = false;
+let adminRefreshTimer = null;
+
+function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
+
+const titles = { dashboard: 'Tableau de bord', invites: 'Liste des invités', logs: 'Journaux de sécurité' };
+
+function showSection(name) {
+  activeSection = name;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item')[['dashboard','invites','logs'].indexOf(name)].classList.add('active');
+  document.getElementById('section-title').textContent = titles[name];
+  renderIcons();
+  if (name === 'invites') chargerInvites();
+  if (name === 'logs')    chargerLogs();
+}
+
+async function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const err = document.getElementById('login-err');
+  err.className = 'alert';
+  try {
+    const res  = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pwd}) });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('login-overlay').style.display = 'none';
+      refreshAdmin(true);
+      startAdminAutoRefresh();
+    } else {
+      err.textContent = data.erreur || 'Mot de passe incorrect.';
+      err.className = 'alert alert-danger show';
+    }
+  } catch(e) { err.textContent = 'Erreur réseau.'; err.className = 'alert alert-danger show'; }
+}
+
+function adminLogout() {
+  window.location.href = '/api/admin/logout';
+}
+
+function updateRefreshStatus() {
+  const el = document.getElementById('refresh-status');
+  if (el) el.textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+}
+
+async function chargerStats() {
+  try {
+    chargerPublicUrl();
+    const res  = await fetch('/api/admin/stats');
+    if (!res.ok) return;
+    const s = await res.json();
+    document.getElementById('s-total').textContent   = s.total;
+    document.getElementById('s-acceptes').textContent = s.acceptes;
+    document.getElementById('s-refuses').textContent  = s.refuses;
+    document.getElementById('s-attente').textContent  = s.en_attente;
+    document.getElementById('s-presents').textContent = s.presents;
+    document.getElementById('s-couverts').textContent = s.couverts;
+    document.getElementById('s-taux').textContent = `${s.taux_reponse || 0}%`;
+
+    // Quick list
+    const res2 = await fetch('/api/admin/invites');
+    const inv  = await res2.json();
+    allInvites  = inv;
+    const recent = inv.filter(i => i.statut !== 'en_attente').slice(0, 8);
+    document.getElementById('quick-list').innerHTML = recent.length ? recent.map(i => `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--beige);">
+        <span class="badge ${i.statut === 'accepte' ? 'badge-accept' : 'badge-decline'}">${i.statut === 'accepte' ? '<i data-lucide="check" class="icon"></i> Accepté' : '<i data-lucide="x" class="icon"></i> Refusé'}</span>
+        <strong style="font-size:13px;">${i.nom}</strong>
+        <span class="badge-code">${i.code_secret}</span>
+        <span style="font-size:12px;color:var(--text-light);margin-left:auto;">${i.date_reponse || ''}</span>
+      </div>`).join('') : '<p style="color:var(--text-light);font-size:13px;">Aucune réponse pour l\'instant.</p>';
+    updateRefreshStatus();
+  } catch(e) {}
+}
+
+async function chargerInvites(options = {}) {
+  if (options.auto && isEditingTable) return;
+  chargerPublicUrl();
+  const res = await fetch('/api/admin/invites');
+  if (!res.ok) return;
+  allInvites = await res.json();
+  renderTableFilter();
+  renderTable();
+  updateRefreshStatus();
+}
+
+function renderTableFilter() {
+  const select = document.getElementById('table-filter');
+  const current = select.value;
+  const tables = [...new Set(allInvites.map(i => i.table_num).filter(Boolean))].sort((a, b) => a - b);
+  select.innerHTML = '<option value="">Toutes les tables</option>' + tables.map(t => `<option value="${t}">Table ${t}</option>`).join('');
+  select.value = current;
+}
+
+function renderTable() {
+  const data = allInvites.filter(i => {
+    const q = filtreTexte.toLowerCase();
+    const matchText  = !q || i.nom.toLowerCase().includes(q) || i.code_secret.toLowerCase().includes(q);
+    const matchStatut = !filtreStatut || i.statut === filtreStatut;
+    const matchTable = !filtreTableNum || String(i.table_num) === filtreTableNum;
+    return matchText && matchStatut && matchTable;
+  });
+  document.getElementById('invites-tbody').innerHTML = data.map(i => `
+    <tr data-id="${i.id}">
+      <td>${i.id}</td>
+      <td><input class="mini-input mini-name" value="${escapeAttr(i.nom)}" data-field="nom" /></td>
+      <td><span class="badge-code">${i.code_secret}</span></td>
+      <td><input class="mini-input" type="number" value="${i.table_num || 0}" data-field="table_num" /></td>
+      <td><input class="mini-input" type="number" min="1" value="${i.nb_couverts}" data-field="nb_couverts" /></td>
+      <td><input class="mini-input" value="${escapeAttr(i.menu)}" data-field="menu" /></td>
+      <td><input class="mini-input" value="${escapeAttr(i.boisson || '')}" data-field="boisson" /></td>
+      <td>
+        <select class="mini-select" data-field="statut">
+          <option value="en_attente" ${i.statut === 'en_attente' ? 'selected' : ''}>En attente</option>
+          <option value="accepte" ${i.statut === 'accepte' ? 'selected' : ''}>Accepté</option>
+          <option value="refuse" ${i.statut === 'refuse' ? 'selected' : ''}>Refusé</option>
+        </select>
+      </td>
+      <td style="text-align:center;">${i.acces_count || 0}/3</td>
+      <td style="text-align:center;">${i.presente ? '<span class="badge badge-present">Présent</span>' : '—'}</td>
+      <td><code>${i.ip_connexion || '—'}</code></td>
+      <td style="font-size:12px;color:var(--text-light);">${i.date_reponse || '—'}</td>
+      <td style="font-size:12px;color:var(--text-light);">${i.date_presence || '—'}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-small" onclick="copierInvitation(${i.id})">Lien</button>
+          <button class="btn-small" onclick="sauverInvite(${i.id})">OK</button>
+          <button class="btn-small" onclick="resetCode(${i.id})">Code</button>
+          <button class="btn-small btn-danger" onclick="supprimerInvite(${i.id})">Suppr.</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  renderIcons();
+}
+
+document.addEventListener('focusin', event => {
+  if (event.target.closest('#section-invites') && event.target.matches('input, select, textarea')) {
+    isEditingTable = true;
+  }
+});
+
+document.addEventListener('focusout', event => {
+  if (event.target.closest('#section-invites') && event.target.matches('input, select, textarea')) {
+    setTimeout(() => {
+      isEditingTable = !!document.querySelector('#section-invites input:focus, #section-invites select:focus, #section-invites textarea:focus');
+    }, 0);
+  }
+});
+
+async function refreshAdmin(force = false) {
+  await chargerStats();
+  if (activeSection === 'invites') await chargerInvites({ auto: !force });
+  if (activeSection === 'logs') await chargerLogs();
+}
+
+function startAdminAutoRefresh() {
+  if (adminRefreshTimer) return;
+  adminRefreshTimer = setInterval(() => refreshAdmin(false), 5000);
+}
+
+async function chargerPublicUrl() {
+  try {
+    const res = await fetch('/api/admin/public-url');
+    if (!res.ok) return;
+    const data = await res.json();
+    publicInviteUrl = data.inviteUrl || (window.location.origin + '/');
+    const holder = document.getElementById('public-link-box');
+    if (!holder) return;
+    holder.innerHTML = `
+      <div class="public-link-text">
+        <strong>Lien a envoyer aux invites</strong>
+        <code>${escapeHtml(publicInviteUrl)}</code>
+        ${data.localWarning ? '<div class="public-warning">Attention : cette adresse semble locale. Pour les invites hors de ton Wi-Fi, utilise le lien Render ou un vrai domaine public.</div>' : ''}
+      </div>
+      <button class="btn-small" onclick="copierTexte(publicInviteUrl)">Copier</button>`;
+  } catch(e) {}
+}
+
+function lienInvite(invite) {
+  return new URL('/i/' + encodeURIComponent(invite.code_secret), publicInviteUrl).toString();
+}
+
+function messageInvitation(invite) {
+  return `Bonjour ${invite.nom},
+
+Vous etes invite(s) au mariage de Tresor & Future mariee le date a confirmer.
+
+Lien : ${lienInvite(invite)}
+Code secret : ${invite.code_secret}
+
+Merci de confirmer votre presence depuis le site.`;
+}
+
+async function copierTexte(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('Copie.');
+  } catch(e) {
+    prompt('Copiez ce texte :', text);
+  }
+}
+
+function copierInvitation(id) {
+  const invite = allInvites.find(i => i.id === id);
+  if (!invite) return;
+  copierTexte(messageInvitation(invite));
+}
+
+function getBadge(s) {
+  if (s === 'accepte') return '<span class="badge badge-accept"><i data-lucide="check" class="icon"></i> Accepté</span>';
+  if (s === 'refuse')  return '<span class="badge badge-decline"><i data-lucide="x" class="icon"></i> Refusé</span>';
+  return '<span class="badge badge-wait"><i data-lucide="clock-3" class="icon"></i> En attente</span>';
+}
+
+function filtrerTable(q)  { filtreTexte  = q; renderTable(); }
+function filtrerStatut(s) { filtreStatut = s; renderTable(); }
+function filtrerTableNum(t) { filtreTableNum = t; renderTable(); }
+
+function escapeAttr(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function ajouterInvite() {
+  const payload = {
+    nom: document.getElementById('new-nom').value,
+    code_secret: document.getElementById('new-code').value,
+    table_num: document.getElementById('new-table').value,
+    nb_couverts: document.getElementById('new-couverts').value,
+    menu: document.getElementById('new-menu').value,
+  };
+  const res = await fetch('/api/admin/invites', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const data = await res.json();
+  if (!res.ok) { alert(data.erreur || 'Ajout impossible.'); return; }
+  document.getElementById('new-nom').value = '';
+  document.getElementById('new-code').value = '';
+  chargerInvites();
+  chargerStats();
+}
+
+async function sauverInvite(id) {
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  const payload = {};
+  row.querySelectorAll('[data-field]').forEach(el => payload[el.dataset.field] = el.value);
+  const res = await fetch(`/api/admin/invites/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  if (!res.ok) { alert('Modification impossible.'); return; }
+  chargerInvites();
+  chargerStats();
+}
+
+async function resetCode(id) {
+  if (!confirm('Générer un nouveau code pour cet invité ?')) return;
+  const res = await fetch(`/api/admin/invites/${id}/reset-code`, { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+  const data = await res.json();
+  if (!res.ok) { alert(data.erreur || 'Reset impossible.'); return; }
+  alert(`Nouveau code : ${data.code_secret}`);
+  chargerInvites();
+}
+
+async function supprimerInvite(id) {
+  if (!confirm('Supprimer cet invité ?')) return;
+  const res = await fetch(`/api/admin/invites/${id}`, { method:'DELETE' });
+  if (!res.ok) { alert('Suppression impossible.'); return; }
+  chargerInvites();
+  chargerStats();
+}
+
+function exportCSV() {
+  window.location.href = '/api/admin/export-csv';
+}
+
+async function chargerLogs() {
+  const res  = await fetch('/api/admin/logs');
+  const logs = await res.json();
+  const icons = { fraude: '<i data-lucide="siren" class="icon"></i>', tentative_invalide: '<i data-lucide="triangle-alert" class="icon"></i>', connexion: '<i data-lucide="circle-check" class="icon"></i>' };
+  document.getElementById('logs-list').innerHTML = logs.length
+    ? logs.map(l => `
+      <div class="log-item ${l.type === 'fraude' ? 'log-fraude' : ''}">
+        <strong>${icons[l.type] || '•'} ${l.message || l.type}</strong>
+        ${l.nom_tente ? `· Nom : <code>${l.nom_tente}</code>` : ''}
+        ${l.code_tente ? `· Code : <code>${l.code_tente}</code>` : ''}
+        ${l.ip ? `· IP : <code>${l.ip}</code>` : ''}
+        <div class="log-time">${l.created_at}</div>
+      </div>`).join('')
+    : '<div class="log-item" style="color:var(--text-light);">Aucun événement enregistré.</div>';
+  renderIcons();
+}
+
+// Auto-refresh admin toutes les 5s
+refreshAdmin(true);
+startAdminAutoRefresh();
+</script>
+</body>
+</html>

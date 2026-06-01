@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mariage Tresor & Future mariee — Accès à votre invitation</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 18% 14%, rgba(11,102,216,.2), transparent 28%),
+      radial-gradient(circle at 84% 80%, rgba(7,85,199,.16), transparent 32%),
+      linear-gradient(145deg, var(--beige) 0%, var(--cream) 58%, var(--beige-dark) 100%);
+    padding: 1.5rem;
+    overflow-x: hidden;
+  }
+  .login-bg-ornament {
+    position: fixed;
+    pointer-events: none;
+    color: var(--gold);
+    opacity: .28;
+    filter: drop-shadow(0 10px 20px rgba(5,45,99,.14));
+  }
+  .login-bg-ornament.top {
+    top: -38px;
+    left: -64px;
+    width: min(42vw, 300px);
+    transform: rotate(-10deg);
+  }
+  .login-bg-ornament.bottom {
+    right: -72px;
+    bottom: -44px;
+    width: min(46vw, 330px);
+    transform: rotate(168deg);
+  }
+  .login-wrap { width: 100%; max-width: 460px; position: relative; z-index: 1; }
+  .login-card {
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(44,31,31,.12);
+  }
+  .login-card::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(11,102,216,.35);
+    pointer-events: none;
+  }
+  .login-flower {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 78px;
+    height: 78px;
+    opacity: .72;
+    pointer-events: none;
+  }
+  .login-flower.left {
+    right: auto;
+    left: 18px;
+    transform: scaleX(-1);
+  }
+  .login-crest {
+    display: block;
+    width: min(300px, 100%);
+    height: 48px;
+    margin: 0 auto .55rem;
+  }
+  .login-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(48px, 12vw, 70px);
+    font-weight: 300;
+    color: var(--marsala);
+    line-height: .95;
+    margin-bottom: 0.25rem;
+  }
+  .login-amp { font-style: italic; color: var(--gold); }
+  .login-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+  }
+  .login-date {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 0;
+  }
+  .login-note {
+    font-size: 12.5px;
+    color: var(--text-light);
+    line-height: 1.7;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .form-inner { text-align: left; }
+  .form-input {
+    min-height: 46px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+  }
+  .btn-primary {
+    min-height: 46px;
+    box-shadow: 0 12px 26px rgba(7,85,199,.18);
+  }
+  .loading { display: none; text-align: center; margin-top: 0.75rem; }
+  @media (max-width: 480px) {
+    body { padding: 1rem; align-items: flex-start; }
+    .login-bg-ornament.top { width: 210px; left: -92px; top: -20px; }
+    .login-bg-ornament.bottom { width: 230px; right: -100px; bottom: -24px; }
+    .login-wrap { padding-top: .5rem; }
+    .login-title { font-size: 52px; }
+    .login-subtitle { letter-spacing: .14em; }
+    .login-note { font-size: 12px; }
+    .login-flower { width: 56px; height: 56px; opacity: .42; }
+  }
+</style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<svg class="login-bg-ornament top" viewBox="0 0 360 360" aria-hidden="true">
+  <defs>
+    <linearGradient id="loginGoldTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF3BA"/>
+      <stop offset=".32" stop-color="#C6A43F"/>
+      <stop offset=".64" stop-color="#8B6A16"/>
+      <stop offset="1" stop-color="#E8D48A"/>
+    </linearGradient>
+  </defs>
+  <path d="M30 318 C72 256 96 206 92 148 C89 105 106 62 160 34" stroke="url(#loginGoldTop)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M56 42 C132 68 196 64 318 30" stroke="url(#loginGoldTop)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M42 280 C78 226 58 190 110 154 C154 124 198 122 320 104" stroke="url(#loginGoldTop)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <circle cx="74" cy="84" r="34" fill="url(#loginGoldTop)"/>
+  <circle cx="74" cy="84" r="20" fill="#F7E8A5" opacity=".78"/>
+  <circle cx="122" cy="222" r="25" fill="url(#loginGoldTop)"/>
+  <circle cx="180" cy="48" r="20" fill="url(#loginGoldTop)"/>
+  <ellipse cx="58" cy="140" rx="10" ry="23" fill="#E8D48A" opacity=".8" transform="rotate(-28 58 140)"/>
+  <ellipse cx="146" cy="154" rx="9" ry="21" fill="#E8D48A" opacity=".75" transform="rotate(52 146 154)"/>
+</svg>
+<svg class="login-bg-ornament bottom" viewBox="0 0 360 360" aria-hidden="true">
+  <use href="#login-bg-copy"></use>
+  <defs>
+    <g id="login-bg-copy">
+      <path d="M30 318 C72 256 96 206 92 148 C89 105 106 62 160 34" stroke="#C6A43F" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M56 42 C132 68 196 64 318 30" stroke="#C6A43F" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M42 280 C78 226 58 190 110 154 C154 124 198 122 320 104" stroke="#C6A43F" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="74" cy="84" r="34" fill="#C6A43F"/>
+      <circle cx="122" cy="222" r="25" fill="#E8D48A"/>
+      <circle cx="180" cy="48" r="20" fill="#C9897A"/>
+      <ellipse cx="58" cy="140" rx="10" ry="23" fill="#E8D48A" transform="rotate(-28 58 140)"/>
+      <ellipse cx="146" cy="154" rx="9" ry="21" fill="#E8D48A" transform="rotate(52 146 154)"/>
+    </g>
+  </defs>
+</svg>
+<div class="login-wrap">
+  <div class="card-framed login-card">
+    <svg class="login-flower left" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+      <circle cx="18" cy="18" r="6" fill="#C6A43F" opacity=".36"/>
+      <ellipse cx="18" cy="9" rx="3.5" ry="7" fill="#C9897A" opacity=".58"/>
+      <ellipse cx="27" cy="18" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(90 18 18)"/>
+      <ellipse cx="18" cy="27" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(180 18 18)"/>
+      <ellipse cx="9" cy="18" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(270 18 18)"/>
+      <path d="M23 25 Q38 38 24 58" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".28"/>
+      <ellipse cx="32" cy="44" rx="6" ry="12" fill="#8B4A4A" opacity=".15" transform="rotate(-34 32 44)"/>
+    </svg>
+    <svg class="login-flower" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+      <circle cx="18" cy="18" r="6" fill="#C6A43F" opacity=".36"/>
+      <ellipse cx="18" cy="9" rx="3.5" ry="7" fill="#C9897A" opacity=".58"/>
+      <ellipse cx="27" cy="18" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(90 18 18)"/>
+      <ellipse cx="18" cy="27" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(180 18 18)"/>
+      <ellipse cx="9" cy="18" rx="3.5" ry="7" fill="#C9897A" opacity=".58" transform="rotate(270 18 18)"/>
+      <path d="M23 25 Q38 38 24 58" stroke="#8B4A4A" stroke-width="1" fill="none" opacity=".28"/>
+      <ellipse cx="32" cy="44" rx="6" ry="12" fill="#8B4A4A" opacity=".15" transform="rotate(-34 32 44)"/>
+    </svg>
+    <span class="ornament"><i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i></span>
+    <svg class="login-crest" viewBox="0 0 320 52" fill="none" aria-hidden="true">
+      <path d="M36 27 Q82 16 160 24 Q238 32 284 27" stroke="#C6A43F" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="160" cy="23" r="5.5" fill="#C6A43F" opacity=".34"/>
+      <ellipse cx="160" cy="15" rx="3" ry="6" fill="#8B4A4A" opacity=".45"/>
+      <ellipse cx="168" cy="23" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(90 160 23)"/>
+      <ellipse cx="160" cy="31" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(180 160 23)"/>
+      <ellipse cx="152" cy="23" rx="3" ry="6" fill="#8B4A4A" opacity=".45" transform="rotate(270 160 23)"/>
+      <circle cx="160" cy="23" r="3.2" fill="#C6A43F"/>
+      <circle cx="76" cy="22" r="3.5" fill="#C6A43F" opacity=".42"/>
+      <circle cx="244" cy="28" r="3.5" fill="#C6A43F" opacity=".42"/>
+    </svg>
+    <div class="login-subtitle">Invitation au mariage de</div>
+    <div class="login-title">Tresor<br><span class="login-amp">&amp;</span> Future mariee</div>
+    <div class="login-date">Date a confirmer</div>
+    <div class="divider-gold"></div>
+    <p class="login-note">
+      Cette invitation est strictement personnelle.<br>
+      Veuillez saisir votre nom et votre code secret pour accéder à votre invitation.
+    </p>
+
+    <div class="form-inner">
+      <div class="form-group">
+        <label class="form-label" for="nom">Votre nom</label>
+        <input class="form-input" id="nom" type="text"
+               placeholder="ex: Robert Dupont"
+               autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="code">Votre code secret</label>
+        <input class="form-input" id="code" type="text"
+               placeholder="ex: TF01"
+               maxlength="6"
+               autocomplete="off"
+               style="text-transform:uppercase;letter-spacing:0.15em;font-size:16px;text-align:center;" />
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-login">
+        Accéder à mon invitation
+      </button>
+      <div class="loading" id="loading"><span class="spinner"></span></div>
+      <div class="alert alert-danger" id="err-msg"></div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:var(--text-light);margin-top:1rem;letter-spacing:0.05em;">
+    Votre nom et votre code vous ont été communiqués par les mariés.<br>
+    En cas de problème, contactez Tresor ou la future mariee.
+  </p>
+</div>
+
+<script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', renderIcons);
+async function seConnecter() {
+  const nom = document.getElementById('nom').value.trim();
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const errEl = document.getElementById('err-msg');
+  const btn   = document.getElementById('btn-login');
+  const load  = document.getElementById('loading');
+
+  errEl.className = 'alert';
+  if (!nom) { afficherErreur('Veuillez saisir votre nom.'); return; }
+  if (!code) { afficherErreur('Veuillez saisir votre code secret.'); return; }
+
+  btn.disabled = true;
+  load.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/connexion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, code_secret: code })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      window.location.href = '/invitation';
+    } else {
+      afficherErreur(data.erreur || 'Nom ou code incorrect. Vérifiez et réessayez.');
+    }
+  } catch(e) {
+    afficherErreur('Erreur de connexion. Vérifiez votre connexion internet.');
+  } finally {
+    btn.disabled = false;
+    load.style.display = 'none';
+  }
+}
+
+function afficherErreur(msg) {
+  const el = document.getElementById('err-msg');
+  el.textContent = msg;
+  el.className = 'alert alert-danger show';
+}
+
+// Formater automatiquement en majuscules
+document.getElementById('code').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+document.getElementById('btn-login').addEventListener('click', seConnecter);
+document.getElementById('nom').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') seConnecter();
+});
+document.getElementById('code').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') seConnecter();
+});
+
+const params = new URLSearchParams(window.location.search);
+const codeParam = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+if (codeParam) {
+  document.getElementById('code').value = codeParam;
+  document.getElementById('nom').focus();
+}
+</script>
+</body>
+</html>

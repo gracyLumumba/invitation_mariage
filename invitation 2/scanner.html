@@ -1,0 +1,608 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Scanner — Mariage Tresor & Future mariee</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  body { background: #061A2F; color: #fff; min-height: 100vh; padding: 0; }
+
+  .scanner-header {
+    background: var(--marsala-dark);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(11,102,216,0.3);
+  }
+  .scanner-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--gold-light);
+  }
+  .scanner-badge {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.08);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  .scanner-body { padding: 1.25rem; max-width: 500px; margin: 0 auto; }
+
+  /* Caméra */
+  .cam-section { margin-bottom: 1.25rem; }
+  .cam-label {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 0.5rem;
+  }
+  .cam-frame {
+    position: relative;
+    background: #0D0808;
+    border: 1px solid rgba(11,102,216,0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    max-height: 280px;
+  }
+  #preview {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .cam-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .viewfinder {
+    width: 180px; height: 180px;
+    position: relative;
+  }
+  .corner {
+    position: absolute; width: 22px; height: 22px;
+  }
+  .c-tl { top:0; left:0;  border-top: 3px solid var(--gold); border-left: 3px solid var(--gold); }
+  .c-tr { top:0; right:0; border-top: 3px solid var(--gold); border-right:3px solid var(--gold); }
+  .c-bl { bottom:0; left:0;  border-bottom:3px solid var(--gold); border-left: 3px solid var(--gold); }
+  .c-br { bottom:0; right:0; border-bottom:3px solid var(--gold); border-right:3px solid var(--gold); }
+  .scan-line {
+    position: absolute; width: 80%; left: 10%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--gold-light), transparent);
+    animation: scan 2s ease-in-out infinite;
+  }
+  @keyframes scan {
+    0%,100% { top: 15%; opacity: 0.4; }
+    50%      { top: 80%; opacity: 1; }
+  }
+  .cam-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; min-height: 200px;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px; text-align: center;
+    gap: 0.5rem;
+  }
+  .cam-placeholder span { font-size: 36px; }
+  .cam-status {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6); padding: 6px 10px;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+  }
+  .btn-cam {
+    width: 100%; padding: 12px;
+    background: rgba(11,102,216,0.15);
+    color: var(--gold-light);
+    border: 1px solid rgba(11,102,216,0.4);
+    font-family: 'Jost',sans-serif;
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px; margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+  .btn-cam:hover { background: rgba(11,102,216,0.25); }
+  .btn-cam.active { background: rgba(7,85,199,0.3); border-color: var(--marsala-light); color: #B8DDF7; }
+
+  /* Manuel */
+  .manual-section { margin-bottom: 1.25rem; }
+  .manual-row { display: flex; gap: 0.5rem; }
+  .manual-input {
+    flex: 1; padding: 12px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-family: 'Jost',sans-serif;
+    font-size: 18px; font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase; text-align: center;
+    border-radius: 2px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .manual-input:focus { border-color: rgba(11,102,216,0.6); }
+  .manual-input::placeholder { font-size: 14px; letter-spacing: 0.05em; color: rgba(255,255,255,0.25); }
+  .btn-valider {
+    padding: 12px 20px;
+    background: var(--marsala);
+    color: #fff; border: none;
+    font-family: 'Jost',sans-serif;
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .btn-valider:hover { background: var(--marsala-dark); }
+
+  /* Résultat */
+  .result { display: none; border-radius: 2px; padding: 1.25rem; margin-bottom: 1rem; }
+  .result.show { display: block; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  .result-success { background: rgba(22,101,52,0.3); border: 1px solid rgba(187,247,208,0.3); }
+  .result-warning { background: rgba(146,64,14,0.3); border: 1px solid rgba(253,230,138,0.3); }
+  .result-danger  { background: rgba(153,27,27,0.3); border: 1px solid rgba(254,202,202,0.3); }
+
+  .result-icon { font-size: 32px; margin-bottom: 8px; }
+  .result-name { font-family: 'Cormorant Garamond',serif; font-size: 26px; font-weight: 300; margin-bottom: 4px; }
+  .result-detail { font-size: 13px; opacity: 0.7; line-height: 1.6; }
+  .result-table {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(11,102,216,0.4);
+    padding: 6px 16px;
+    font-family: 'Cormorant Garamond',serif;
+    font-size: 20px;
+    color: var(--gold-light);
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+  .btn-reset {
+    width: 100%; padding: 10px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.15);
+    font-family: 'Jost',sans-serif;
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px; margin-top: 0.75rem;
+  }
+  .btn-reset:hover { background: rgba(255,255,255,0.12); }
+
+  /* Stats rapides */
+  .quick-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem; margin-top: 1rem;
+  }
+  .qs-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px; padding: 0.75rem;
+    text-align: center;
+  }
+  .qs-num   { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; display:block; }
+  .qs-label { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+  .qs-num.g { color: #86EFAC; }
+  .qs-num.b { color: #93C5FD; }
+  .scan-history { margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .history-title { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .history-item { padding: 0.55rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.75); }
+  .history-item:last-child { border-bottom: none; }
+
+  /* Login scanner */
+  .scanner-login {
+    position: fixed; inset: 0;
+    background: #061A2F;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 1.5rem;
+  }
+  .scanner-login-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(11,102,216,0.2);
+    border-radius: 2px; padding: 2rem; width: 100%; max-width: 360px;
+    text-align: center;
+  }
+  .scanner-login-box h2 {
+    font-family:'Cormorant Garamond',serif; font-size:24px;
+    color: var(--gold-light); margin-bottom: 1.25rem;
+  }
+  .dark-input {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-family:'Jost',sans-serif; font-size:14px;
+    border-radius: 2px; outline: none; margin-bottom: 0.75rem;
+  }
+</style>
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN SCANNER -->
+<div class="scanner-login" id="scanner-login">
+  <div class="scanner-login-box">
+    <span style="font-size:28px;display:block;margin-bottom:0.5rem;"><i data-lucide="smartphone" class="icon"></i></span>
+    <h2>Contrôle d'entrée<br>Tresor & Future mariee</h2>
+    <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:1.25rem;">
+      Saisissez le mot de passe du contrôle d'entrée pour activer le scanner.
+    </p>
+    <input class="dark-input" id="sc-pwd" type="password" placeholder="Mot de passe contrôle"
+           onkeydown="if(event.key==='Enter') scannerLogin()" />
+    <button class="btn btn-primary btn-full" onclick="scannerLogin()">Accéder au scanner</button>
+    <div class="alert" id="sc-err" style="margin-top:0.5rem;"></div>
+  </div>
+</div>
+
+<!-- INTERFACE SCANNER -->
+<div class="scanner-header">
+  <div class="scanner-brand"><i data-lucide="sparkles" class="icon"></i> Tresor & Future mariee</div>
+  <div class="scanner-badge"><i data-lucide="smartphone" class="icon"></i> Scanner d'entrée</div>
+</div>
+
+<div class="scanner-body">
+
+  <!-- CAMÉRA -->
+  <div class="cam-section">
+    <div class="cam-label">Scan caméra</div>
+    <div class="cam-frame" id="cam-frame">
+      <div class="cam-placeholder" id="cam-placeholder">
+        <span><i data-lucide="camera" class="icon"></i></span>
+        Appuyez sur "Activer la caméra"<br>pour scanner les QR codes
+      </div>
+      <video id="preview" style="display:none;" playsinline></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
+      <div class="cam-overlay" id="cam-overlay" style="display:none;">
+        <div class="viewfinder">
+          <div class="corner c-tl"></div>
+          <div class="corner c-tr"></div>
+          <div class="corner c-bl"></div>
+          <div class="corner c-br"></div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+      <div class="cam-status" id="cam-status" style="display:none;">Caméra active · Pointez vers le QR code</div>
+    </div>
+    <button class="btn-cam" id="btn-cam" onclick="toggleCamera()"><i data-lucide="camera" class="icon"></i> &nbsp;Activer la caméra</button>
+  </div>
+
+  <!-- SAISIE MANUELLE -->
+  <div class="manual-section">
+    <div class="cam-label">Ou saisir le code manuellement</div>
+    <div class="manual-row">
+      <input class="manual-input" id="manual-code" type="text"
+             placeholder="TF01" maxlength="6"
+             onkeydown="if(event.key==='Enter') validerCode()"
+             oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+      <button class="btn-valider" onclick="validerCode()">Valider</button>
+    </div>
+  </div>
+
+  <!-- RÉSULTAT -->
+  <div class="result result-success" id="res-success">
+    <div class="result-icon"><i data-lucide="circle-check" class="icon"></i></div>
+    <div class="result-name" id="res-nom">—</div>
+    <div class="result-detail" id="res-detail">—</div>
+    <div class="result-table" id="res-table">Table —</div>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Invité suivant</button>
+  </div>
+
+  <div class="result result-warning" id="res-warning">
+    <div class="result-icon"><i data-lucide="triangle-alert" class="icon"></i></div>
+    <div class="result-name">Déjà enregistré</div>
+    <div class="result-detail" id="res-warn-detail">Cet invité a déjà validé son entrée.</div>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Invité suivant</button>
+  </div>
+
+  <div class="result result-danger" id="res-danger">
+    <div class="result-icon"><i data-lucide="circle-x" class="icon"></i></div>
+    <div class="result-name" id="res-danger-titre">Accès refusé</div>
+    <div class="result-detail" id="res-danger-detail">Code non reconnu ou invitation invalide.</div>
+    <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Réessayer</button>
+  </div>
+
+  <!-- STATS RAPIDES -->
+  <div class="quick-stats" id="quick-stats">
+    <div class="qs-card">
+      <span class="qs-num b" id="qs-attendus">—</span>
+      <span class="qs-label">Attendus</span>
+    </div>
+    <div class="qs-card">
+      <span class="qs-num g" id="qs-arrives">—</span>
+      <span class="qs-label">Arrivés</span>
+    </div>
+    <div class="qs-card">
+      <span class="qs-num" id="qs-restants">—</span>
+      <span class="qs-label">Restants</span>
+    </div>
+  </div>
+
+  <div class="scan-history">
+    <div class="history-title">Dernières entrées</div>
+    <div id="scan-history-list">
+      <div class="history-item">Aucun scan pour le moment.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- jsQR pour le décodage des QR codes -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+window.addEventListener('load', () => {
+  renderIcons();
+  const loginError = new URLSearchParams(window.location.search).get('erreur');
+  if (loginError) {
+    const err = document.getElementById('sc-err');
+    err.textContent = loginError;
+    err.className = 'alert alert-danger show';
+  }
+});
+function iconHtml(name){ return `<i data-lucide="${name}" class="icon"></i>`; }
+
+let cameraActive  = false;
+let cameraStream  = null;
+let scanInterval  = null;
+let lastScanned   = '';
+let lastScannedAt = 0;
+let scanHistory   = [];
+
+// ---- LOGIN SCANNER ----
+async function scannerLogin() {
+  const password = document.getElementById('sc-pwd').value.trim();
+  const err = document.getElementById('sc-err');
+  err.className = 'alert';
+  if (!password) {
+    err.textContent = 'Mot de passe requis.';
+    err.className = 'alert alert-danger show';
+    return;
+  }
+  try {
+    let res;
+    try {
+      res = await fetch('/api/scanner/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ password })
+      });
+    } catch (postError) {
+      res = await fetch('/api/scanner/login?password=' + encodeURIComponent(password), {
+        method: 'GET',
+        credentials: 'same-origin'
+      });
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      err.textContent = data.erreur || 'Mot de passe scanner incorrect.';
+      err.className = 'alert alert-danger show';
+      return;
+    }
+    document.getElementById('scanner-login').style.display = 'none';
+    chargerStats();
+    const urlCode = new URLSearchParams(window.location.search).get('code');
+    if (urlCode) { document.getElementById('manual-code').value = extractCodeSecret(urlCode); validerCode(); }
+  } catch(e) {
+    const code = new URLSearchParams(window.location.search).get('code') || '';
+    window.location.href = '/scanner-auth?' + new URLSearchParams({ password, code }).toString();
+  }
+}
+
+// ---- CAMÉRA ----
+async function toggleCamera() {
+  if (cameraActive) { stopCamera(); return; }
+
+  try {
+    // Demander la caméra arrière sur mobile
+    const constraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 }, height: { ideal: 720 }
+      }
+    };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video  = document.getElementById('preview');
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    await video.play();
+
+    document.getElementById('cam-placeholder').style.display = 'none';
+    document.getElementById('cam-overlay').style.display     = 'flex';
+    document.getElementById('cam-status').style.display      = 'block';
+    document.getElementById('btn-cam').innerHTML = '<i data-lucide="square" class="icon"></i> Arrêter la caméra'; renderIcons();
+    document.getElementById('btn-cam').classList.add('active');
+    cameraActive = true;
+
+    // Démarrer le scan QR
+    scanInterval = setInterval(scanFrame, 300);
+  } catch(e) {
+    alert('Impossible d\'accéder à la caméra : ' + e.message + '\nUtilisez la saisie manuelle.');
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  clearInterval(scanInterval);
+  const video = document.getElementById('preview');
+  video.style.display = 'none';
+  video.srcObject = null;
+  document.getElementById('cam-placeholder').style.display = 'flex';
+  document.getElementById('cam-overlay').style.display     = 'none';
+  document.getElementById('cam-status').style.display      = 'none';
+  document.getElementById('btn-cam').innerHTML = '<i data-lucide="camera" class="icon"></i>  Activer la caméra'; renderIcons();
+  document.getElementById('btn-cam').classList.remove('active');
+  cameraActive = false;
+}
+
+function scanFrame() {
+  const video  = document.getElementById('preview');
+  const canvas = document.getElementById('qr-canvas');
+  if (!video.videoWidth) return;
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+
+  if (code && code.data) {
+    // Extraire le code secret de l'URL encodée dans le QR
+    let codeSecret = extractCodeSecret(code.data);
+    try {
+      const url    = new URL(code.data);
+      const param  = url.searchParams.get('code');
+      if (param) codeSecret = param;
+    } catch(e) {
+      // Si ce n'est pas une URL, utiliser directement la valeur
+    }
+    codeSecret = extractCodeSecret(codeSecret);
+
+    // Éviter les doublons en moins de 3 secondes
+    const now = Date.now();
+    if (codeSecret === lastScanned && now - lastScannedAt < 3000) return;
+    lastScanned  = codeSecret;
+    lastScannedAt = now;
+
+    // Vibration feedback sur mobile
+    if (navigator.vibrate) navigator.vibrate(100);
+
+    validerCodeInterne(codeSecret);
+  }
+}
+
+// ---- VALIDATION ----
+async function validerCode() {
+  const code = extractCodeSecret(document.getElementById('manual-code').value);
+  if (!code) return;
+  validerCodeInterne(code);
+}
+
+function extractCodeSecret(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    const param = url.searchParams.get('code');
+    if (param) return cleanCodeSecret(param);
+
+    const invitePath = url.pathname.match(/\/i\/([^/?#]+)/i);
+    if (invitePath) return cleanCodeSecret(invitePath[1]);
+  } catch(e) {}
+
+  return cleanCodeSecret(raw);
+}
+
+function cleanCodeSecret(value) {
+  return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+}
+
+async function validerCodeInterne(code) {
+  // Cacher les résultats précédents
+  ['res-success','res-warning','res-danger'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+
+  try {
+    const res  = await fetch('/api/scanner/valider', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ code_secret: code })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      document.getElementById('res-danger-titre').textContent  = res.status === 401 ? 'Accès scanner refusé' : 'Erreur scanner';
+      document.getElementById('res-danger-detail').textContent = data.erreur || 'Impossible de valider ce code pour le moment.';
+      document.getElementById('res-danger').classList.add('show');
+      addHistory('Erreur', data.erreur || code);
+      return;
+    }
+
+    if (data.resultat === 'valide') {
+      document.getElementById('res-nom').textContent    = data.invite.nom;
+      document.getElementById('res-detail').textContent = formatInviteDetail(data.invite);
+      document.getElementById('res-table').innerHTML  = `<i data-lucide="armchair" class="icon"></i> Table ${data.invite.table_num}`; renderIcons();
+      document.getElementById('res-success').classList.add('show');
+      addHistory('Validé', `${data.invite.nom} · Table ${data.invite.table_num}`);
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      chargerStats();
+
+    } else if (data.resultat === 'deja_entre') {
+      document.getElementById('res-warn-detail').textContent = data.message;
+      document.getElementById('res-warning').classList.add('show');
+      addHistory('Déjà validé', data.message);
+      if (navigator.vibrate) navigator.vibrate([300]);
+
+    } else if (data.resultat === 'refuse') {
+      document.getElementById('res-danger-titre').textContent  = 'Invitation déclinée';
+      document.getElementById('res-danger-detail').textContent = data.message;
+      document.getElementById('res-danger').classList.add('show');
+      addHistory('Refusé', data.message);
+      if (navigator.vibrate) navigator.vibrate([500]);
+
+    } else {
+      document.getElementById('res-danger-titre').textContent  = 'Code non reconnu';
+      document.getElementById('res-danger-detail').textContent = data.message || 'Ce code n\'existe pas dans la liste des invités.';
+      document.getElementById('res-danger').classList.add('show');
+      addHistory('Inconnu', code);
+      if (navigator.vibrate) navigator.vibrate([500]);
+    }
+  } catch(e) {
+    document.getElementById('res-danger-titre').textContent  = 'Erreur réseau';
+    document.getElementById('res-danger-detail').textContent = 'Vérifiez la connexion internet.';
+    document.getElementById('res-danger').classList.add('show');
+    addHistory('Erreur', code);
+  }
+
+  document.getElementById('manual-code').value = '';
+}
+
+function resetScanner() {
+  ['res-success','res-warning','res-danger'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  document.getElementById('manual-code').focus();
+}
+
+function formatInviteDetail(invite) {
+  const details = [`${invite.nb_couverts || 1} couvert(s)`, `Menu : ${invite.menu || 'standard'}`];
+  if (invite.boisson) details.push(`Boisson : ${invite.boisson}`);
+  return details.join(' · ');
+}
+
+function addHistory(status, detail) {
+  scanHistory.unshift({ status, detail, time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) });
+  scanHistory = scanHistory.slice(0, 8);
+  document.getElementById('scan-history-list').innerHTML = scanHistory.map(item => `
+    <div class="history-item"><strong>${item.time} · ${item.status}</strong><br>${item.detail}</div>
+  `).join('');
+}
+
+// ---- STATS ----
+async function chargerStats() {
+  try {
+    const res = await fetch('/api/scanner/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    if (!res.ok) throw new Error('Stats indisponibles');
+    const s = await res.json();
+    const acceptes = Number(s.acceptes || 0);
+    const presents = Number(s.presents || 0);
+    document.getElementById('qs-attendus').textContent = acceptes;
+    document.getElementById('qs-arrives').textContent = presents;
+    document.getElementById('qs-restants').textContent = Math.max(0, acceptes - presents);
+  } catch(e) {
+    document.getElementById('qs-attendus').textContent = '—';
+    document.getElementById('qs-arrives').textContent = '—';
+    document.getElementById('qs-restants').textContent = '—';
+  }
+}
+
+// Rafraîchir stats toutes les 30s
+setInterval(chargerStats, 30000);
+</script>
+</body>
+</html>
