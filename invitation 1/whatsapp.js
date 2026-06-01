@@ -1,5 +1,41 @@
 const axios = require('axios');
 
+async function envoyerViaMeta(message) {
+  const token = process.env.WHATSAPP_CLOUD_TOKEN || process.env.META_WHATSAPP_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const to = process.env.WHATSAPP_TO;
+  if (!token || !phoneNumberId || !to) return { ok: false, raison: 'WhatsApp Cloud API non configure' };
+
+  try {
+    const res = await axios.post(
+      `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+      {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'text',
+        text: {
+          preview_url: false,
+          body: message
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      }
+    );
+    console.log('[WhatsApp/Meta] Message envoye:', res.data?.messages?.[0]?.id || 'ok');
+    return { ok: true, data: res.data };
+  } catch (err) {
+    const detail = err.response?.data?.error?.message || err.message;
+    console.error('[WhatsApp/Meta] Erreur:', detail);
+    return { ok: false, raison: detail };
+  }
+}
+
 async function envoyerViaCallMeBot(message) {
   const phone = process.env.CALLMEBOT_PHONE;
   const apikey = process.env.CALLMEBOT_APIKEY;
@@ -37,6 +73,7 @@ async function envoyerVia2Chat(message) {
 }
 
 async function envoyerNotification(message) {
+  if (process.env.WHATSAPP_PROVIDER === 'meta' || process.env.WHATSAPP_CLOUD_TOKEN) return envoyerViaMeta(message);
   if (process.env.WHATSAPP_API_KEY) return envoyerVia2Chat(message);
   if (process.env.CALLMEBOT_APIKEY) return envoyerViaCallMeBot(message);
   console.log('\n[WhatsApp] Notification non envoyee, aucun service configure');

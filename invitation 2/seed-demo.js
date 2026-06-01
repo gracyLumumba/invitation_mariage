@@ -10,7 +10,7 @@ const invitesDemoData = [
   { nom: 'Robert Dupont',          code_secret: 'TF02', table_num: 5, nb_couverts: 1, menu: 'standard' },
   { nom: 'Sophie Lambert',         code_secret: 'TF03', table_num: 7, nb_couverts: 1, menu: 'vegetarien' },
   { nom: 'Thomas & Laura Petit',   code_secret: 'TF04', table_num: 3, nb_couverts: 2, menu: 'standard' },
-  { nom: 'Martine Future mariee Sr.',    code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard' },
+  { nom: 'Martine Laurene Sr.',    code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard' },
   { nom: 'Eric Tresor Sr.',       code_secret: 'TF06', table_num: 1, nb_couverts: 1, menu: 'standard' },
   { nom: 'Cedric Mbaye',           code_secret: 'TF07', table_num: 4, nb_couverts: 1, menu: 'standard' },
   { nom: 'Aline & Jacques Renaud', code_secret: 'TF08', table_num: 6, nb_couverts: 2, menu: 'standard' },

@@ -1,7 +1,7 @@
 ﻿{
-  "name": "mariage-tresor-future-mariee",
+  "name": "mariage-tresor-laurene",
   "version": "1.0.0",
-  "description": "Système d'invitation sécurisé - Mariage Tresor & Future mariee",
+  "description": "Système d'invitation sécurisé - Mariage Tresor & Laurene",
   "main": "server.js",
   "engines": {
     "node": "20.x"
@@ -29,6 +29,8 @@
     "selfsigned": "^2.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "jpeg-js": "^0.4.4",
+    "nodemon": "^3.1.0",
+    "pngjs": "^7.0.0"
   }
 }

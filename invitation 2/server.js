@@ -374,7 +374,7 @@ app.post('/api/connexion', loginLimiter,
     if (Number(invite.acces_count || 0) >= MAX_INVITE_ACCES) {
       await db.logSecurite('fraude', code_secret, nom, ip, 'Limite d’accès atteinte');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
-      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${MAX_INVITE_ACCES} fois. Contactez Tresor ou la future mariee si vous pensez qu’il s’agit d’une erreur.` });
+      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${MAX_INVITE_ACCES} fois. Contactez Tresor ou la Laurene si vous pensez qu’il s’agit d’une erreur.` });
     }
 
     // Marquer le code comme utilisé
@@ -835,7 +835,7 @@ async function startServer() {
     const credentials = getHttpsCredentials();
     const localIp = getLocalIp();
     https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système mariage Tresor & Future mariee démarré en HTTPS !');
+      console.log('\n[DEMARRAGE] Système mariage Tresor & Laurene démarré en HTTPS !');
       console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
       console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
@@ -846,7 +846,7 @@ async function startServer() {
   } else {
     const localIp = getLocalIp();
     app.listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système mariage Tresor & Future mariee démarré !');
+      console.log('\n[DEMARRAGE] Système mariage Tresor & Laurene démarré !');
       console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
       console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);

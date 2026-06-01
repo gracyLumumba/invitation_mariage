@@ -19,7 +19,7 @@ const demoInvites = [
   { id: 2, nom: 'Robert Dupont', code_secret: 'TF02', table_num: 5, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
   { id: 3, nom: 'Sophie Lambert', code_secret: 'TF03', table_num: 7, nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
   { id: 4, nom: 'Thomas & Laura Petit', code_secret: 'TF04', table_num: 3, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 5, nom: 'Martine Future mariee Sr.', code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 5, nom: 'Martine Laurene Sr.', code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
   { id: 6, nom: 'Eric Tresor Sr.', code_secret: 'TF06', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
   { id: 7, nom: 'Cedric Mbaye', code_secret: 'TF07', table_num: 4, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
   { id: 8, nom: 'Aline & Jacques Renaud', code_secret: 'TF08', table_num: 6, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
