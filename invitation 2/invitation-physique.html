@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation - Tresor &amp; Laurene</title>
+<title>Invitation - Tresor &amp; Laurette</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -417,7 +417,7 @@ body {
     <button class="btn-print" id="download-pdf">Telecharger le PDF</button>
   </div>
 
-  <article class="sheet" id="invitation-card" aria-label="Invitation de mariage Tresor et Laurene">
+  <article class="sheet" id="invitation-card" aria-label="Invitation de mariage Tresor et Laurette">
     <img class="floral floral-top" src="fleur-du-dessus-transparent.png" alt="">
     <img class="floral floral-bottom" src="fleure-en-bas-transparent.png" alt="">
     <img class="rings" src="wedding-rings-transparent.png" alt="">
@@ -430,7 +430,7 @@ body {
       <div class="names">
         <div class="name">Tr&eacute;sor</div>
         <div class="amp">&amp;</div>
-        <div class="name">Laurene</div>
+        <div class="name">Laurette</div>
       </div>
 
       <div class="date">Date &agrave; confirmer</div>
@@ -465,7 +465,7 @@ body {
       <div id="guest-badge-container"></div>
 
       <div class="signature">
-        <div class="signature-names">Tr&eacute;sor &amp; Laurene</div>
+        <div class="signature-names">Tr&eacute;sor &amp; Laurette</div>
         <p class="final-text">&laquo; Ensemble, faisons de ce jour un souvenir &eacute;ternel. &raquo;</p>
       </div>
 
@@ -635,7 +635,7 @@ function renderInvitation(invite) {
   currentCode = normalizeCode(invite?.code_secret) || currentCode || 'TL01';
   renderBadge(invite);
   renderQr(currentCode);
-  document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurene';
+  document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurette';
 }
 
 async function readJson(response) {
@@ -736,7 +736,7 @@ document.getElementById('download-pdf').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a5');
     pdf.addImage(imgData, 'PNG', 0, 0, 148, 210);
-    pdf.save('invitation-tresor-laurene.pdf');
+    pdf.save('invitation-tresor-laurette.pdf');
   } catch (err) {
     statusEl.textContent = err.message || 'Impossible de generer le PDF.';
   } finally {
