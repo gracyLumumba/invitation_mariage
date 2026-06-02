@@ -15,17 +15,19 @@ const pool = connectionString
   : null;
 
 const demoInvites = [
-  { id: 1, nom: 'Jeanne & Paul Martin', code_secret: 'TF01', table_num: 3, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 2, nom: 'Robert Dupont', code_secret: 'TF02', table_num: 5, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 3, nom: 'Sophie Lambert', code_secret: 'TF03', table_num: 7, nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 4, nom: 'Thomas & Laura Petit', code_secret: 'TF04', table_num: 3, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 5, nom: 'Martine Laurene Sr.', code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 6, nom: 'Eric Tresor Sr.', code_secret: 'TF06', table_num: 1, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 7, nom: 'Cedric Mbaye', code_secret: 'TF07', table_num: 4, nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 8, nom: 'Aline & Jacques Renaud', code_secret: 'TF08', table_num: 6, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 9, nom: 'Fatou Diallo', code_secret: 'TF09', table_num: 8, nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
-  { id: 10, nom: 'Pierre & Claire Moreau', code_secret: 'TF10', table_num: 2, nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 1, nom: 'Jean & Marie Dupont', code_secret: 'TL01', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 2, nom: 'Luc Bernard', code_secret: 'TL02', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 3, nom: 'Anne Rousseau', code_secret: 'TL03', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 4, nom: 'Michel & Nicole Leclerc', code_secret: 'TL04', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 5, nom: 'Francoise Gérard', code_secret: 'TL05', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 6, nom: 'Claude Laurent', code_secret: 'TL06', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 7, nom: 'Sylvain Gautier', code_secret: 'TL07', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 8, nom: 'Brigitte & Pierre Moreau', code_secret: 'TL08', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 9, nom: 'Evelyne Robert', code_secret: 'TL09', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 10, nom: 'Olivier & Christine Durand', code_secret: 'TL10', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
 ];
+
+const demoLogs = [];
 
 function formatDbError(err) {
   const message = err?.message || String(err);
@@ -70,7 +72,8 @@ async function initDb() {
       id            BIGSERIAL PRIMARY KEY,
       nom           TEXT NOT NULL,
       code_secret   TEXT NOT NULL UNIQUE,
-      table_num     INTEGER DEFAULT 0,
+      pays          TEXT DEFAULT 'France',
+      grace_table_france TEXT DEFAULT 'Oui',
       nb_couverts   INTEGER DEFAULT 1,
       menu          TEXT DEFAULT 'standard',
       code_utilise  BOOLEAN DEFAULT false,
@@ -135,12 +138,12 @@ async function findInviteById(id) {
   return normalizeInvite(result.rows[0]);
 }
 
-async function findInviteByNameTable(nom, tableNum) {
+async function findInviteByNameTable(nom, pays) {
   if (useDemoDb) {
     const normalizedName = String(nom || '').trim().toLowerCase();
     const invite = demoInvites.find(row =>
       row.nom.trim().toLowerCase() === normalizedName &&
-      Number(row.table_num) === Number(tableNum)
+      String(row.pays || '').toLowerCase() === String(pays || '').toLowerCase()
     );
     return normalizeInvite(invite);
   }
@@ -149,9 +152,9 @@ async function findInviteByNameTable(nom, tableNum) {
     `SELECT *
      FROM invites
      WHERE LOWER(TRIM(nom)) = LOWER(TRIM($1))
-       AND table_num = $2
+       AND LOWER(TRIM(pays)) = LOWER(TRIM($2))
      LIMIT 1`,
-    [nom, tableNum]
+    [nom, pays]
   );
   return normalizeInvite(result.rows[0]);
 }
@@ -161,6 +164,11 @@ async function codeExists(code_secret) {
 }
 
 async function marquerCodeUtilise(code_secret, ip) {
+  if (useDemoDb) {
+    const invite = demoInvites.find(i => i.code_secret.toUpperCase() === code_secret.toUpperCase());
+    if (invite) { invite.acces_count++; invite.ip_connexion = ip; }
+    return { rowCount: 1 };
+  }
   return query(
     `UPDATE invites
      SET acces_count = COALESCE(acces_count, 0) + 1,
@@ -172,6 +180,11 @@ async function marquerCodeUtilise(code_secret, ip) {
 }
 
 async function enregistrerReponse(code_secret, statut, boisson = null) {
+  if (useDemoDb) {
+    const invite = demoInvites.find(i => i.code_secret.toUpperCase() === code_secret.toUpperCase());
+    if (invite) { invite.statut = statut; invite.boisson = boisson; invite.date_reponse = new Date().toLocaleString(); }
+    return { rowCount: 1, rows: [invite] };
+  }
   const now = new Date().toLocaleString('fr-FR');
   return query(
     `UPDATE invites
@@ -185,6 +198,11 @@ async function enregistrerReponse(code_secret, statut, boisson = null) {
 }
 
 async function validerPresence(code_secret) {
+  if (useDemoDb) {
+    const invite = demoInvites.find(i => i.code_secret.toUpperCase() === code_secret.toUpperCase());
+    if (invite) { invite.presente = true; invite.date_presence = new Date().toLocaleString(); }
+    return { rowCount: 1, rows: [invite] };
+  }
   const now = new Date().toLocaleString('fr-FR');
   return query(
     `UPDATE invites
@@ -199,17 +217,20 @@ async function validerPresence(code_secret) {
 }
 
 async function getAllInvites() {
-  const result = await query('SELECT * FROM invites ORDER BY table_num, nom');
+  if (useDemoDb) return demoInvites.map(normalizeInvite);
+  const result = await query('SELECT * FROM invites ORDER BY pays, nom');
   return result.rows.map(normalizeInvite);
 }
 
 async function getServeurDashboard() {
+  if (useDemoDb) return demoInvites.filter(i => i.presente).map(normalizeInvite);
   const result = await query(`
     SELECT
       id,
       nom,
       code_secret,
-      table_num,
+      pays,
+      grace_table_france,
       nb_couverts,
       menu,
       boisson,
@@ -219,26 +240,26 @@ async function getServeurDashboard() {
     FROM invites
     WHERE presente = true
       AND statut != 'refuse'
-    ORDER BY table_num NULLS LAST, date_presence DESC, nom
+    ORDER BY pays NULLS LAST, date_presence DESC, nom
   `);
   return result.rows.map(normalizeInvite);
 }
 
 async function updateInvite(id, data) {
-  const { nom, table_num, nb_couverts, menu, statut, boisson } = data;
+  const { nom, pays, grace_table_france, nb_couverts, menu, statut, boisson } = data;
   return query(
-    'UPDATE invites SET nom = $1, table_num = $2, nb_couverts = $3, menu = $4, statut = $5, boisson = $6 WHERE id = $7',
-    [nom, table_num, nb_couverts, menu, statut, boisson, id]
+    'UPDATE invites SET nom = $1, pays = $2, grace_table_france = $3, nb_couverts = $4, menu = $5, statut = $6, boisson = $7 WHERE id = $8',
+    [nom, pays, grace_table_france, nb_couverts, menu, statut, boisson, id]
   );
 }
 
 async function createInvite(data) {
-  const { nom, code_secret, table_num, nb_couverts, menu } = data;
+  const { nom, code_secret, pays, grace_table_france, nb_couverts, menu } = data;
   const result = await query(
-    `INSERT INTO invites (nom, code_secret, table_num, nb_couverts, menu)
-     VALUES ($1, UPPER($2), $3, $4, $5)
+    `INSERT INTO invites (nom, code_secret, pays, grace_table_france, nb_couverts, menu)
+     VALUES ($1, UPPER($2), $3, $4, $5, $6)
      RETURNING id`,
-    [nom, code_secret, table_num, nb_couverts, menu]
+    [nom, code_secret, pays, grace_table_france, nb_couverts, menu]
   );
   return { lastInsertRowid: result.rows[0].id };
 }
@@ -264,6 +285,10 @@ async function resetInviteCode(id, newCode) {
 // ---- LOGS SECURITE ----
 
 async function logSecurite(type, code_tente, nom_tente, ip, message) {
+  if (useDemoDb) {
+    demoLogs.push({ id: demoLogs.length + 1, type, code_tente, nom_tente, ip, message, created_at: new Date().toISOString() });
+    return;
+  }
   return query(
     `INSERT INTO logs_securite (type, code_tente, nom_tente, ip, message)
      VALUES ($1, $2, $3, $4, $5)`,
@@ -272,6 +297,9 @@ async function logSecurite(type, code_tente, nom_tente, ip, message) {
 }
 
 async function getLogsSecurite() {
+  if (useDemoDb) {
+    return demoLogs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 100);
+  }
   const result = await query('SELECT * FROM logs_securite ORDER BY created_at DESC LIMIT 100');
   return result.rows;
 }
@@ -279,6 +307,19 @@ async function getLogsSecurite() {
 // ---- STATISTIQUES ----
 
 async function getStats() {
+  if (useDemoDb) {
+    const total = demoInvites.length;
+    const acceptes = demoInvites.filter(i => i.statut === 'accepte').length;
+    const refuses = demoInvites.filter(i => i.statut === 'refuse').length;
+    const en_attente = demoInvites.filter(i => i.statut === 'en_attente').length;
+    const presents = demoInvites.filter(i => i.presente).length;
+    const couverts = demoInvites.filter(i => i.statut === 'accepte').reduce((sum, i) => sum + i.nb_couverts, 0);
+    const fraudes = demoLogs.filter(l => l.type === 'fraude').length;
+    const taux_reponse = total > 0 ? Math.round(100 * (acceptes + refuses) / total) : 0;
+    
+    return { total, acceptes, refuses, en_attente, presents, couverts, fraudes, taux_reponse };
+  }
+  
   const result = await query(`
     SELECT
       COUNT(*)::int AS total,

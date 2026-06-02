@@ -1,4 +1,4 @@
-﻿// server.js — Serveur principal Express
+﻿﻿// server.js — Serveur principal Express
 // Démarrer avec : node server.js  (ou  npm run dev  avec nodemon)
 
 require('dotenv').config();
@@ -39,6 +39,17 @@ const CERT_KEY = path.join(CERT_DIR, 'localhost-key.pem');
 const CERT_CRT = path.join(CERT_DIR, 'localhost.pem');
 
 app.set('trust proxy', 1);
+
+// ============================================
+// MIDDLEWARES GLOBAUX (CORS en premier)
+// ============================================
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
 
 function getLocalIp() {
   const ifaces = os.networkInterfaces();
@@ -83,7 +94,16 @@ app.use(helmet({
 app.use(mongoSanitize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/css', express.static(__dirname));
+
+// Middleware CORS pour autoriser les requêtes depuis le fichier local ou d'autres ports
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.get('/instrumentale mariage.mpeg', (req, res) => {
   res.type('audio/mpeg');
   res.sendFile(path.join(__dirname, 'instrumentale mariage.mpeg'));
@@ -207,7 +227,7 @@ function inviteUrl(invite, baseUrl) {
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
   const params = new URLSearchParams({
     code: invite.code_secret,
-    table: String(invite.table_num || ''),
+    pays: String(invite.pays || 'France'),
   });
   return `${baseUrl}/valider-entree?${params.toString()}`;
 }
@@ -229,7 +249,8 @@ async function publicInvitationPayload(invite, baseUrl) {
   return {
     nom: invite.nom,
     code_secret: invite.code_secret,
-    table_num: invite.table_num,
+    pays: invite.pays,
+    grace_table_france: invite.grace_table_france,
     nb_couverts: invite.nb_couverts,
     menu: invite.menu,
     statut: invite.statut,
@@ -368,7 +389,8 @@ app.post('/api/connexion', loginLimiter,
     req.session.invite = {
       code_secret: invite.code_secret,
       nom:         invite.nom,
-      table_num:   invite.table_num,
+      pays:        invite.pays,
+      grace_table_france: invite.grace_table_france,
       nb_couverts: invite.nb_couverts,
       menu:        invite.menu,
       boisson:     invite.boisson,
@@ -462,10 +484,10 @@ app.get('/api/invitation-physique/:code', async (req, res) => {
   });
 });
 
-// POST /api/invitation-physique/verifier — Recherche publique par nom + table
+// POST /api/invitation-physique/verifier — Recherche publique par nom + pays
 app.post('/api/invitation-physique/verifier', apiLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
-  body('table_num').isInt({ min: 0 }).withMessage('Numéro de table invalide'),
+  body('pays').trim().isLength({ min: 1, max: 100 }).withMessage('Le pays est requis'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -473,13 +495,13 @@ app.post('/api/invitation-physique/verifier', apiLimiter,
     }
 
     const nom = String(req.body.nom || '').trim();
-    const tableNum = Number(req.body.table_num);
+    const pays = String(req.body.pays || '').trim();
 
-    const invite = await db.findInviteByNameTable(nom, tableNum);
+    const invite = await db.findInviteByNameTable(nom, pays);
     if (!invite) {
       return res.status(404).json({
         ok: false,
-        erreur: 'Informations non reconnues. Vérifiez le nom complet et le numéro de table.'
+        erreur: 'Informations non reconnues. Vérifiez le nom complet et le pays.'
       });
     }
 
@@ -569,7 +591,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
-      invite: { nom: invite.nom, table_num: invite.table_num, menu: invite.menu, boisson: invite.boisson }
+      invite: { nom: invite.nom, pays: invite.pays, grace_table_france: invite.grace_table_france, menu: invite.menu, boisson: invite.boisson }
     });
   }
 
@@ -593,7 +615,8 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     message: `Bienvenue, ${updatedInvite.nom} !`,
     invite: {
       nom:         updatedInvite.nom,
-      table_num:   updatedInvite.table_num,
+      pays:        updatedInvite.pays,
+      grace_table_france: updatedInvite.grace_table_france,
       nb_couverts: updatedInvite.nb_couverts,
       menu:        updatedInvite.menu,
       boisson:     updatedInvite.boisson,
@@ -637,24 +660,26 @@ app.get('/api/serveurs/dashboard', requireServeur, async (req, res) => {
   const tables = new Map();
 
   for (const invite of invites) {
-    const tableKey = String(invite.table_num || 'Sans table');
-    if (!tables.has(tableKey)) {
-      tables.set(tableKey, {
-        table_num: invite.table_num || null,
-        table_label: invite.table_num ? `Table ${invite.table_num}` : 'Sans table',
+    const paysKey = String(invite.pays || 'Sans pays');
+    if (!tables.has(paysKey)) {
+      tables.set(paysKey, {
+        pays: invite.pays || null,
+        grace_table_france: invite.grace_table_france,
+        table_label: invite.pays ? `Pays: ${invite.pays}` : 'Sans pays',
         invites: [],
         boissons: {}
       });
     }
 
-    const table = tables.get(tableKey);
+    const table = tables.get(paysKey);
     const boisson = String(invite.boisson || 'Non choisie').trim();
     table.boissons[boisson] = (table.boissons[boisson] || 0) + 1;
     table.invites.push({
       id: invite.id,
       nom: invite.nom,
       code_secret: invite.code_secret,
-      table_num: invite.table_num,
+      pays: invite.pays,
+      grace_table_france: invite.grace_table_france,
       nb_couverts: invite.nb_couverts,
       menu: invite.menu,
       boisson,
@@ -723,21 +748,23 @@ app.get('/api/admin/public-url', requireAdmin, (req, res) => {
 app.post('/api/admin/invites', requireAdmin, apiLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
   body('code_secret').optional().trim().isLength({ min: 4, max: 10 }).withMessage('Code invalide'),
-  body('table_num').optional().isInt({ min: 0 }).withMessage('Numéro table invalide'),
+  body('pays').optional().trim().isLength({ max: 100 }),
+  body('grace_table_france').optional().isBoolean(),
   body('nb_couverts').optional().isInt({ min: 1, max: 10 }).withMessage('Couverts invalides'),
   body('menu').optional().isIn(['standard', 'vegetarien', 'vegan']).withMessage('Menu invalide'),
   validateInput,
   async (req, res) => {
   const nom = String(req.body.nom || '').trim();
   const code_secret = String(req.body.code_secret || await nextInviteCode()).trim().toUpperCase();
-  const table_num = Number(req.body.table_num || 0);
+  const pays = String(req.body.pays || '').trim();
+  const grace_table_france = req.body.grace_table_france || (pays.toLowerCase() === 'france');
   const nb_couverts = Number(req.body.nb_couverts || 1);
   const menu = String(req.body.menu || 'standard').trim();
 
   if (!nom) return res.status(400).json({ erreur: 'Nom requis.' });
   if (await db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
 
-  const result = await db.createInvite({ nom, code_secret, table_num, nb_couverts, menu });
+  const result = await db.createInvite({ nom, code_secret, pays, grace_table_france, nb_couverts, menu });
   res.json({ ok: true, id: result.lastInsertRowid, code_secret });
 });
 
@@ -746,7 +773,8 @@ app.put('/api/admin/invites/:id', requireAdmin, async (req, res) => {
   if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
   await db.updateInvite(req.params.id, {
     nom: String(req.body.nom || current.nom).trim(),
-    table_num: Number(req.body.table_num ?? current.table_num),
+    pays: String(req.body.pays ?? current.pays).trim(),
+    grace_table_france: req.body.grace_table_france ?? current.grace_table_france,
     nb_couverts: Number(req.body.nb_couverts ?? current.nb_couverts),
     menu: String(req.body.menu || current.menu).trim(),
     boisson: String(req.body.boisson ?? current.boisson ?? '').trim() || null,
@@ -778,9 +806,9 @@ app.get('/api/admin/logs', requireAdmin, async (req, res) => {
 // Export CSV
 app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   const invites = await db.getAllInvites();
-  const header = ['ID','Nom','Code','Table','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
+  const header = ['ID','Nom','Code','Pays','Gracy','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
   const rows = invites.map(i => [
-    i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
+    i.id, `"${i.nom}"`, i.code_secret, `"${i.pays || ''}"`, i.grace_table_france ? 'Oui' : 'Non', i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
     i.statut, `${i.acces_count || 0}/${MAX_INVITE_ACCES}`, i.presente ? 'oui' : 'non',
     i.ip_connexion || '', i.date_reponse || '', i.date_presence || ''
   ]);

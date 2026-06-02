@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -353,7 +353,7 @@
           <div class="add-form">
             <input class="mini-input mini-name" id="new-nom" placeholder="Nom invité ou couple" />
             <input class="mini-input" id="new-code" placeholder="Code auto" />
-            <input class="mini-input" id="new-table" type="number" min="0" placeholder="Table" />
+            <input class="mini-input" id="new-pays" placeholder="Pays" />
             <input class="mini-input" id="new-couverts" type="number" min="1" value="1" />
             <input class="mini-input" id="new-menu" placeholder="Menu" value="standard" />
             <button class="btn-small" onclick="ajouterInvite()">Ajouter</button>
@@ -366,8 +366,8 @@
               <option value="accepte">Acceptés</option>
               <option value="refuse">Refusés</option>
             </select>
-            <select class="table-filter" id="table-filter" onchange="filtrerTableNum(this.value)">
-              <option value="">Toutes les tables</option>
+            <select class="table-filter" id="pays-filter" onchange="filtrerPays(this.value)">
+              <option value="">Tous les pays</option>
             </select>
             <button class="btn-csv" onclick="exportCSV()"><i data-lucide="download" class="icon"></i> Export CSV</button>
           </div>
@@ -375,7 +375,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>ID</th><th>Nom</th><th>Code</th><th>Table</th><th>Couverts</th>
+                  <th>ID</th><th>Nom</th><th>Code</th><th>Pays</th><th>Couverts</th>
                   <th>Menu</th><th>Boisson</th><th>Statut</th><th>Accès</th>
                   <th>Présent J</th><th>IP</th><th>Date réponse</th><th>Date présence</th><th>Actions</th>
                 </tr>
@@ -406,7 +406,7 @@ window.addEventListener('load', renderIcons);
 let allInvites = [];
 let filtreTexte = '';
 let filtreStatut = '';
-let filtreTableNum = '';
+let filtrePays = '';
 let publicInviteUrl = window.location.origin + '/';
 let activeSection = 'dashboard';
 let isEditingTable = false;
@@ -497,10 +497,10 @@ async function chargerInvites(options = {}) {
 }
 
 function renderTableFilter() {
-  const select = document.getElementById('table-filter');
+  const select = document.getElementById('pays-filter');
   const current = select.value;
-  const tables = [...new Set(allInvites.map(i => i.table_num).filter(Boolean))].sort((a, b) => a - b);
-  select.innerHTML = '<option value="">Toutes les tables</option>' + tables.map(t => `<option value="${t}">Table ${t}</option>`).join('');
+  const pays = [...new Set(allInvites.map(i => i.pays).filter(Boolean))].sort();
+  select.innerHTML = '<option value="">Tous les pays</option>' + pays.map(p => `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`).join('');
   select.value = current;
 }
 
@@ -509,15 +509,15 @@ function renderTable() {
     const q = filtreTexte.toLowerCase();
     const matchText  = !q || i.nom.toLowerCase().includes(q) || i.code_secret.toLowerCase().includes(q);
     const matchStatut = !filtreStatut || i.statut === filtreStatut;
-    const matchTable = !filtreTableNum || String(i.table_num) === filtreTableNum;
-    return matchText && matchStatut && matchTable;
+    const matchPays = !filtrePays || i.pays === filtrePays;
+    return matchText && matchStatut && matchPays;
   });
   document.getElementById('invites-tbody').innerHTML = data.map(i => `
     <tr data-id="${i.id}">
       <td>${i.id}</td>
       <td><input class="mini-input mini-name" value="${escapeAttr(i.nom)}" data-field="nom" /></td>
       <td><span class="badge-code">${i.code_secret}</span></td>
-      <td><input class="mini-input" type="number" value="${i.table_num || 0}" data-field="table_num" /></td>
+      <td><input class="mini-input" value="${escapeAttr(i.pays || '')}" data-field="pays" /></td>
       <td><input class="mini-input" type="number" min="1" value="${i.nb_couverts}" data-field="nb_couverts" /></td>
       <td><input class="mini-input" value="${escapeAttr(i.menu)}" data-field="menu" /></td>
       <td><input class="mini-input" value="${escapeAttr(i.boisson || '')}" data-field="boisson" /></td>
@@ -626,7 +626,7 @@ function getBadge(s) {
 
 function filtrerTable(q)  { filtreTexte  = q; renderTable(); }
 function filtrerStatut(s) { filtreStatut = s; renderTable(); }
-function filtrerTableNum(t) { filtreTableNum = t; renderTable(); }
+function filtrerPays(p)   { filtrePays = p; renderTable(); }
 
 function escapeAttr(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -640,7 +640,7 @@ async function ajouterInvite() {
   const payload = {
     nom: document.getElementById('new-nom').value,
     code_secret: document.getElementById('new-code').value,
-    table_num: document.getElementById('new-table').value,
+    pays: document.getElementById('new-pays').value,
     nb_couverts: document.getElementById('new-couverts').value,
     menu: document.getElementById('new-menu').value,
   };

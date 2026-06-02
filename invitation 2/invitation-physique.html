@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invitation - Tresor &amp; Laurene</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="node_modules/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -51,9 +50,8 @@ body {
 }
 .sheet {
   position: relative;
-  width: min(100%, 620px);
-  aspect-ratio: 0.70;
-  min-height: 880px;
+  width: min(100%, 540px);
+  min-height: 760px;
   margin: 0 auto;
   background: var(--paper);
   overflow: hidden;
@@ -67,79 +65,88 @@ body {
   pointer-events: none;
   z-index: 4;
 }
+.sheet::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(200, 149, 45, .35);
+  pointer-events: none;
+  z-index: 5;
+}
 .floral {
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 10px 18px rgba(11, 53, 92, .12));
+  display: block;
+  height: auto;
+  max-width: 100%;
 }
 .floral-top {
-  top: -24px;
-  left: -24px;
-  width: min(38%, 230px);
-  transform: rotate(-8deg);
+  top: -25px;
+  left: -60px;
+  width: 250px;
+  transform-origin: left top;
 }
 .floral-bottom {
-  right: 0;
-  bottom: 0;
-  width: clamp(255px, 51%, 325px);
-  transform: translate(10px, 8px) rotate(2deg);
+  right: -30px;
+  bottom: -30px;
+  width: 320px;
+  transform: rotate(2deg);
   transform-origin: right bottom;
 }
 .rings {
-  position: absolute;
-  top: 20px;
-  right: 22px;
-  width: 132px;
-  z-index: 3;
-  opacity: .95;
-  filter: drop-shadow(0 8px 12px rgba(60, 44, 10, .18));
+  display: none;
 }
 .content {
   position: relative;
-  z-index: 2;
-  padding: 72px 42px 30px;
-  min-height: 100%;
+  z-index: 3;
+  padding: 76px 54px 120px;
   text-align: center;
 }
 .names {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: end;
-  gap: 8px;
-  margin-top: 2px;
-  font-family: "Great Vibes", cursive;
+  gap: 20px;
+  width: min(100%, 380px);
+  margin: 4px auto 0;
+  font-family: Georgia, "Times New Roman", serif;
   color: var(--blue);
-  line-height: .86;
+  line-height: 1.04;
 }
 .name {
   min-width: 0;
-  font-size: clamp(48px, 8.6vw, 70px);
+  font-size: 40px;
+  font-weight: 600;
   text-shadow: 0 1px 0 rgba(255,255,255,.9);
 }
-.name:first-child { text-align: left; }
-.name:last-child { text-align: right; }
+.name:first-child { text-align: right; }
+.name:last-child { text-align: left; }
 .amp {
   font-family: "Cormorant Garamond", serif;
-  font-size: clamp(32px, 6vw, 48px);
+  font-size: 43px;
   font-style: italic;
   font-weight: 400;
-  padding-bottom: 8px;
+  color: var(--gold);
+  padding-bottom: 0;
 }
 .intro {
-  margin: 16px auto 8px;
+  margin: 0 auto 4px;
   max-width: 510px;
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 21px;
+  font-size: 15px;
   font-style: italic;
+  color: var(--muted);
+  letter-spacing: .06em;
   line-height: 1.26;
 }
 .date {
-  margin: 8px auto 18px;
+  margin: 5px auto 12px;
   font-family: Georgia, "Times New Roman", serif;
-  color: var(--blue);
-  font-size: 18px;
+  color: var(--muted);
+  font-size: 14.5px;
   font-style: italic;
   line-height: 1.2;
 }
@@ -147,29 +154,29 @@ body {
   color: var(--gold);
   font-size: 14px;
   letter-spacing: .5em;
-  margin: 6px auto 14px;
+  margin: 3px auto 12px;
   opacity: .8;
 }
 .poem {
-  max-width: 465px;
-  margin: 0 auto 12px;
+  max-width: 340px;
+  margin: 0 auto 8px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
+  font-size: 13px;
   font-style: italic;
-  line-height: 1.58;
+  line-height: 1.9;
 }
 .share-line {
-  margin: 0 auto 17px;
+  margin: 0 auto 15px;
   color: var(--muted);
-  font-size: 17px;
+  font-size: 12.5px;
   font-style: italic;
 }
 .details {
-  max-width: 455px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 16.5px;
-  line-height: 1.48;
+  font-size: 12px;
+  line-height: 1.75;
   text-align: left;
 }
 .details strong {
@@ -179,11 +186,11 @@ body {
 .details-title {
   color: var(--blue);
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.1;
-  margin-bottom: 7px;
-  text-align: center;
+  margin-bottom: 4px;
+  text-align: left;
 }
 .schedule {
   list-style: none;
@@ -205,14 +212,15 @@ body {
   text-transform: uppercase;
 }
 .confirm {
-  margin: 16px auto 9px;
-  max-width: 500px;
+  margin: 12px auto 0;
+  max-width: 330px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 16.5px;
+  font-size: 12.5px;
+  font-style: italic;
   line-height: 1.28;
 }
 .signature {
-  margin-top: 8px;
+  margin-top: 10px;
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 18px;
 }
@@ -220,14 +228,14 @@ body {
   margin-top: 3px;
   color: var(--blue);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
 }
 .final-text {
   margin-top: 4px;
   color: var(--muted);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 15px;
+  font-size: 12px;
   font-style: italic;
 }
 .guest-badge {
@@ -235,49 +243,76 @@ body {
   align-items: center;
   gap: 10px;
   max-width: min(100%, 330px);
-  margin: 5px auto 0;
+  margin: 8px auto 0;
   padding: 7px 15px;
   border: 1px solid rgba(7, 85, 199, .2);
   background: rgba(255, 255, 255, .76);
   color: var(--blue-deep);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
 }
 .guest-badge-sep {
   width: 1px;
   height: 18px;
   background: rgba(7, 85, 199, .22);
 }
-.guest-badge-table {
+.guest-badge-pays {
   color: var(--muted);
   font-size: 12px;
   font-style: italic;
   white-space: nowrap;
 }
-.qr-zone {
-  position: absolute;
-  left: 38px;
-  bottom: 28px;
-  z-index: 5;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
+.qr-venue-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 22px;
+  max-width: 360px;
+  margin: 0 auto 10px;
 }
-.qr-label {
-  color: var(--blue);
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 19px;
-}
-#qrcode {
-  width: 112px;
-  height: 112px;
+.qr-frame {
+  flex-shrink: 0;
+  border: 1.5px solid var(--gold);
   padding: 6px;
   background: #fff;
-  border: 2px solid var(--blue);
+  line-height: 0;
+}
+#qrcode {
+  width: 90px;
+  height: 90px;
   display: grid;
   place-items: center;
 }
-#qrcode canvas, #qrcode img { width: 96px !important; height: 96px !important; }
+#qrcode canvas, #qrcode img { width: 90px !important; height: 90px !important; }
+.qr-fallback {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+}
+.venue-block {
+  text-align: left;
+  padding-top: 3px;
+}
+.venue-name {
+  color: var(--blue);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.venue-address {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.72;
+}
+.card-footer-ornament {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: .45em;
+  margin-top: 10px;
+  opacity: .68;
+}
 .code-panel {
   width: min(100%, 620px);
   margin: 18px auto 0;
@@ -352,17 +387,17 @@ body {
   font-size: 13px;
 }
 @media (max-width: 620px) {
-  .sheet { min-height: 790px; }
-  .content { padding: 68px 27px 30px; }
-  .floral-top { width: 190px; left: -34px; top: -22px; }
-  .floral-bottom { width: 245px; right: 0; bottom: 0; transform: translate(18px, 10px) rotate(2deg); }
-  .rings { top: 15px; right: 16px; width: 104px; }
-  .name { font-size: clamp(39px, 13vw, 54px); }
-  .amp { font-size: 31px; }
-  .intro { font-size: 18px; }
-  .poem { font-size: 15.5px; line-height: 1.46; }
-  .details, .confirm { font-size: 14.5px; }
-  .qr-zone { left: 24px; bottom: 22px; }
+  .sheet { min-height: 750px; }
+  .content { padding: 70px 30px 112px; }
+  .floral-top { width: 180px; top: -35px; left: -40px; }
+  .floral-bottom { width: 170px; transform: translate(42px, 44px) rotate(2deg); }
+  .names { width: min(100%, 300px); gap: 12px; }
+  .name { font-size: 31px; }
+  .amp { font-size: 34px; }
+  .intro { font-size: 13px; }
+  .poem { font-size: 12px; line-height: 1.72; }
+  .qr-venue-row { gap: 16px; }
+  .details, .confirm { font-size: 12px; }
 }
 @media print {
   body { padding: 0; background: #fff; }
@@ -388,15 +423,15 @@ body {
     <img class="rings" src="wedding-rings-transparent.png" alt="">
 
     <div class="content">
+      <p class="intro">
+        Invitation au mariage de
+      </p>
+
       <div class="names">
         <div class="name">Tr&eacute;sor</div>
         <div class="amp">&amp;</div>
         <div class="name">Laurene</div>
       </div>
-
-      <p class="intro">
-        Invitation au mariage de
-      </p>
 
       <div class="date">Date &agrave; confirmer</div>
 
@@ -411,30 +446,31 @@ body {
 
       <p class="share-line">Nous serions heureux de partager ce jour avec vous.</p>
 
-      <div class="details">
-        <div class="details-title">&Eacute;glise &agrave; confirmer</div>
-        <ul class="schedule">
-          <li><strong>Heure &agrave; confirmer</strong> - C&eacute;r&eacute;monie religieuse</li>
-          <li><strong>18h00</strong> - Vin d'honneur</li>
-          <li><strong>Salle polyvalente L.M.</strong></li>
-          <li>Av Savonier, en face de la Morgue SNCC</li>
-        </ul>
+      <div class="qr-venue-row">
+        <div class="qr-frame" aria-label="QR code d'entree">
+          <div id="qrcode"><div class="qr-fallback">QR<br>Code</div></div>
+        </div>
+
+        <div class="venue-block">
+          <div class="venue-name">&Eacute;glise &agrave; confirmer</div>
+          <div class="venue-address">
+            Heure &agrave; confirmer - C&eacute;r&eacute;monie religieuse<br>
+            18h00 - Vin d'honneur<br>
+            Salle polyvalente L.M.<br>
+            Av Savonier, en face de la Morgue SNCC
+          </div>
+        </div>
       </div>
+
+      <div id="guest-badge-container"></div>
 
       <div class="signature">
         <div class="signature-names">Tr&eacute;sor &amp; Laurene</div>
         <p class="final-text">&laquo; Ensemble, faisons de ce jour un souvenir &eacute;ternel. &raquo;</p>
-        <div id="guest-badge-container"></div>
       </div>
 
-      <p class="confirm">
-        Merci de confirmer votre pr&eacute;sence en scannant le QR code ci-dessous.
-      </p>
-    </div>
-
-    <div class="qr-zone">
-      <div class="qr-label">Scannez-moi</div>
-      <div id="qrcode"></div>
+      <p class="confirm">Merci de confirmer votre pr&eacute;sence en scannant le QR code ci-dessus.</p>
+      <div class="card-footer-ornament" aria-hidden="true">&bull; &bull; &bull;</div>
     </div>
   </article>
 
@@ -448,13 +484,13 @@ body {
         Votre nom complet
       </label>
       <input id="invite-name-input" name="nom" type="text" autocomplete="name" placeholder="Jeanne & Paul Martin">
-      <label for="invite-table-input">
+      <label for="invite-pays-input">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 10h16M6 10v10M18 10v10M8 4h8l2 6H6l2-6z"/>
         </svg>
-        Num&eacute;ro de table
+        Votre Pays
       </label>
-      <input id="invite-table-input" name="table_num" type="number" min="0" inputmode="numeric" placeholder="Ex: 3">
+      <input id="invite-pays-input" name="pays" type="text" placeholder="Ex: France, Belgique...">
       <button type="submit">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/>
@@ -462,20 +498,24 @@ body {
         V&eacute;rifier & d&eacute;voiler mon QR
       </button>
     </form>
-    <p class="code-status" id="code-status">Saisissez le nom complet et la table pour afficher le QR.</p>
+    <p class="code-status" id="code-status">Saisissez votre nom et pays pour afficher le QR.</p>
   </section>
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const codeInput = document.getElementById('invite-code-input');
+const nameInput = document.getElementById('invite-name-input');
+const paysInput = document.getElementById('invite-pays-input');
 const statusEl = document.getElementById('code-status');
 const qrEl = document.getElementById('qrcode');
+const badgeContainer = document.getElementById('guest-badge-container');
+let currentCode = normalizeCode(params.get('code')) || '';
 
 function normalizeCode(value) {
   return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 function qrUrl(code) {
+  // Passage en https pour correspondre au serveur
   const base = window.location.protocol === 'file:' ? 'https://localhost:3001' : window.location.origin;
   const url = new URL('/i/' + encodeURIComponent(code), base);
   return url.toString();
@@ -484,6 +524,11 @@ function qrUrl(code) {
 function apiUrl(code) {
   const base = window.location.protocol === 'file:' ? 'https://localhost:3001' : window.location.origin;
   return new URL('/api/invitation-physique/' + encodeURIComponent(code), base).toString();
+}
+
+function verifyApiUrl() {
+  const base = window.location.protocol === 'file:' ? 'https://localhost:3001' : window.location.origin;
+  return new URL('/api/invitation-physique/verifier', base).toString();
 }
 
 async function renderQrFromServer(code) {
@@ -497,7 +542,7 @@ async function renderQrFromServer(code) {
   img.alt = "QR code d'entree";
   qrEl.innerHTML = '';
   qrEl.appendChild(img);
-  statusEl.textContent = 'QR genere pour le code ' + code + '.';
+  statusEl.textContent = '';
 }
 
 function localQrImageUrl(code) {
@@ -515,7 +560,7 @@ function renderQrFromStaticFile(code) {
     img.onload = () => {
       qrEl.innerHTML = '';
       qrEl.appendChild(img);
-      statusEl.textContent = 'QR genere pour le code ' + code + '.';
+      statusEl.textContent = '';
       resolve();
     };
     img.onerror = reject;
@@ -524,8 +569,7 @@ function renderQrFromStaticFile(code) {
 }
 
 async function renderQr(code) {
-  const normalized = normalizeCode(code) || 'TF01';
-  codeInput.value = normalized;
+  const normalized = normalizeCode(code) || 'TL01';
   qrEl.innerHTML = '';
   try {
     await renderQrFromServer(normalized);
@@ -543,7 +587,7 @@ async function renderQr(code) {
       return;
     }
   }
-  QRCode.toCanvas(qrUrl(normalized), { width: 96, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
+  QRCode.toCanvas(qrUrl(normalized), { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
     if (err) {
       renderQrFromServer(normalized).catch(() => {
         statusEl.textContent = 'QR indisponible pour le moment.';
@@ -551,13 +595,127 @@ async function renderQr(code) {
       return;
     }
     qrEl.appendChild(canvas);
-    statusEl.textContent = 'QR genere pour le code ' + normalized + '.';
+    statusEl.textContent = '';
   });
+}
+
+function setStatus(message, isError) {
+  statusEl.textContent = message || '';
+  statusEl.style.color = isError ? '#9b1c1c' : '#4a5568';
+}
+
+function renderBadge(invite) {
+  badgeContainer.innerHTML = '';
+  if (!invite?.nom) return;
+
+  const badge = document.createElement('div');
+  badge.className = 'guest-badge';
+
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'guest-badge-name';
+  nameSpan.textContent = invite.nom;
+  badge.appendChild(nameSpan);
+
+  if (invite.pays) {
+    const sep = document.createElement('span');
+    sep.className = 'guest-badge-sep';
+    sep.setAttribute('aria-hidden', 'true');
+    badge.appendChild(sep);
+
+    const paysSpan = document.createElement('span');
+    paysSpan.className = 'guest-badge-pays';
+    paysSpan.textContent = invite.pays;
+    badge.appendChild(paysSpan);
+  }
+
+  badgeContainer.appendChild(badge);
+}
+
+function renderInvitation(invite) {
+  currentCode = normalizeCode(invite?.code_secret) || currentCode || 'TL01';
+  renderBadge(invite);
+  renderQr(currentCode);
+  document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurene';
+}
+
+async function readJson(response) {
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error("Le serveur n'a pas renvoye de donnees valides.");
+  }
+  return response.json();
+}
+
+async function loadInvitationByCode(code) {
+  const normalized = normalizeCode(code);
+  if (!normalized) {
+    await renderQr('TL01');
+    return;
+  }
+
+  try {
+    setStatus("Chargement de l'invitation...", false);
+    const response = await fetch(apiUrl(normalized));
+    const result = await readJson(response);
+    if (!response.ok || !result.ok) {
+      throw new Error(result.erreur || 'Invitation introuvable.');
+    }
+    renderInvitation(result.invite);
+    if (nameInput) nameInput.value = result.invite.nom || '';
+    if (paysInput) paysInput.value = result.invite.pays || '';
+    setStatus('', false);
+  } catch (err) {
+    setStatus(err.message || 'Code invite introuvable.', true);
+    await renderQr(normalized);
+  }
+}
+
+async function verifyInvitationFromForm() {
+  const nom = nameInput ? nameInput.value.trim() : '';
+  const pays = paysInput ? paysInput.value.trim() : '';
+
+  if (!nom || !pays) {
+    setStatus('Veuillez saisir le nom complet et le pays.', true);
+    return;
+  }
+
+  const submitBtn = document.querySelector('#code-form button[type="submit"]');
+  const oldHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/></svg> Verification...';
+  }
+
+  try {
+    setStatus('Verification dans la base...', false);
+    const response = await fetch(verifyApiUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, pays })
+    });
+    const result = await readJson(response);
+    if (!response.ok || !result.ok) {
+      throw new Error(result.erreur || 'Informations non reconnues.');
+    }
+    renderInvitation(result.invite);
+    setStatus('', false);
+    document.getElementById('invitation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    const message = err instanceof TypeError
+      ? 'Connexion impossible. Verifiez que le serveur (port 3001) est lance et que vous avez accepte le certificat SSL sur https://localhost:3001'
+      : (err.message || 'Informations non reconnues.');
+    setStatus(message, true);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = oldHtml;
+    }
+  }
 }
 
 document.getElementById('code-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  renderQr(codeInput.value);
+  verifyInvitationFromForm();
 });
 
 document.getElementById('download-pdf').addEventListener('click', async () => {
@@ -587,7 +745,9 @@ document.getElementById('download-pdf').addEventListener('click', async () => {
   }
 });
 
-renderQr(params.get('code'));
+if (nameInput) nameInput.value = params.get('nom') || '';
+if (paysInput) paysInput.value = params.get('pays') || '';
+loadInvitationByCode(currentCode);
 </script>
 </body>
 </html>

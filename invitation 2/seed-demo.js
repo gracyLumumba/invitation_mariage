@@ -6,16 +6,17 @@ require('dotenv').config();
 const db = require('./db');
 
 const invitesDemoData = [
-  { nom: 'Jeanne & Paul Martin',   code_secret: 'TF01', table_num: 3, nb_couverts: 2, menu: 'standard' },
-  { nom: 'Robert Dupont',          code_secret: 'TF02', table_num: 5, nb_couverts: 1, menu: 'standard' },
-  { nom: 'Sophie Lambert',         code_secret: 'TF03', table_num: 7, nb_couverts: 1, menu: 'vegetarien' },
-  { nom: 'Thomas & Laura Petit',   code_secret: 'TF04', table_num: 3, nb_couverts: 2, menu: 'standard' },
-  { nom: 'Martine Laurene Sr.',    code_secret: 'TF05', table_num: 1, nb_couverts: 1, menu: 'standard' },
-  { nom: 'Eric Tresor Sr.',       code_secret: 'TF06', table_num: 1, nb_couverts: 1, menu: 'standard' },
-  { nom: 'Cedric Mbaye',           code_secret: 'TF07', table_num: 4, nb_couverts: 1, menu: 'standard' },
-  { nom: 'Aline & Jacques Renaud', code_secret: 'TF08', table_num: 6, nb_couverts: 2, menu: 'standard' },
-  { nom: 'Fatou Diallo',           code_secret: 'TF09', table_num: 8, nb_couverts: 1, menu: 'vegetarien' },
-  { nom: 'Pierre & Claire Moreau', code_secret: 'TF10', table_num: 2, nb_couverts: 2, menu: 'standard' },
+  { nom: 'Jean & Marie Dupont',   code_secret: 'TL01', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard' },
+  { nom: 'Luc Bernard',          code_secret: 'TL02', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard' },
+  { nom: 'Anne Rousseau',         code_secret: 'TL03', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien' },
+  { nom: 'Michel & Nicole Leclerc',   code_secret: 'TL04', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard' },
+  { nom: 'Francoise Gérard',    code_secret: 'TL05', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard' },
+  { nom: 'Claude Laurent', code_secret: 'TL06', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard' },
+  { nom: 'Sylvain Gautier',           code_secret: 'TL07', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard' },
+  { nom: 'Brigitte & Pierre Moreau', code_secret: 'TL08', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard' },
+  { nom: 'Evelyne Robert',           code_secret: 'TL09', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien' },
+  { nom: 'Olivier & Christine Durand', code_secret: 'TL10', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard' },
+  { nom: 'Gracy', code_secret: 'TL11', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard' },
 ];
 
 async function main() {
@@ -25,16 +26,16 @@ async function main() {
 
   for (const invite of invitesDemoData) {
     await db.query(
-      `INSERT INTO invites (nom, code_secret, table_num, nb_couverts, menu)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [invite.nom, invite.code_secret, invite.table_num, invite.nb_couverts, invite.menu]
+      `INSERT INTO invites (nom, code_secret, pays, grace_table_france, nb_couverts, menu)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [invite.nom, invite.code_secret, invite.pays, invite.grace_table_france, invite.nb_couverts, invite.menu]
     );
   }
 
   console.log('[OK] Base demo PostgreSQL remise a zero.');
   console.log('\nComptes demo :');
   for (const invite of invitesDemoData) {
-    console.log(`  ${invite.code_secret} | ${invite.nom} | table ${invite.table_num} | ${invite.nb_couverts} couvert(s)`);
+    console.log(`  ${invite.code_secret} | ${invite.nom} | pays: ${invite.pays} | grace_table_france: ${invite.grace_table_france} | ${invite.nb_couverts} couvert(s)`);
   }
 }
 
