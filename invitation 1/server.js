@@ -71,7 +71,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net'],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
@@ -89,6 +89,10 @@ app.use(mongoSanitize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/css', express.static(__dirname));
+app.get('/instrumentale mariage.mpeg', (req, res) => {
+  res.type('audio/mpeg');
+  res.sendFile(path.join(__dirname, 'instrumentale mariage.mpeg'));
+});
 app.use(express.static(__dirname));
 
 // Sessions

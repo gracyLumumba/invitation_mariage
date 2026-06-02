@@ -10,6 +10,7 @@
 ================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
 /* ================================================
@@ -47,7 +48,7 @@ body {
 }
 
 /* ================================================
-   BOUTON IMPRESSION / PDF
+   BOUTON TELECHARGEMENT PDF
    Masqué à l'impression via @media print
 ================================================ */
 .print-controls {
@@ -471,7 +472,7 @@ body {
 }
 
 /* ================================================
-   IMPRESSION / PDF
+   TELECHARGEMENT PDF
    @media print — masque les éléments de contrôle,
    force les couleurs, format A5
 ================================================ */
@@ -525,20 +526,14 @@ body {
 <body>
 
 <!-- ================================================
-     BOUTON IMPRESSION — masqué à l'impression
+     BOUTON PDF — masque a l'impression
 ================================================ -->
 <div class="print-controls" id="print-controls">
-  <button class="btn-print" id="print-btn" onclick="window.print()" title="Imprimer ou sauvegarder en PDF">
+  <button class="btn-print" id="download-pdf-btn" type="button" title="Télécharger l'invitation en PDF">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 9V4h12v5M6 18H4a1 1 0 01-1-1v-6a1 1 0 011-1h16a1 1 0 011 1v6a1 1 0 01-1 1h-2M7 14h10v7H7z"/>
     </svg>
-    Télécharger en PDF / Imprimer
-  </button>
-  <button class="btn-print" id="download-image-btn" type="button" title="Télécharger l'invitation en image PNG">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/>
-    </svg>
-    Télécharger l'image
+    Télécharger le PDF
   </button>
 </div>
 
@@ -691,7 +686,7 @@ body {
   var nameInput = document.getElementById('invite-name-input');
   var tableInput = document.getElementById('invite-table-input');
   var codeStatus = document.getElementById('code-status');
-  var downloadImageBtn = document.getElementById('download-image-btn');
+  var downloadPdfBtn = document.getElementById('download-pdf-btn');
 
   function isLocalNodeServer () {
     var host = window.location.hostname;
@@ -954,6 +949,57 @@ body {
     }
   }
 
+  async function downloadInvitationPdf () {
+    if (!requireNodeServer()) return;
+
+    if (typeof html2canvas === 'undefined' || !window.jspdf) {
+      setStatus("Téléchargement indisponible : les librairies PDF ne sont pas chargées.", true);
+      return;
+    }
+
+    var card = document.getElementById('invitation-card');
+    if (!card) return;
+
+    var images = Array.from(card.querySelectorAll('img'));
+    await Promise.all(images.map(function (img) {
+      if (img.complete) return Promise.resolve();
+      return new Promise(function (resolve) {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
+
+    var originalText = downloadPdfBtn ? downloadPdfBtn.innerHTML : '';
+    if (downloadPdfBtn) {
+      downloadPdfBtn.disabled = true;
+      downloadPdfBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg> Génération PDF...';
+    }
+
+    try {
+      var canvas = await html2canvas(card, {
+        scale: 3,
+        backgroundColor: '#FDFAF5',
+        logging: false,
+        useCORS: true,
+        allowTaint: false
+      });
+      var imgData = canvas.toDataURL('image/png');
+      var jsPDF = window.jspdf.jsPDF;
+      var pdf = new jsPDF('p', 'mm', 'a5');
+      pdf.addImage(imgData, 'PNG', 0, 0, 148, 210);
+      pdf.save('invitation_yannick_chantia_' + (code || 'apercu') + '.pdf');
+      setStatus('PDF téléchargé.', false);
+    } catch (err) {
+      console.error(err);
+      setStatus("Impossible de générer le PDF.", true);
+    } finally {
+      if (downloadPdfBtn) {
+        downloadPdfBtn.disabled = false;
+        downloadPdfBtn.innerHTML = originalText;
+      }
+    }
+  }
+
   if (nameInput) nameInput.value = nomParam;
   if (tableInput) tableInput.value = tableParam;
   if (codeForm) {
@@ -962,8 +1008,8 @@ body {
       verifyInvitationFromForm();
     });
   }
-  if (downloadImageBtn) {
-    downloadImageBtn.addEventListener('click', downloadInvitationImage);
+  if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener('click', downloadInvitationPdf);
   }
 
   if (document.readyState === 'loading') {

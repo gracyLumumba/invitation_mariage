@@ -3,3 +3,13 @@ invitation/node_modules/
 invitation/mariage.db
 invitation/mariage.db-*
 invitation/qrcodes/
+invitation 1/.env
+invitation 1/node_modules/
+invitation 1/mariage.db
+invitation 1/mariage.db-*
+invitation 1/qrcodes/
+invitation 2/.env
+invitation 2/node_modules/
+invitation 2/mariage.db
+invitation 2/mariage.db-*
+invitation 2/qrcodes/

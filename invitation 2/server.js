@@ -32,11 +32,6 @@ const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
-const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
-  .split(',')
-  .map(v => v.trim())
-  .filter(Boolean);
-const BOISSON_CHOIX_OPTIONS = BOISSON_OPTIONS.filter(v => !/^eau$/i.test(v));
 const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
 const CERT_DIR = path.join(__dirname, 'certs');
@@ -71,7 +66,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net'],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
@@ -89,6 +84,10 @@ app.use(mongoSanitize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/css', express.static(__dirname));
+app.get('/instrumentale mariage.mpeg', (req, res) => {
+  res.type('audio/mpeg');
+  res.sendFile(path.join(__dirname, 'instrumentale mariage.mpeg'));
+});
 app.use(express.static(__dirname));
 
 // Sessions
@@ -203,23 +202,6 @@ function getRequestBaseUrl(req) {
 function inviteUrl(invite, baseUrl) {
   const params = new URLSearchParams({ code: invite.code_secret });
   return `${baseUrl}/?${params.toString()}`;
-}
-
-function isValidBoisson(boisson) {
-  return BOISSON_OPTIONS.includes(String(boisson || '').trim());
-}
-
-function parseBoissons(value) {
-  return String(value || '')
-    .split(/\s*[\/,;]\s*/)
-    .map(v => v.trim())
-    .filter(Boolean);
-}
-
-function areValidBoissons(boisson, count) {
-  const choices = parseBoissons(boisson);
-  const expected = Math.max(1, Number(count || 1));
-  return choices.length === expected && choices.every(choice => BOISSON_CHOIX_OPTIONS.includes(choice));
 }
 
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
@@ -404,41 +386,30 @@ app.get('/api/moi', requireInvite, async (req, res) => {
   res.json(invite);
 });
 
-app.get('/api/boissons', requireInvite, (req, res) => {
-  res.json({ boissons: BOISSON_CHOIX_OPTIONS, eauAutomatique: true });
-});
-
 // POST /api/repondre — Accepter ou refuser
 app.post('/api/repondre', requireInvite, apiLimiter,
   body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
-  body('boisson').optional({ values: 'falsy' }).trim().isLength({ min: 1, max: 200 }).withMessage('Boisson invalide'),
   validateInput,
   async (req, res) => {
   const { statut } = req.body;
-  const boisson = String(req.body.boisson || '').trim();
   if (!['accepte', 'refuse'].includes(statut)) {
     return res.status(400).json({ erreur: 'Statut invalide.' });
   }
 
   const invite = await db.findInvite(req.session.invite.code_secret);
 
-  if (statut === 'accepte' && !areValidBoissons(boisson, invite.nb_couverts)) {
-    const expected = Math.max(1, Number(invite.nb_couverts || 1));
-    return res.status(400).json({ erreur: expected > 1 ? `Veuillez choisir ${expected} boissons avant de confirmer votre présence. L'eau est prévue automatiquement.` : `Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.` });
-  }
-
   if (invite.statut !== 'en_attente') {
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
   }
 
-  const updateResult = await db.enregistrerReponse(invite.code_secret, statut, statut === 'accepte' ? boisson : null);
+  const updateResult = await db.enregistrerReponse(invite.code_secret, statut, null);
   if (updateResult.rowCount !== 1) {
     return res.status(500).json({ erreur: 'La réponse n’a pas été enregistrée dans la base de données.' });
   }
   const updatedInvite = updateResult.rows[0] || {
     ...invite,
     statut,
-    boisson: statut === 'accepte' ? boisson : null
+    boisson: null
   };
   req.session.invite = {
     ...req.session.invite,

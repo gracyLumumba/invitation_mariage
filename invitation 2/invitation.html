@@ -55,23 +55,24 @@ svg{max-width:100%;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* EN-TÊTE */
-.inv-header{text-align:center;padding:3rem 2rem 2.5rem;background:var(--white);border:1px solid var(--beige-dark);position:relative;margin-bottom:1.25rem;overflow:hidden;}
+.inv-header{text-align:center;padding:2rem 1.75rem 1.75rem;background:var(--white);border:1px solid var(--beige-dark);position:relative;margin-bottom:1rem;overflow:hidden;}
 .inv-header::before{content:'';position:absolute;inset:10px;border:1px solid var(--gold-light);pointer-events:none;}
 .inv-header::after{content:'';position:absolute;inset:15px;border:1px solid rgba(11,102,216,.18);pointer-events:none;}
-.theme-flower{position:absolute;pointer-events:none;z-index:0;opacity:.9;filter:drop-shadow(0 8px 16px rgba(5,45,99,.12));}
-.theme-flower.top{top:-18px;left:-28px;width:min(48%,260px);transform:scaleX(-1);}
-.theme-flower.bottom{right:-24px;bottom:-18px;width:min(48%,260px);transform:scaleX(-1);}
+.theme-flower{position:absolute;pointer-events:none;z-index:0;opacity:.86;filter:drop-shadow(0 8px 16px rgba(5,45,99,.12));}
+.theme-flower.top{top:-34px;left:-28px;width:min(46%,280px);transform:rotate(-8deg);}
+.theme-flower.bottom{right:-40px;bottom:-34px;width:min(40%,235px);transform:rotate(4deg);}
 .inv-header > :not(.theme-flower){position:relative;z-index:1;}
-.floral-corner{position:absolute;pointer-events:none;opacity:.8;}
-.inv-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-light);margin-bottom:.5rem;}
-.inv-main-title{font-family:'Great Vibes',cursive;font-size:clamp(48px,10vw,82px);color:var(--marsala);line-height:1.05;margin-bottom:.25rem;}
+.floral-corner{display:none;}
+.inv-header > svg{display:none!important;}
+.inv-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-light);margin:.2rem 0 .35rem;}
+.inv-main-title{font-family:'Great Vibes',cursive;font-size:clamp(48px,10vw,82px);color:var(--marsala);line-height:1;margin-bottom:.15rem;}
 .inv-amp{font-style:italic;color:var(--gold);}
-.inv-date{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:1rem;}
-.inv-poem-main{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,3.5vw,17px);font-style:italic;color:var(--text-light);line-height:1.9;max-width:480px;margin:0 auto .4rem;}
+.inv-date{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.55rem;}
+.inv-poem-main{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,3.5vw,17px);font-style:italic;color:var(--text-light);line-height:1.55;max-width:480px;margin:0 auto .25rem;}
 .inv-poem-auth{font-size:11px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;}
-.inv-welcome{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,20px);font-style:italic;color:var(--text);margin:1rem 0 .4rem;}
+.inv-welcome{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,20px);font-style:italic;color:var(--text);margin:.65rem 0 .25rem;}
 .inv-guest-name{font-family:'Great Vibes',cursive;font-size:clamp(30px,7vw,48px);color:var(--marsala);line-height:1.1;}
-.inv-body{font-size:14px;color:var(--text-light);line-height:1.9;max-width:480px;margin:.75rem auto 0;}
+.inv-body{font-size:14px;color:var(--text-light);line-height:1.6;max-width:480px;margin:.45rem auto 0;}
 
 /* DIVIDER FLORAL */
 .fdiv{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:.6rem 0;color:var(--gold);font-size:11px;letter-spacing:.3em;}
@@ -103,8 +104,6 @@ svg{max-width:100%;}
 .qr-badges{display:flex;flex-wrap:wrap;gap:6px;}
 .badge-code{display:inline-block;background:var(--beige);border:1px solid var(--beige-dark);padding:4px 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--marsala);letter-spacing:.15em;}
 .badge-table{display:inline-flex;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);}
-.badge-drink{display:none;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);}
-.badge-drink.show{display:inline-flex;}
 .qr-warn{border-top:1px solid var(--beige-dark);padding-top:.75rem;font-size:12px;font-style:italic;color:var(--text-light);text-align:center;}
 .btn-dl{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--marsala);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;}
 
@@ -115,12 +114,6 @@ svg{max-width:100%;}
 .rsvp-poem{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-light);margin-bottom:1rem;line-height:1.7;}
 .rsvp-deadline{font-size:12.5px;color:var(--text-light);margin-bottom:1.25rem;}
 .rsvp-deadline strong{color:var(--marsala);}
-.drink-field{max-width:360px;margin:0 auto 1.25rem;text-align:left;}
-.drink-label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;text-align:center;}
-.drink-note{font-size:12px;color:var(--text-light);text-align:center;line-height:1.55;margin:-.35rem auto .75rem;}
-.drink-list{display:grid;gap:.65rem;}
-.drink-select{width:100%;border:1px solid var(--beige-dark);background:var(--cream);color:var(--text);padding:12px 14px;font-family:'Jost',sans-serif;font-size:14px;outline:none;border-radius:2px;}
-.drink-select:focus{border-color:var(--marsala-light);background:var(--white);}
 .rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
 .btn-accept{padding:13px 30px;background:var(--marsala);color:#fff;border:none;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
 .btn-accept:hover{background:var(--marsala-dark);}
@@ -173,7 +166,9 @@ svg{max-width:100%;}
   .qr-card::before,.rsvp-card::after{inset:6px;}
   .qr-frame{width:150px;height:150px;}
   .details-grid{grid-template-columns:1fr;}
-  .inv-header{padding:2rem 1rem;}
+  .inv-header{padding:1.6rem 1rem 1.35rem;}
+  .theme-flower.top{top:-28px;left:-42px;width:210px;opacity:.68;}
+  .theme-flower.bottom{right:-48px;bottom:-32px;width:180px;opacity:.62;}
   .inv-header::before{inset:6px;}
   .inv-header::after{inset:10px;}
   .inv-label,.inv-date{letter-spacing:.14em;}
@@ -186,7 +181,7 @@ svg{max-width:100%;}
 @media(max-width:380px){
   .page-wrap{padding-left:.5rem;padding-right:.5rem;}
   .qr-card,.rsvp-card,.inv-footer,.citation-block,.detail-card{padding:1rem;}
-  .inv-header{padding:1.7rem .85rem;}
+  .inv-header{padding:1.45rem .85rem 1.2rem;}
   .inv-body,.citation-text{line-height:1.65;}
 }
 </style>
@@ -207,7 +202,7 @@ svg{max-width:100%;}
     <div class="env-title">Tresor <span class="env-amp">&amp;</span> Laurene</div>
     <div class="env-sub">Vous invitent à leur mariage</div>
     <div class="env-poem">
-      "Nous vous invitons à tourner<br>la première page de notre histoire."
+      "Une histoire d'amour s'écrit à deux,<br>et nous aimerions que vous en soyez les témoins."
     </div>
     <button class="btn-open" id="btn-open-invitation"><i data-lucide="sparkles" class="icon"></i> &nbsp;Découvrir mon invitation&nbsp; <i data-lucide="sparkles" class="icon"></i></button>
   </div>
@@ -391,9 +386,10 @@ svg{max-width:100%;}
     </svg>
 
     <div class="inv-poem-main">
-      « L'amour ne se voit pas avec les yeux, mais avec le cœur.<br>
-      Ainsi, simplement et sincèrement, naît un rêve<br>
-      qui s'appelle <em>"Pour toujours".</em> »
+      « Comme une fleur qui s'ouvre au soleil,<br>
+      notre amour a grandi, simple et merveilleux.<br>
+      Venez célébrer ce jour unique,<br>
+      où nous scellerons nos vies pour l'éternité. »
     </div>
     <div class="inv-poem-auth">— Tresor &amp; Laurene —</div>
 
@@ -409,7 +405,7 @@ svg{max-width:100%;}
     <div class="inv-body">
       Nous avons la joie de vous convier à la célébration de notre union
       et serions profondément honorés de partager ce moment précieux en votre présence.<br><br>
-      <em>"Nous avons hâte de partager ce jour unique avec ceux qui nous sont chers."</em>
+      <em>"Venez écrire avec nous la plus belle page de notre histoire."</em>
     </div>
   </div>
 
@@ -475,8 +471,8 @@ svg{max-width:100%;}
   <!-- CITATION -->
   <div class="citation-block">
     <span class="citation-q">"</span>
-    <p class="citation-text">L'amour est la seule chose qui grandit quand on la partage.</p>
-    <div class="citation-auth">— Antoine de Saint-Exupéry —</div>
+    <p class="citation-text">Laissez les fleurs guider vos pas vers ce jour qui n'appartient qu'à nous.</p>
+    <div class="citation-auth">— Tresor &amp; Laurene —</div>
   </div>
 
   <!-- QR CODE -->
@@ -486,12 +482,11 @@ svg{max-width:100%;}
       <div class="qr-info">
         <div class="qr-title">Votre QR code d'entrée</div>
         <div class="qr-poem">
-          "Scannez ce code le jour J pour<br>une entrée fluide et découvrir votre table."
+          "Un simple code pour entrer,<br>un grand moment à partager."
         </div>
         <div class="qr-badges">
           <span class="badge-code" id="guest-code">…</span>
           <span class="badge-table"><i data-lucide="armchair" class="icon"></i> Table <strong id="guest-table">…</strong></span>
-          <span class="badge-drink" id="guest-drink"><i data-lucide="glass-water" class="icon"></i> <strong id="guest-drink-value"></strong></span>
         </div>
         <button class="btn-dl" id="btn-download-qr"><i data-lucide="download" class="icon"></i> Enregistrer le QR code</button>
       </div>
@@ -535,15 +530,9 @@ svg{max-width:100%;}
       <div class="rsvp-title">Confirmez votre présence</div>
       <div class="rsvp-poem">
         "Votre présence est notre plus beau cadeau.<br>
-        Merci de nous confirmer votre venue."
+        Merci de nous aider à préparer ce jour avec amour."
       </div>
       <div class="rsvp-deadline">Merci de répondre dès réception de votre invitation.</div>
-      <div class="drink-field">
-        <label class="drink-label" for="drink-choice">Boisson souhaitée</label>
-        <select class="drink-select" id="drink-choice">
-          <option value="">Choisir une boisson</option>
-        </select>
-      </div>
       <div class="rsvp-btns">
         <button class="btn-accept" id="btn-rsvp-accept" type="button"><i data-lucide="check" class="icon"></i> &nbsp;J'accepte avec joie</button>
         <button class="btn-decline" id="btn-rsvp-decline" type="button">Je ne pourrai pas venir</button>
@@ -595,8 +584,8 @@ svg{max-width:100%;}
       <circle cx="130" cy="22" r="1.5" fill="#0B66D8" opacity=".35"/><circle cx="185" cy="26" r="1.5" fill="#0B66D8" opacity=".35"/>
       <circle cx="310" cy="21" r="1.5" fill="#0B66D8" opacity=".35"/><circle cx="370" cy="26" r="1.5" fill="#0B66D8" opacity=".35"/>
     </svg>
-    <div class="footer-poem">"Ensemble, faisons de ce jour un souvenir éternel."</div>
-    <div class="footer-sub">Tu es mon présent, mon lendemain, et mon éternité.</div>
+    <div class="footer-poem">"Deux cœurs, une histoire, un amour à célébrer."</div>
+    <div class="footer-sub">Nos mains liées pour le chemin, entourées de ceux que nous aimons.</div>
     <div style="color:var(--gold);letter-spacing:.4em;font-size:16px;margin:.75rem 0;"><i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i> <i data-lucide="sparkles" class="icon"></i></div>
     <div style="font-size:12px;color:var(--text-light);">Questions ? Contactez-nous : <strong>gracylumumba26@gmail.com</strong></div>
     <div class="footer-credit">
@@ -640,6 +629,7 @@ function ouvrirInvitation(){
 const music=document.getElementById('wedding-music');
 const musicToggle=document.getElementById('music-toggle');
 let musicMuted=false;
+let musicStarted=false;
 
 function updateMusicButton(){
   musicToggle.innerHTML='<i data-lucide="'+(musicMuted?'volume-x':'volume-2')+'" class="icon"></i>';
@@ -650,14 +640,24 @@ function updateMusicButton(){
 
 function demarrerMusique(){
   music.volume=0.35;
+  music.muted=false;
   musicToggle.classList.add('show');
-  music.play().catch(()=>{ musicMuted=true; updateMusicButton(); });
+  music.play().then(()=>{
+    musicStarted=true;
+    musicMuted=false;
+    updateMusicButton();
+  }).catch(()=>{
+    musicMuted=true;
+    updateMusicButton();
+    activerRelanceMusique();
+  });
 }
 
 function toggleMusic(){
   if(music.paused){
     musicMuted=false;
-    music.play().catch(()=>{ musicMuted=true; });
+    music.muted=false;
+    music.play().then(()=>{ musicStarted=true; }).catch(()=>{ musicMuted=true; });
   }else{
     musicMuted=true;
     music.pause();
@@ -665,9 +665,23 @@ function toggleMusic(){
   updateMusicButton();
 }
 
+function activerRelanceMusique(){
+  const retry=()=>{
+    if(musicStarted || !music.paused)return;
+    music.muted=false;
+    music.play().then(()=>{
+      musicStarted=true;
+      musicMuted=false;
+      updateMusicButton();
+    }).catch(()=>{});
+  };
+  ['click','touchstart','keydown'].forEach(eventName=>{
+    document.addEventListener(eventName,retry,{once:true,passive:true});
+  });
+}
+
 /* DONNÉES */
 let inviteData=null,qrDataUrl=null;
-let drinkOptions=[];
 async function chargerInvite(){
   try{
     const res=await fetch('/api/moi');
@@ -676,50 +690,10 @@ async function chargerInvite(){
     document.getElementById('guest-nom').textContent=d.nom;
     document.getElementById('guest-code').textContent=d.code_secret;
     document.getElementById('guest-table').textContent=d.table_num||'—';
-    afficherBoisson(d.boisson);
-    chargerBoissons(d.boisson);
     chargerQR(d.code_secret);
     if(d.statut==='accepte'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-accepte').classList.add('show');}
     else if(d.statut==='refuse'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-refuse').classList.add('show');}
   }catch(e){}
-}
-function afficherBoisson(boisson){
-  const badge=document.getElementById('guest-drink');
-  const value=document.getElementById('guest-drink-value');
-  const clean=String(boisson||'').trim();
-  if(clean){
-    value.textContent=clean;
-    badge.classList.add('show');
-  }else{
-    value.textContent='';
-    badge.classList.remove('show');
-  }
-  renderIcons();
-}
-async function chargerBoissons(selected){
-  const field=document.querySelector('.drink-field');
-  const count=Math.max(1,Number(inviteData?.nb_couverts||1));
-  try{
-    const res=await fetch('/api/boissons');
-    if(!res.ok)throw new Error('Boissons indisponibles');
-    const d=await res.json();
-    drinkOptions=Array.isArray(d.boissons)?d.boissons:[];
-    const selectedValues=parseBoissonChoices(selected);
-    const selects=Array.from({length:count},(_,i)=>`
-      <select class="drink-select drink-choice" data-index="${i}">
-        <option value="">${count>1?'Boisson personne '+(i+1):'Choisir une boisson'}</option>
-        ${drinkOptions.map(b=>'<option value="'+escapeHtml(b)+'" '+(selectedValues[i]===b?'selected':'')+'>'+escapeHtml(b)+'</option>').join('')}
-      </select>`).join('');
-    field.innerHTML="<label class=\"drink-label\">Boisson souhaitée</label><div class=\"drink-note\">L'eau est prévue automatiquement pour tout le monde.</div><div class=\"drink-list\">"+selects+"</div>";
-  }catch(e){
-    field.innerHTML='<label class="drink-label">Boisson souhaitée</label><select class="drink-select drink-choice"><option value="">Boissons indisponibles</option></select>';
-  }
-}
-function parseBoissonChoices(value){
-  return String(value||'').split(/\s*[\/,;]\s*/).map(v=>v.trim()).filter(Boolean);
-}
-function getSelectedBoissons(){
-  return Array.from(document.querySelectorAll('.drink-choice')).map(select=>select.value.trim());
 }
 async function chargerQR(code){
   try{
@@ -735,23 +709,13 @@ async function chargerQR(code){
 /* RSVP */
 async function repondre(statut){
   const err=document.getElementById('rsvp-err');err.className='alert-err';
-  const boissons=getSelectedBoissons();
-  const boisson=boissons.join(' / ');
-  if(statut==='accepte'&&boissons.some(v=>!v)){
-    err.textContent=boissons.length>1?"Veuillez choisir une boisson pour chaque personne. L'eau est prévue automatiquement.":"Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.";
-    err.className='alert-err show';
-    return;
-  }
   try{
-    const payload=statut==='accepte'?{statut,boisson}:{statut};
-    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({statut})});
     const text=await res.text();
     let d={};
     try{d=text?JSON.parse(text):{};}catch(e){d={erreur:text};}
     if(d.ok){
       if(statut==='accepte'){
-        inviteData={...(inviteData||{}),boisson};
-        afficherBoisson(boisson);
         chargerQR(inviteData.code_secret);
       }
       document.getElementById('rsvp-form').style.display='none';

@@ -634,6 +634,7 @@ function ouvrirInvitation(){
 const music=document.getElementById('wedding-music');
 const musicToggle=document.getElementById('music-toggle');
 let musicMuted=false;
+let musicStarted=false;
 
 function updateMusicButton(){
   musicToggle.innerHTML='<i data-lucide="'+(musicMuted?'volume-x':'volume-2')+'" class="icon"></i>';
@@ -644,19 +645,44 @@ function updateMusicButton(){
 
 function demarrerMusique(){
   music.volume=0.35;
+  music.muted=false;
   musicToggle.classList.add('show');
-  music.play().catch(()=>{ musicMuted=true; updateMusicButton(); });
+  music.play().then(()=>{
+    musicStarted=true;
+    musicMuted=false;
+    updateMusicButton();
+  }).catch(()=>{
+    musicMuted=true;
+    updateMusicButton();
+    activerRelanceMusique();
+  });
 }
 
 function toggleMusic(){
   if(music.paused){
     musicMuted=false;
-    music.play().catch(()=>{ musicMuted=true; });
+    music.muted=false;
+    music.play().then(()=>{ musicStarted=true; }).catch(()=>{ musicMuted=true; });
   }else{
     musicMuted=true;
     music.pause();
   }
   updateMusicButton();
+}
+
+function activerRelanceMusique(){
+  const retry=()=>{
+    if(musicStarted || !music.paused)return;
+    music.muted=false;
+    music.play().then(()=>{
+      musicStarted=true;
+      musicMuted=false;
+      updateMusicButton();
+    }).catch(()=>{});
+  };
+  ['click','touchstart','keydown'].forEach(eventName=>{
+    document.addEventListener(eventName,retry,{once:true,passive:true});
+  });
 }
 
 /* DONNÉES */
