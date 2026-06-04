@@ -260,8 +260,7 @@ async function publicInvitationPayload(invite, baseUrl) {
 }
 
 async function nextInviteCode() {
-  for (let i = 1; i < 10000; i += 1) {
-    const code = `TF${String(i).padStart(2, '0')}`;
+  for (let i = 1; i < 10000; i += 1) {    const code = `TL${String(i).padStart(2, '0')}`;
     if (!(await db.codeExists(code))) return code;
   }
   throw new Error('Impossible de générer un code disponible.');

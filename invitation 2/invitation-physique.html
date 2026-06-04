@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -433,7 +433,7 @@ body {
         <div class="name">Laurette</div>
       </div>
 
-      <div class="date">Date &agrave; confirmer</div>
+      <div class="date">Vendredi 19 Juin 2026</div>
 
       <div class="ornament" aria-hidden="true">&bull; &bull; &bull;</div>
 
@@ -452,12 +452,12 @@ body {
         </div>
 
         <div class="venue-block">
-          <div class="venue-name">&Eacute;glise &agrave; confirmer</div>
+          <div class="venue-name">Civil &amp; &Eacute;glise &amp; Soirée</div>
           <div class="venue-address">
-            Heure &agrave; confirmer - C&eacute;r&eacute;monie religieuse<br>
-            18h00 - Vin d'honneur<br>
-            Salle polyvalente L.M.<br>
-            Av Savonier, en face de la Morgue SNCC
+            09h00 : Mariage Civil (Mairie)<br>
+            15h00 : C&eacute;r&eacute;monie Religieuse (E.M.S.E)<br>
+            Av. Savonier (R&eacute;f. Cimenkat)<br>
+            18h00 : Salle L.M. (face morgue SNCC)
           </div>
         </div>
       </div>
@@ -488,9 +488,9 @@ body {
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 10h16M6 10v10M18 10v10M8 4h8l2 6H6l2-6z"/>
         </svg>
-        Votre Pays
+        Num&eacute;ro de table
       </label>
-      <input id="invite-pays-input" name="pays" type="text" placeholder="Ex: France, Belgique...">
+      <input id="invite-pays-input" name="pays" type="number" min="0" placeholder="Ex: 1, 12, 7">
       <button type="submit">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/>
@@ -498,7 +498,7 @@ body {
         V&eacute;rifier & d&eacute;voiler mon QR
       </button>
     </form>
-    <p class="code-status" id="code-status">Saisissez votre nom et pays pour afficher le QR.</p>
+    <p class="code-status" id="code-status">Saisissez votre nom et table pour afficher le QR.</p>
   </section>
 
 <script>
