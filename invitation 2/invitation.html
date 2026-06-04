@@ -97,6 +97,7 @@ svg{max-width:100%;}
 .qr-card{background:var(--white);border:1px solid var(--beige-dark);padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
 .qr-card::before{content:'';position:absolute;inset:8px;border:1px solid var(--gold-pale);pointer-events:none;}
 .qr-inner{display:flex;align-items:center;gap:1.75rem;margin-bottom:1rem;}
+.qr-inner{display:flex;align-items:center;justify-content:center;gap:1.75rem;margin-bottom:1rem;}
 .qr-frame{flex-shrink:0;width:130px;height:130px;border:2px solid var(--gold);padding:7px;display:flex;align-items:center;justify-content:center;background:var(--cream);position:relative;}
 .qr-frame img{width:100%;height:100%;object-fit:contain;}
 .qr-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--marsala);margin-bottom:5px;}
@@ -433,39 +434,21 @@ svg{max-width:100%;}
       </svg>
       <div class="detail-label">Cérémonie Religieuse</div>
       <div class="detail-val">Église E.M.S.E</div>
-      <div class="detail-sub">À 15h00 (Réf. Cimenkat)</div>
+      <div class="detail-sub">À 15h00, Av. Savonnier (Réf. Cimenkat)</div>
     </div>
-    <div class="detail-card">
+    <div class="detail-card" style="grid-column: 1 / -1;">
       <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
         <circle cx="15" cy="15" r="4.5" fill="#0B66D8" opacity=".35"/>
         <ellipse cx="15" cy="8" rx="2.5" ry="5" fill="#0755C7" opacity=".45"/>
         <ellipse cx="22" cy="15" rx="2.5" ry="5" fill="#0755C7" opacity=".45" transform="rotate(90 15 15)"/>
         <ellipse cx="15" cy="22" rx="2.5" ry="5" fill="#0755C7" opacity=".45" transform="rotate(180 15 15)"/>
         <ellipse cx="8" cy="15" rx="2.5" ry="5" fill="#0755C7" opacity=".45" transform="rotate(270 15 15)"/>
-        <ellipse cx="10" cy="10" rx="2" ry="4.5" fill="#4AA3DF" opacity=".4" transform="rotate(-45 15 15)"/>
-        <ellipse cx="20" cy="10" rx="2" ry="4.5" fill="#4AA3DF" opacity=".4" transform="rotate(45 15 15)"/>
         <circle cx="15" cy="15" r="3" fill="#0B66D8"/>
       </svg>
       <div class="detail-label">R&eacute;ception</div>
-      <div class="detail-val">18h00 - Salle L.M.</div>
-      <div class="detail-sub">Av. Savonier (R&eacute;f. Cimenkat)</div>
+      <div class="detail-val">18h00 - Salle polyvalente L.M.</div>
+      <div class="detail-sub">Av. Savonnier (R&eacute;f. Cimenkat) · En face de la morgue SNCC</div>
     </div>
-    <div class="detail-card">
-      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" style="display:block;margin:0 auto 6px;">
-        <circle cx="15" cy="15" r="4.5" fill="#0B66D8" opacity=".35"/>
-        <ellipse cx="15" cy="8" rx="2.5" ry="5" fill="#4AA3DF" opacity=".45"/>
-        <ellipse cx="22" cy="15" rx="2.5" ry="5" fill="#4AA3DF" opacity=".45" transform="rotate(90 15 15)"/>
-        <ellipse cx="15" cy="22" rx="2.5" ry="5" fill="#4AA3DF" opacity=".45" transform="rotate(180 15 15)"/>
-        <ellipse cx="8" cy="15" rx="2.5" ry="5" fill="#4AA3DF" opacity=".45" transform="rotate(270 15 15)"/>
-        <ellipse cx="9.5" cy="9.5" rx="2" ry="4.5" fill="#0755C7" opacity=".4" transform="rotate(-45 15 15)"/>
-        <ellipse cx="20.5" cy="9.5" rx="2" ry="4.5" fill="#0755C7" opacity=".4" transform="rotate(45 15 15)"/>
-        <ellipse cx="20.5" cy="20.5" rx="2" ry="4.5" fill="#0755C7" opacity=".4" transform="rotate(135 15 15)"/>
-        <ellipse cx="9.5" cy="20.5" rx="2" ry="4.5" fill="#0755C7" opacity=".4" transform="rotate(225 15 15)"/>
-        <circle cx="15" cy="15" r="3" fill="#0B66D8"/>
-      </svg>
-      <div class="detail-label">D&icirc;ner &amp; Soir&eacute;e</div>
-      <div class="detail-val">Salle polyvalente L.M.</div>
-      <div class="detail-sub">En face de la morgue SNCC</div>
     </div>
   </div>
 
