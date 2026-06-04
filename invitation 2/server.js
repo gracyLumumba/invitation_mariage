@@ -377,10 +377,11 @@ app.post('/api/connexion', loginLimiter,
       return res.status(401).json({ erreur: 'Ce code existe, mais le nom saisi ne correspond pas à cette invitation.' });
     }
 
-    if (Number(invite.acces_count || 0) >= MAX_INVITE_ACCES) {
+    const accessLimit = invite.acces_max == null ? null : Number(invite.acces_max || MAX_INVITE_ACCES);
+    if (accessLimit !== null && Number(invite.acces_count || 0) >= accessLimit) {
       await db.logSecurite('fraude', code_secret, nom, ip, 'Limite d’accès atteinte');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
-      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${MAX_INVITE_ACCES} fois. Contactez Tresor ou Laurette si vous pensez qu’il s’agit d’une erreur.` });
+      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${accessLimit} fois. Contactez Tresor ou Laurette si vous pensez qu’il s’agit d’une erreur.` });
     }
 
     // Marquer le code comme utilisé
@@ -811,11 +812,12 @@ app.get('/api/admin/logs', requireAdmin, async (req, res) => {
 // Export CSV
 app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   const invites = await db.getAllInvites();
-  const header = ['ID','Nom','Code','Pays','Gracy','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
+  const header = ['Nom', 'Table', 'Code', 'Statut'];
   const rows = invites.map(i => [
-    i.id, `"${i.nom}"`, i.code_secret, `"${i.pays || ''}"`, i.grace_table_france ? 'Oui' : 'Non', i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
-    i.statut, `${i.acces_count || 0}/${MAX_INVITE_ACCES}`, i.presente ? 'oui' : 'non',
-    i.ip_connexion || '', i.date_reponse || '', i.date_presence || ''
+    `"${i.nom}"`,
+    `"${i.pays || ''}"`,
+    i.code_secret,
+    i.statut
   ]);
   const csv = [header, ...rows].map(r => r.join(',')).join('\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
