@@ -875,6 +875,3 @@ startServer().catch((err) => {
   console.error('[DEMARRAGE] Impossible de lancer le serveur:', db.formatDbError(err));
   process.exit(1);
 });
-     
- "   "      
- 
