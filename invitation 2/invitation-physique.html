@@ -691,16 +691,7 @@ function renderInvitation(invite) {
   
   renderQr(currentCode);
   
-  // Mettre à jour le message de remerciement personnalisé
-  const thankYouEl = document.getElementById('guest-thank-you');
-  if (thankYouEl && invite?.nom) {
-    const prenom = invite.nom.split(' ')[0];
-    thankYouEl.innerHTML = `
-      <strong>Merci ${prenom} !</strong>
-      Nous sommes impatients de vous accueillir du pays ${invite.pays}.
-    `;
-  }
-  
+  // NE PAS modifier le message de remerciement - le garder original
   document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurette';
 }
 
