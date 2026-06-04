@@ -1,7 +1,7 @@
 -- Nettoyage complet des tables pour l'invitation de Tresor & Laurette
 TRUNCATE logs_securite, sessions_admin, invites RESTART IDENTITY;
 
--- Compatibilite avec une base existante qui n'a pas encore la colonne acces_max
+-- Compatibilité avec une base existante qui n'a pas encore la colonne acces_max
 ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_max INTEGER DEFAULT 3;
 
 -- Insertion des invites demo
@@ -26,7 +26,8 @@ VALUES
   ('Brigitte & Pierre Moreau', 'TL08', 'France', 'Oui', 2, 'standard', 3),
   ('Evelyne Robert', 'TL09', 'France', 'Oui', 1, 'vegetarien', 3),
   ('Olivier & Christine Durand', 'TL10', 'France', 'Oui', 2, 'standard', 3),
-  ('Gracy', 'TL11', 'France', 'Oui', 1, 'standard', NULL);
+  ('Gracy', 'TL011', 'France', 'Oui', 1, 'standard', NULL),
+  ('Tresor', 'TL012', 'France', 'Oui', 1, 'standard', NULL);
 
 -- Pour faciliter la lecture dans Supabase, on expose seulement les colonnes utiles
 CREATE OR REPLACE VIEW invites_resume AS
@@ -38,7 +39,7 @@ SELECT
 FROM invites
 ORDER BY id;
 
--- Verification rapide
+-- Vérification rapide
 SELECT
   nom,
   pays AS "table",

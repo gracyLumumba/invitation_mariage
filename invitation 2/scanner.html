@@ -277,7 +277,7 @@
     <div class="result-icon"><i data-lucide="circle-check" class="icon"></i></div>
     <div class="result-name" id="res-nom">—</div>
     <div class="result-detail" id="res-detail">—</div>
-    <div class="result-table" id="res-table">Table —</div>
+    <div class="result-table" id="res-table">Pays —</div>
     <button class="btn-reset" onclick="resetScanner()"><i data-lucide="sparkles" class="icon"></i> Invité suivant</button>
   </div>
 
@@ -522,9 +522,9 @@ async function validerCodeInterne(code) {
     if (data.resultat === 'valide') {
       document.getElementById('res-nom').textContent    = data.invite.nom;
       document.getElementById('res-detail').textContent = formatInviteDetail(data.invite);
-      document.getElementById('res-table').innerHTML  = `<i data-lucide="armchair" class="icon"></i> Table ${data.invite.table_num}`; renderIcons();
+      document.getElementById('res-table').innerHTML  = `<i data-lucide="globe" class="icon"></i> Pays ${data.invite.pays || data.invite.table_num || '—'}`; renderIcons();
       document.getElementById('res-success').classList.add('show');
-      addHistory('Validé', `${data.invite.nom} · Table ${data.invite.table_num}`);
+      addHistory('Validé', `${data.invite.nom} · Pays ${data.invite.pays || data.invite.table_num || '—'}`);
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       chargerStats();
 
@@ -567,6 +567,7 @@ function resetScanner() {
 
 function formatInviteDetail(invite) {
   const details = [`${invite.nb_couverts || 1} couvert(s)`, `Menu : ${invite.menu || 'standard'}`];
+  if (invite.pays) details.push(`Pays : ${invite.pays}`);
   if (invite.boisson) details.push(`Boisson : ${invite.boisson}`);
   return details.join(' · ');
 }

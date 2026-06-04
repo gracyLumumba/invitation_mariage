@@ -16,7 +16,7 @@ const invitesDemoData = [
   { nom: 'Brigitte & Pierre Moreau', code_secret: 'TL08', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', acces_max: 3 },
   { nom: 'Evelyne Robert',           code_secret: 'TL09', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', acces_max: 3 },
   { nom: 'Olivier & Christine Durand', code_secret: 'TL10', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', acces_max: 3 },
-  { nom: 'Gracy', code_secret: 'TL11', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', acces_max: null },
+  { nom: 'Gracy', code_secret: 'TL011', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', acces_max: null },
 ];
 
 async function main() {

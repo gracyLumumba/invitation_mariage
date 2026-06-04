@@ -1,9 +1,9 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation - Tresor &amp; Laurette</title>
+<title>Invitation - Tresor & Laurette</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -38,7 +38,6 @@ body {
 }
 .btn-print {
   border: 1px solid rgba(7, 85, 199, .22);
-  border: 1px solid rgba(7, 85, 199, .4);
   background: var(--blue);
   color: #fff;
   padding: 10px 18px;
@@ -263,7 +262,7 @@ body {
   height: 18px;
   background: rgba(7, 85, 199, .22);
 }
-.guest-badge-table {
+.guest-badge-pays {
   color: var(--muted);
   font-size: 12px;
   font-style: italic;
@@ -421,13 +420,13 @@ body {
 </head>
 <body>
   <div class="print-controls">
-    <button class="btn-print" id="download-pdf">Telecharger le PDF</button>
+    <button class="btn-print" id="print-btn">Imprimer</button>
+    <button class="btn-print" id="download-pdf">Télécharger le PDF</button>
   </div>
 
   <article class="sheet" id="invitation-card" aria-label="Invitation de mariage Tresor et Laurette">
     <img class="floral floral-top" src="fleur-du-dessus-transparent.png" alt="">
     <img class="floral floral-bottom" src="fleure-en-bas-transparent.png" alt="">
-    <img class="rings" src="wedding-rings-transparent.png" alt="">
 
     <div class="content">
       <p class="intro">
@@ -435,20 +434,20 @@ body {
       </p>
 
       <div class="names">
-        <div class="name">Tr&eacute;sor</div>
+        <div class="name">Trésor</div>
         <div class="amp">&amp;</div>
         <div class="name">Laurette</div>
       </div>
 
       <div class="date">Vendredi 19 Juin 2026</div>
 
-      <div class="ornament" aria-hidden="true">&bull; &bull; &bull;</div>
+      <div class="ornament" aria-hidden="true">• • •</div>
 
       <p class="poem">
-        &laquo; L'amour est un pont entre deux &acirc;mes,<br>
-        Un chemin qui se trace &agrave; deux,<br>
-        Un r&ecirc;ve qui s'&eacute;crit sans fin,<br>
-        Une promesse qui grandit chaque jour. &raquo;
+        « L'amour est un pont entre deux âmes,<br>
+        Un chemin qui se trace à deux,<br>
+        Un rêve qui s'écrit sans fin,<br>
+        Une promesse qui grandit chaque jour. »
       </p>
 
       <p class="share-line">Nous serions heureux de partager ce jour avec vous.</p>
@@ -459,12 +458,12 @@ body {
         </div>
 
         <div class="venue-block">
-          <div class="venue-name">Civil &amp; &Eacute;glise &amp; R&eacute;ception</div>
+          <div class="venue-name">Civil & Église & Réception</div>
           <div class="venue-address">
             09h00 : Mariage Civil (Mairie)<br>
-            15h00 : C&eacute;r&eacute;monie Religieuse (E.M.S.E)<br>
-            Av. Savonnier (R&eacute;f. Cimenkat)<br>
-            18h00 : R&eacute;ception &agrave; la Salle L.M. (face morgue SNCC)
+            15h00 : Cérémonie Religieuse (E.M.S.E)<br>
+            Av. Savonnier (Réf. Cimenkat)<br>
+            18h00 : Réception à la Salle L.M. (face morgue SNCC)
           </div>
         </div>
       </div>
@@ -478,16 +477,16 @@ body {
           et que ces instants partagés restent un doux souvenir.
         </div>
       </div>
-      <div class="card-footer-ornament" aria-hidden="true">&bull; &bull; &bull;</div>
+      <div class="card-footer-ornament" aria-hidden="true">• • •</div>
     </div>
   </article>
 
   <section class="code-panel" aria-label="Generation du QR code">
-    <h2>G&eacute;n&eacute;rer le QR code invit&eacute;</h2>
+    <h2>Générer le QR code invité</h2>
     <form class="code-form" id="code-form">
       <label for="invite-name-input">
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+          <path d="M20 21a8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
         </svg>
         Votre nom complet
       </label>
@@ -503,143 +502,39 @@ body {
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/>
         </svg>
-        V&eacute;rifier & d&eacute;voiler mon QR
+        Vérifier & dévoiler mon QR
       </button>
     </form>
     <p class="code-status" id="code-status">Saisissez votre nom et votre pays pour afficher le QR.</p>
   </section>
 
 <script>
-const params = new URLSearchParams(window.location.search);
 const nameInput = document.getElementById('invite-name-input');
 const paysInput = document.getElementById('invite-pays-input');
 const statusEl = document.getElementById('code-status');
 const qrEl = document.getElementById('qrcode');
 const badgeContainer = document.getElementById('guest-badge-container');
-let currentCode = normalizeCode(params.get('code')) || '';
 
-function normalizeCode(value) {
-  return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+// Fonction pour générer un code unique basé sur le nom
+function generateInviteCode(nom) {
+  const nameHash = nom.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const codeNum = (nameHash % 90) + 10;
+  return 'TL' + codeNum.toString().padStart(2, '0');
 }
 
-function qrUrl(code) {
-  // Créer une URL locale pour le QR code
-  // Le QR code pointera vers le scanner local
-  const base = 'https://localhost:3001';
-  const url = new URL('/valider-entree', base);
-  url.searchParams.set('code', code);
-  url.searchParams.set('table', 'France');
+function renderQr(code) {
+  qrEl.innerHTML = '';
   
-  // Pour éviter l'erreur HTTPS, on peut utiliser une URL relative
-  // mais le QR code doit pointer vers une URL absolue
-  return url.toString();
-}
-
-function getApiBases() {
-  const origins = [];
-  // Si on est en localhost:3001, utiliser cette base
-  if (window.location.hostname === 'localhost' && window.location.protocol !== 'file:') {
-    origins.push(window.location.origin);
-  }
-  // Toujours essayer localhost:3001
-  origins.push('https://localhost:3001', 'http://localhost:3001');
-  return [...new Set(origins)];
-}
-
-function apiUrl(code, base) {
-  return new URL('/api/invitation-physique/' + encodeURIComponent(code), base).toString();
-}
-
-function verifyApiUrl(base) {
-  return new URL('/api/invitation-physique/verifier', base).toString();
-}
-
-async function fetchWithFallback(pathBuilder, options) {
-  const bases = getApiBases();
-  let lastError = null;
-
-  for (const base of bases) {
-    try {
-      const response = await fetch(pathBuilder(base), options);
-      return { response, base };
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError || new Error('Aucune base API disponible.');
-}
-
-async function renderQrFromServer(code) {
-  const { response } = await fetchWithFallback((base) => apiUrl(code, base));
-  const result = await response.json();
-  if (!response.ok || !result.ok || !result.invite?.qr_image) {
-    throw new Error(result.erreur || 'QR indisponible.');
-  }
-  const img = document.createElement('img');
-  img.src = result.invite.qr_image;
-  img.alt = "QR code d'entree";
-  qrEl.innerHTML = '';
-  qrEl.appendChild(img);
-  statusEl.textContent = '';
-}
-
-function localQrImageUrl(code) {
-  const normalized = encodeURIComponent(code);
-  if (window.location.protocol === 'file:') {
-    return 'qrcodes/' + normalized + '.png';
-  }
-  return '/qrcodes/' + normalized + '.png';
-}
-
-function renderQrFromStaticFile(code) {
-  return new Promise((resolve, reject) => {
-    const img = document.createElement('img');
-    img.alt = "QR code d'entree";
-    img.onload = () => {
-      qrEl.innerHTML = '';
-      qrEl.appendChild(img);
-      statusEl.textContent = '';
-      resolve();
-    };
-    img.onerror = reject;
-    img.src = localQrImageUrl(code);
-  });
-}
-
-async function renderQr(code) {
-  const normalized = normalizeCode(code) || 'TL01';
-  qrEl.innerHTML = '';
-  try {
-    await renderQrFromServer(normalized);
-    return;
-  } catch (serverErr) {
-    try {
-      await renderQrFromStaticFile(normalized);
-      return;
-    } catch (staticErr) {
-      // Continue with the in-browser QR generator below.
-    }
-    if (typeof QRCode === 'undefined') {
-      statusEl.textContent = 'Demarrez le serveur local puis rechargez cette page pour generer le QR du code ' + normalized + '.';
-      qrEl.innerHTML = '<span style="font-size:10px;color:#4a5568;text-align:center;line-height:1.3;">QR en attente</span>';
-      return;
-    }
-  }
-  QRCode.toCanvas(qrUrl(normalized), { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
+  // Créer une URL simple pour le QR code
+  const qrData = `INVITATION-TRESOR-LAURETTE-${code}`;
+  
+  QRCode.toCanvas(qrData, { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
     if (err) {
-      renderQrFromServer(normalized).catch(() => {
-        statusEl.textContent = 'QR indisponible pour le moment.';
-      });
+      qrEl.innerHTML = '<div class="qr-fallback">QR Code</div>';
       return;
     }
     qrEl.appendChild(canvas);
-    statusEl.textContent = '';
   });
-}
-
-function renderQrPlaceholder(message) {
-  qrEl.innerHTML = '<div class="qr-fallback">' + (message || 'Complétez le nom et le pays pour afficher le QR') + '</div>';
 }
 
 function setStatus(message, isError) {
@@ -647,164 +542,109 @@ function setStatus(message, isError) {
   statusEl.style.color = isError ? '#9b1c1c' : '#4a5568';
 }
 
-function renderBadge(invite) {
+function renderBadge(nom, pays) {
   badgeContainer.innerHTML = '';
-  if (!invite?.nom) return;
-
+  
+  if (!nom) return;
+  
   const badge = document.createElement('div');
   badge.className = 'guest-badge';
-
+  
   const nameSpan = document.createElement('span');
   nameSpan.className = 'guest-badge-name';
-  nameSpan.textContent = invite.nom;
+  nameSpan.textContent = nom;
   badge.appendChild(nameSpan);
-
-  if (invite.pays) {
+  
+  if (pays) {
     const sep = document.createElement('span');
     sep.className = 'guest-badge-sep';
     sep.setAttribute('aria-hidden', 'true');
     badge.appendChild(sep);
-
+    
     const paysSpan = document.createElement('span');
-    paysSpan.className = 'guest-badge-table';
-    paysSpan.textContent = invite.pays;
+    paysSpan.className = 'guest-badge-pays';
+    paysSpan.textContent = pays;
     badge.appendChild(paysSpan);
   }
-
+  
   badgeContainer.appendChild(badge);
 }
 
-function renderInvitation(invite) {
-  currentCode = normalizeCode(invite?.code_secret) || currentCode || 'TL01';
-  renderBadge(invite);
-  renderQr(currentCode);
+function generateInvitation() {
+  const nom = nameInput ? nameInput.value.trim() : '';
+  const pays = paysInput ? paysInput.value.trim() : '';
+  
+  if (!nom || !pays) {
+    setStatus('Veuillez saisir le nom complet et le pays.', true);
+    return false;
+  }
+  
+  const inviteCode = generateInviteCode(nom);
+  renderBadge(nom, pays);
+  renderQr(inviteCode);
   
   // Mettre à jour le message de remerciement personnalisé
   const thankYouEl = document.getElementById('guest-thank-you');
-  if (thankYouEl && invite?.nom) {
-    const prenom = invite.nom.split(' ')[0];
+  if (thankYouEl) {
     thankYouEl.innerHTML = `
-      <strong>Merci ${prenom} !</strong>
-      Nous sommes impatients de vous accueillir du pays ${invite.pays}.
+      <strong>Merci ${nom.split(' ')[0]} !</strong>
+      Nous sommes impatients de vous accueillir du pays ${pays}.
     `;
   }
   
-  document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurette';
-}
-
-async function readJson(response) {
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('application/json')) {
-    throw new Error("Le serveur n'a pas renvoye de donnees valides.");
-  }
-  return response.json();
-}
-
-async function loadInvitationByCode(code) {
-  const normalized = normalizeCode(code);
-  if (!normalized) {
-    renderQrPlaceholder();
-    return;
-  }
-
-  try {
-    setStatus("Chargement de l'invitation...", false);
-    const { response } = await fetchWithFallback((base) => apiUrl(normalized, base));
-    const result = await readJson(response);
-    if (!response.ok || !result.ok) {
-      throw new Error(result.erreur || 'Invitation introuvable.');
-    }
-    renderInvitation(result.invite);
-    if (nameInput) nameInput.value = result.invite.nom || '';
-    if (paysInput) paysInput.value = result.invite.pays || '';
-    setStatus('', false);
-  } catch (err) {
-    setStatus('Mode hors ligne : l’invitation s’affiche quand même.', false);
-    renderInvitation({
-      code_secret: normalized,
-      nom: nameInput ? nameInput.value.trim() : 'Invité',
-      pays: paysInput ? paysInput.value.trim() : 'Pays'
-    });
-  }
-}
-
-async function verifyInvitationFromForm() {
-  const nom = nameInput ? nameInput.value.trim() : '';
-  const pays = paysInput ? paysInput.value.trim() : '';
-
-  if (!nom || !pays) {
-    setStatus('Veuillez saisir le nom complet et le pays.', true);
-    return;
-  }
-
-  const submitBtn = document.querySelector('#code-form button[type="submit"]');
-  const oldHtml = submitBtn ? submitBtn.innerHTML : '';
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/></svg> Vérification...';
-  }
-
-  try {
-    setStatus('Vérification dans la base...', false);
-    const { response } = await fetchWithFallback((base) => verifyApiUrl(base), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nom, pays })
-    });
-    const result = await readJson(response);
-    if (!response.ok || !result.ok) {
-      throw new Error(result.erreur || 'Informations non reconnues.');
-    }
-    renderInvitation(result.invite);
-    setStatus('', false);
-    document.getElementById('invitation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } catch (err) {
-    // Mode hors ligne - générer un code basé sur le nom
-    const codeFromName = 'TL' + Math.floor(Math.random() * 90 + 10); // Code aléatoire TL10-TL99
-    renderInvitation({
-      code_secret: codeFromName,
-      nom,
-      pays
-    });
-    setStatus('Invitation générée en mode hors ligne.', false);
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = oldHtml;
-    }
-  }
+  setStatus('Invitation générée avec succès !', false);
+  document.getElementById('invitation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+  return true;
 }
 
 document.getElementById('code-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  verifyInvitationFromForm();
+  generateInvitation();
 });
 
+// Utiliser l'impression pour générer le PDF
+document.getElementById('print-btn').addEventListener('click', () => {
+  window.print();
+});
+
+// Télécharger le PDF sans images (utilise l'impression)
 document.getElementById('download-pdf').addEventListener('click', async () => {
   const btn = document.getElementById('download-pdf');
   const oldText = btn.textContent;
   const card = document.getElementById('invitation-card');
-
+  
   if (!card) return;
-
+  
   btn.disabled = true;
   btn.textContent = 'Génération du PDF...';
-
+  
   try {
-    if (typeof html2canvas === 'undefined' || !window.jspdf) {
-      throw new Error('Librairies de téléchargement non chargées.');
-    }
-
-    // Attente du chargement complet des images
-    const images = Array.from(card.getElementsByTagName('img'));
-    await Promise.all(images.map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-    }));
-
-    // Laisser un court instant pour le rendu final
+    const nom = nameInput ? nameInput.value.trim() : 'invite';
+    const pays = paysInput ? paysInput.value.trim() : '';
+    const filename = `invitation-${nom.replace(/[^a-z0-9]/gi, '-')}-pays-${pays || 'na'}.pdf`;
+    
+    // Masquer les panneaux non essentiels
+    const codePanel = document.querySelector('.code-panel');
+    const originalCodePanelDisplay = codePanel ? codePanel.style.display : 'block';
+    codePanel.style.display = 'none';
+    
+    // Masquer les images
+    const images = card.querySelectorAll('img');
+    const originalVisibility = [];
+    images.forEach((img, i) => {
+      originalVisibility[i] = img.style.visibility;
+      img.style.visibility = 'hidden';
+    });
+    
+    // Masquer la zone de téléchargement
+    const printControls = document.querySelector('.print-controls');
+    const originalPrintControlsDisplay = printControls ? printControls.style.display : 'flex';
+    printControls.style.display = 'none';
+    
+    // Attendre un instant pour le rendu
     await new Promise((resolve) => setTimeout(resolve, 500));
-
+    
     const canvas = await html2canvas(card, {
       scale: 3,
       useCORS: true,
@@ -812,25 +652,42 @@ document.getElementById('download-pdf').addEventListener('click', async () => {
       logging: false,
       allowTaint: true
     });
-
+    
+    // Restaurer les images
+    images.forEach((img, i) => {
+      img.style.visibility = originalVisibility[i];
+    });
+    
+    // Restaurer les éléments masqués
+    if (codePanel) codePanel.style.display = originalCodePanelDisplay;
+    if (printControls) printControls.style.display = originalPrintControlsDisplay;
+    
     const imgData = canvas.toDataURL('image/png');
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a5');
     pdf.addImage(imgData, 'PNG', 0, 0, 148, 210);
-    pdf.save('invitation-mariage-' + (currentCode || 'tresor-laurette') + '.pdf');
-
-    if (statusEl) setStatus('PDF généré avec succès.', false);
+    pdf.save(filename);
+    
+    setStatus('PDF généré avec succès.', false);
   } catch (err) {
     console.error('Erreur PDF:', err);
-    if (statusEl) setStatus('Impossible de générer le PDF.', true);
+    setStatus('Impossible de générer le PDF (images locales non autorisées).', true);
+    
+    // Afficher un message à l'utilisateur pour imprimer à la place
+    setTimeout(() => {
+      alert('Le téléchargement PDF n\'est pas disponible avec les images locales.\n\nVeuillez cliquer sur le bouton "Imprimer" et choisir "Enregistrer en tant que PDF" dans votre imprimante.');
+    }, 100);
   } finally {
     btn.disabled = false;
     btn.textContent = oldText;
   }
 });
 
-if (nameInput) nameInput.value = params.get('nom') || '';
-if (paysInput) paysInput.value = params.get('pays') || '';
-loadInvitationByCode(currentCode);
+// Initialiser avec des valeurs par défaut
+if (nameInput && paysInput) {
+  nameInput.value = 'Gracy';
+  paysInput.value = 'France';
+  generateInvitation();
+}
 </script>
 </body>
 </html>
