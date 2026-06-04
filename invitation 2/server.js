@@ -348,6 +348,7 @@ app.get('/i/:code', (req, res) => {
   res.redirect(`/?code=${encodeURIComponent(code)}`);
 });
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
+app.get('/invitation-physique', (req, res) => res.sendFile(path.join(__dirname, 'invitation-physique.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
 app.get('/serveurs', (req, res) => res.sendFile(path.join(__dirname, 'serveurs.html')));
