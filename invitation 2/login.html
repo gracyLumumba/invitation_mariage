@@ -19,9 +19,9 @@
     justify-content: center;
     min-height: 100dvh;
     background:
-      radial-gradient(circle at 15% 15%, rgba(200, 149, 45, 0.08), transparent 40%),
-      radial-gradient(circle at 85% 85%, rgba(7, 85, 199, 0.08), transparent 40%),
-      linear-gradient(135deg, #F0F4F8 0%, #FFFFFF 50%, #F0F4F8 100%);
+      radial-gradient(circle at 12% 18%, rgba(200, 149, 45, 0.12), transparent 34%),
+      radial-gradient(circle at 88% 82%, rgba(74, 163, 223, 0.12), transparent 34%),
+      linear-gradient(135deg, #f7f9fc 0%, #ffffff 45%, #f2f6fb 100%);
     padding: 1.25rem;
     overflow-x: hidden;
   }
@@ -44,53 +44,66 @@
     width: min(46vw, 330px);
     transform: rotate(168deg);
   }
-  .login-wrap { width: 100%; max-width: 460px; position: relative; z-index: 1; }
+  .login-wrap { width: 100%; max-width: 560px; position: relative; z-index: 1; }
   .login-card { 
     text-align: center;
     overflow: hidden;
-    background: var(--white);
-    padding: 3rem 2rem;
-    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.88));
+    backdrop-filter: blur(12px);
+    padding: 3.25rem 2.5rem 2.6rem;
+    border-radius: 28px;
+    border: 1px solid rgba(200, 149, 45, 0.14);
     width: 100%;
-    box-shadow: 0 30px 60px rgba(0, 31, 63, 0.12);
+    box-shadow:
+      0 28px 70px rgba(0, 31, 63, 0.12),
+      0 4px 18px rgba(0, 31, 63, 0.05);
   }
-  .login-card::before {
-    content: '';
-    position: absolute;
-    inset: 12px;
-    border: 1px solid var(--beige-dark);
-    pointer-events: none;
+  .login-card.card-framed,
+  .card-framed.login-card {
+    border: 0 !important;
+    box-shadow:
+      0 28px 70px rgba(0, 31, 63, 0.12),
+      0 4px 18px rgba(0, 31, 63, 0.05) !important;
+  }
+  .login-card::before,
+  .login-card::after,
+  .card-framed::after {
+    display: none !important;
+    content: none !important;
   }
   .login-flower {
     position: absolute;
-    top: 18px;
-    right: 18px;
-    width: 78px;
-    height: 78px;
-    opacity: .6;
+    top: 16px;
+    right: 16px;
+    width: 74px;
+    height: 74px;
+    opacity: .72;
     pointer-events: none;
   }
   .login-flower.left {
     right: auto;
-    left: 18px;
+    left: 16px;
     transform: scaleX(-1);
   }
   .login-crest {
     display: block;
-    width: min(300px, 100%);
-    height: 48px;
-    margin: 0 auto 1rem;
+    width: min(320px, 100%);
+    height: 54px;
+    margin: 0 auto .85rem;
   }
   .login-title {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(48px, 12vw, 70px);
+    font-size: clamp(42px, 8.6vw, 68px);
     font-weight: 300;
     color: var(--marsala-light);
-    line-height: .95;
-    margin-bottom: 0.25rem;
+    line-height: .92;
+    margin-bottom: 0.1rem;
     width: 100%;
-    overflow-wrap: anywhere;
     text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  .login-title .line {
+    display: block;
   }
   .login-amp { font-style: italic; color: var(--gold); }
   .login-subtitle {
@@ -105,7 +118,7 @@
     font-size: 17px;
     font-style: italic;
     color: var(--text-light);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.35rem;
     display: flex;
     align-items: center; justify-content: center; gap: 10px;
     overflow-wrap: anywhere;
@@ -115,70 +128,111 @@
     color: var(--text);
     line-height: 1.7;
     font-style: italic;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.6rem;
     text-align: center;
     overflow-wrap: anywhere;
   }
   .form-inner { text-align: center; }
-  .form-group { margin-bottom: 1.5rem; text-align: left; }
+  .form-group { margin-bottom: 1.15rem; text-align: left; }
+  .form-label {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    letter-spacing: 1.7px;
+    font-weight: 600;
+  }
   .form-input {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--beige-dark);
-    background: #FAFBFF;
-    border-radius: 4px;
+    padding: 14px 16px;
+    border: 1px solid rgba(5, 45, 99, 0.09);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    border-radius: 14px;
     font-size: 15px;
     color: var(--text);
     transition: all 0.3s ease;
     outline: none;
     min-width: 0;
+    box-shadow: 0 6px 16px rgba(5, 45, 99, 0.03);
   }
   .form-input:focus {
-    border-color: var(--gold);
+    border-color: rgba(200, 149, 45, 0.55);
     background: var(--white);
-    box-shadow: 0 0 0 3px rgba(200, 149, 45, 0.1);
+    box-shadow: 0 0 0 4px rgba(200, 149, 45, 0.12);
+    transform: translateY(-1px);
   }
   .btn-primary { 
-    border-radius: 4px;
+    border-radius: 16px;
     text-transform: uppercase;
     font-weight: 600;
-    letter-spacing: 2px;
-    transition: all 0.3s;
+    letter-spacing: 2.2px;
+    transition: all 0.3s ease;
     width: 100%;
+    background: linear-gradient(135deg, var(--marsala-dark) 0%, var(--marsala) 55%, #0b4fb0 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 18px 28px rgba(5, 45, 99, 0.18);
+    border: 1px solid rgba(255,255,255,.2) !important;
   }
-  .btn-primary:hover { background: var(--gold) !important; transform: translateY(-1px); }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0b3f8c 0%, var(--marsala) 55%, #0f5ac5 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 34px rgba(5, 45, 99, 0.24);
+  }
   .loading { display: none; text-align: center; margin-top: 0.75rem; }
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: .6rem 0 1.2rem;
+    color: var(--gold);
+  }
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, rgba(200,149,45,.38), transparent);
+  }
+  .login-divider i {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, #fff7d2, #c8952d);
+    box-shadow: 0 0 0 4px rgba(200,149,45,.08);
+    flex: 0 0 auto;
+  }
   @media (max-width: 480px) {
     body { padding: .65rem; align-items: stretch; }
     .login-bg-ornament.top { width: 160px; left: -72px; top: -18px; opacity: .16; }
     .login-bg-ornament.bottom { width: 180px; right: -86px; bottom: -24px; opacity: .14; }
     .login-wrap { padding-top: 0; max-width: 100%; }
     .login-card {
-      padding: 1.55rem .95rem 1.2rem;
-      border-radius: 14px;
+      padding: 1.35rem .95rem 1.05rem;
+      border-radius: 20px;
       box-shadow: 0 18px 36px rgba(0, 31, 63, 0.08);
       width: 100%;
     }
-    .login-crest { width: min(220px, 100%); height: 34px; margin-bottom: .65rem; }
-    .login-title { font-size: clamp(32px, 12vw, 44px); width: 100%; line-height: .88; margin-bottom: 0.1rem; }
-    .login-subtitle { letter-spacing: .1em; font-size: 9px; margin-bottom: .25rem; }
-    .login-date { font-size: 14px; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
-    .login-note { font-size: 11.5px; line-height: 1.5; margin-bottom: 1rem; }
-    .login-flower { width: 40px; height: 40px; opacity: .22; top: 10px; right: 10px; }
-    .login-flower.left { left: 10px; right: auto; }
-    .form-group { margin-bottom: .9rem; }
-    .form-label { font-size: 9px; letter-spacing: 1.2px; }
-    .form-input { font-size: 14px; padding: 10px 12px; border-radius: 8px; }
-    #code.form-input { font-size: clamp(14px, 4.2vw, 17px) !important; letter-spacing: 0.16em !important; }
-    .btn-primary { padding: .95rem !important; font-size: 10.5px !important; letter-spacing: 1.4px; border-radius: 10px; }
-    .loading { margin-top: .5rem; }
-    .card-framed::before { inset: 8px; border-radius: 10px; }
+    .login-crest { width: min(190px, 100%); height: 30px; margin-bottom: .35rem; }
+    .login-title { font-size: clamp(26px, 7.6vw, 36px); width: 100%; line-height: .9; margin-bottom: 0.02rem; }
+    .login-subtitle { letter-spacing: .14em; font-size: 8.2px; margin-bottom: .18rem; }
+    .login-date { font-size: 13px; gap: 5px; margin-bottom: .8rem; flex-wrap: wrap; }
+    .login-note { font-size: 10.5px; line-height: 1.45; margin-bottom: .85rem; }
+    .login-flower { width: 34px; height: 34px; opacity: .18; top: 8px; right: 8px; }
+    .login-flower.left { left: 8px; right: auto; }
+    .form-group { margin-bottom: .82rem; }
+    .form-label { font-size: 8.8px; letter-spacing: 1.35px; margin-bottom: 6px; }
+    .form-input { font-size: 13px; padding: 11px 12px; border-radius: 11px; }
+    #code.form-input { font-size: clamp(13px, 4vw, 16px) !important; letter-spacing: 0.12em !important; }
+    .btn-primary { padding: .92rem !important; font-size: 10px !important; letter-spacing: 1.2px; border-radius: 12px; }
+    .loading { margin-top: .4rem; }
+    .login-divider { margin: .45rem 0 .9rem; gap: 8px; }
   }
   @media (max-width: 360px) {
     body { padding: .5rem; }
-    .login-card { padding: 1.35rem .8rem 1rem; }
-    .login-title { font-size: clamp(28px, 11vw, 38px); }
-    .login-note { font-size: 11px; }
+    .login-card { padding: 1.05rem .72rem .85rem; }
+    .login-title { font-size: clamp(23px, 7.2vw, 30px); }
+    .login-note { font-size: 10px; }
     .btn-primary { font-size: 10px !important; }
   }
 </style>
@@ -246,11 +300,16 @@
       <circle cx="160" cy="23" r="2" fill="var(--gold)"/>
     </svg>
     <div class="login-subtitle">Bienvenue à l'invitation de</div>
-    <div class="login-title">Tresor<br><span class="login-amp">&amp;</span> Laurette</div>
+    <div class="login-title">
+      <span class="line">Tresor</span>
+      <span class="line login-amp">&amp;</span>
+      <span class="line">Laurette</span>
+    </div>
+    <div class="login-divider" aria-hidden="true"><i></i></div>
     <div class="login-date">
-      <span style="height:1px; flex:1; background:var(--beige-dark);"></span>
+      <span style="height:1px; flex:1; background:linear-gradient(90deg, transparent, rgba(200,149,45,.3), transparent);"></span>
       19 Juin 2026
-      <span style="height:1px; flex:1; background:var(--beige-dark);"></span>
+      <span style="height:1px; flex:1; background:linear-gradient(90deg, transparent, rgba(200,149,45,.3), transparent);"></span>
     </div>
     <p class="login-note">
       Cette invitation est strictement personnelle.<br>
@@ -258,23 +317,21 @@
     </p>
 
     <div class="form-inner">
-      <div class="form-group" style="margin-bottom: 1.5rem;">
-        <label class="form-label" for="nom" style="display: block; margin-bottom: 8px; font-size: 10px; text-transform: uppercase; color: var(--text-light); letter-spacing: 1.5px;">
-          Nom complet</label>
+      <div class="form-group">
+        <label class="form-label" for="nom">Nom complet</label>
         <input class="form-input" id="nom" type="text"
                placeholder=""
                autocomplete="name" />
       </div>
-      <div class="form-group" style="margin-bottom: 2rem;">
-        <label class="form-label" for="code" style="display: block; margin-bottom: 8px; font-size: 10px; text-transform: uppercase; color: var(--text-light); letter-spacing: 1.5px;">
-          Code Secret</label>
+      <div class="form-group" style="margin-bottom: 1.45rem;">
+        <label class="form-label" for="code">Code Secret</label>
         <input class="form-input" id="code" type="text"
                placeholder=""
                maxlength="6"
                autocomplete="off"
                 style="text-transform:uppercase;letter-spacing:0.16em;font-size:clamp(14px,4.2vw,17px);text-align:center; font-family: monospace;" />
       </div>
-      <button class="btn btn-primary btn-full" id="btn-login" style="background: var(--marsala); border: none; padding: 1.1rem; font-size: 12px; width: 100%; border-radius: 10px;">
+      <button class="btn btn-primary btn-full" id="btn-login" style="border: none; padding: 1.15rem; font-size: 12px; width: 100%;">
         Découvrir mon invitation
       </button>
       <div class="loading" id="loading"><span class="spinner"></span></div>
