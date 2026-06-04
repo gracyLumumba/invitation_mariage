@@ -470,6 +470,7 @@ body {
       </div>
 
       <div id="guest-badge-container"></div>
+      <div class="guest-name-display" id="guest-name-display" style="display:none; text-align:center; margin: 8px auto; color: var(--blue-deep); font-family: Georgia, serif; font-size: 14px; font-weight: 700;">Invitation pour <span id="display-name"></span> du <span id="display-pays"></span></div>
 
       <div class="signature">
         <div class="thank-you-poem" id="guest-thank-you">
@@ -674,6 +675,20 @@ function renderBadge(invite) {
 function renderInvitation(invite) {
   currentCode = normalizeCode(invite?.code_secret) || currentCode || 'TL01';
   renderBadge(invite);
+  
+  // Afficher le nom et pays dans le corps de l'invitation
+  const nameDisplay = document.getElementById('guest-name-display');
+  const nameSpan = document.getElementById('display-name');
+  const paysSpan = document.getElementById('display-pays');
+  
+  if (nameDisplay && invite?.nom) {
+    nameDisplay.style.display = 'block';
+    nameSpan.textContent = invite.nom;
+    if (paysSpan && invite.pays) {
+      paysSpan.textContent = invite.pays;
+    }
+  }
+  
   renderQr(currentCode);
   
   // Mettre à jour le message de remerciement personnalisé
