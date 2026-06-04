@@ -613,8 +613,26 @@ async function renderQr(code) {
   const normalized = normalizeCode(code) || 'TL01';
   qrEl.innerHTML = '';
   
-  // Générer le QR code directement dans le navigateur
-  // Le QR code pointe vers votre URL Render pour la validation
+  // Charger le QR code via l'API (comme l'invitation en ligne)
+  try {
+    const base = window.location.protocol + '//' + window.location.host;
+    const response = await fetch(base + '/api/invitation-physique/' + normalized);
+    const result = await response.json();
+    
+    if (result.ok && result.invite?.qr_image) {
+      const img = document.createElement('img');
+      img.src = result.invite.qr_image;
+      img.alt = "QR code d'entree";
+      qrEl.innerHTML = '';
+      qrEl.appendChild(img);
+      statusEl.textContent = '';
+      return;
+    }
+  } catch (err) {
+    console.log('API non disponible, génération locale du QR...');
+  }
+  
+  // Fallback : générer le QR localement dans le navigateur
   const base = window.location.protocol + '//' + window.location.host;
   const url = base + '/valider-entree?code=' + normalized + '&table=France';
   
