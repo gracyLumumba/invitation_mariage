@@ -14,6 +14,7 @@
   }
   body {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
@@ -49,7 +50,8 @@
     overflow: hidden;
     background: var(--white);
     padding: 3rem 2rem;
-    border-radius: 4px;
+    border-radius: 8px;
+    width: 100%;
     box-shadow: 0 30px 60px rgba(0, 31, 63, 0.12);
   }
   .login-card::before {
@@ -112,17 +114,26 @@
     margin-bottom: 1.5rem;
     text-align: center;
   }
-  .form-inner { text-align: left; }
-  .form-input { 
+  .form-inner { text-align: center; }
+  .form-group { margin-bottom: 1.5rem; text-align: left; }
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
     border: 1px solid var(--beige-dark);
     background: #FAFBFF;
-    border-radius: 2px;
-    font-size: 14px;
-    transition: all 0.3s;
+    border-radius: 4px;
+    font-size: 15px;
+    color: var(--text);
+    transition: all 0.3s ease;
+    outline: none;
   }
-  .form-input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(200, 149, 45, 0.1); }
+  .form-input:focus {
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(200, 149, 45, 0.1);
+  }
   .btn-primary { 
-    border-radius: 2px;
+    border-radius: 4px;
     text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 2px;
@@ -131,11 +142,11 @@
   .btn-primary:hover { background: var(--gold) !important; transform: translateY(-1px); }
   .loading { display: none; text-align: center; margin-top: 0.75rem; }
   @media (max-width: 480px) {
-    body { padding: 1rem; align-items: flex-start; }
+    body { padding: 1rem; align-items: center; }
     .login-bg-ornament.top { width: 210px; left: -92px; top: -20px; }
     .login-bg-ornament.bottom { width: 230px; right: -100px; bottom: -24px; }
     .login-wrap { padding-top: .5rem; }
-    .login-title { font-size: 52px; }
+    .login-title { font-size: clamp(40px, 12vw, 52px); width: 100%; }
     .login-subtitle { letter-spacing: .14em; }
     .login-note { font-size: 12px; }
     .login-flower { width: 56px; height: 56px; opacity: .42; }
@@ -221,14 +232,14 @@
         <label class="form-label" for="nom" style="display: block; margin-bottom: 8px; font-size: 10px; text-transform: uppercase; color: var(--text-light); letter-spacing: 1.5px;">
           Nom complet</label>
         <input class="form-input" id="nom" type="text"
-               placeholder="Ex: Jean Martin"
+               placeholder=""
                autocomplete="name" />
       </div>
       <div class="form-group" style="margin-bottom: 2rem;">
         <label class="form-label" for="code" style="display: block; margin-bottom: 8px; font-size: 10px; text-transform: uppercase; color: var(--text-light); letter-spacing: 1.5px;">
           Code Secret</label>
         <input class="form-input" id="code" type="text"
-               placeholder="Ex: TL01"
+               placeholder=""
                maxlength="6"
                autocomplete="off"
                style="text-transform:uppercase;letter-spacing:0.3em;font-size:18px;text-align:center; font-family: monospace;" />
