@@ -106,7 +106,10 @@ svg{max-width:100%;}
 .badge-code{display:inline-block;background:var(--beige);border:1px solid var(--beige-dark);padding:4px 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--marsala);letter-spacing:.15em;}
 .badge-table{display:inline-flex;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);font-weight:600;}
 .qr-warn{border-top:1px solid var(--beige-dark);padding-top:.75rem;font-size:12px;font-style:italic;color:var(--text-light);text-align:center;}
-.btn-dl{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--marsala);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;}
+  .btn-dl{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--marsala);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Jost',sans-serif;}
+  .qr-lock{display:none;margin-top:8px;font-size:12px;color:var(--text-light);font-style:italic;}
+  .qr-card.locked .btn-dl{display:none;}
+  .qr-card.locked .qr-lock{display:block;}
 
 /* RSVP */
 .rsvp-card{background:var(--white);border:1px solid var(--beige-dark);padding:2rem;text-align:center;margin-bottom:1.25rem;position:relative;overflow:hidden;}
@@ -495,7 +498,8 @@ svg{max-width:100%;}
           <span class="badge-code" id="guest-code">…</span>
           <span class="badge-table"><i data-lucide="globe" class="icon"></i> <span id="guest-table">…</span></span>
         </div>
-        <button class="btn-dl" id="btn-download-qr"><i data-lucide="download" class="icon"></i> Enregistrer le QR code</button>
+        <button class="btn-dl" id="btn-download-qr" type="button"><i data-lucide="download" class="icon"></i> Enregistrer le QR code</button>
+        <div class="qr-lock" id="qr-lock-msg">Le téléchargement du QR code sera disponible après votre confirmation de présence.</div>
       </div>
     </div>
     <svg width="100%" height="28" viewBox="0 0 400 28" fill="none" style="display:block;margin-bottom:.75rem;">
@@ -697,9 +701,23 @@ async function chargerInvite(){
     document.getElementById('guest-nom').textContent=d.nom;
     document.getElementById('guest-code').textContent=d.code_secret;
     document.getElementById('guest-table').textContent=d.pays||'—';
-    chargerQR(d.code_secret);
-    if(d.statut==='accepte'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-accepte').classList.add('show');}
-    else if(d.statut==='refuse'){document.getElementById('rsvp-form').style.display='none';document.getElementById('rsvp-refuse').classList.add('show');}
+    const qrCard = document.querySelector('.qr-card');
+    const qrLock = document.getElementById('qr-lock-msg');
+    if(d.statut==='accepte'){
+      qrCard.classList.remove('locked');
+      qrLock.style.display='none';
+      chargerQR(d.code_secret);
+      document.getElementById('rsvp-form').style.display='none';
+      document.getElementById('rsvp-accepte').classList.add('show');
+    }else if(d.statut==='refuse'){
+      qrCard.classList.add('locked');
+      qrLock.style.display='none';
+      document.getElementById('rsvp-form').style.display='none';
+      document.getElementById('rsvp-refuse').classList.add('show');
+    }else{
+      qrCard.classList.add('locked');
+      qrLock.style.display='block';
+    }
   }catch(e){}
 }
 async function chargerQR(code){
@@ -709,6 +727,8 @@ async function chargerQR(code){
     if(d.ok){
       qrDataUrl=d.qr;
       document.getElementById('qr-frame').innerHTML='<a href="'+d.url+'" title="Ouvrir la validation"><img src="'+d.qr+'" alt="QR"></a>';
+      document.querySelector('.qr-card').classList.remove('locked');
+      document.getElementById('qr-lock-msg').style.display='none';
     }
   }catch(e){document.getElementById('qr-frame').innerHTML='<span style="font-size:11px;color:#999;text-align:center;padding:8px;">QR<br>indisponible</span>';}
 }
@@ -755,6 +775,7 @@ function lancerConfettis(){
 
 /* DL QR */
 function telechargerQR(){
+  if (!inviteData || String(inviteData.statut || '').toLowerCase() !== 'accepte') return;
   if(!qrDataUrl)return;
   const a=document.createElement('a');
   a.href=qrDataUrl;a.download='invitation-mariage-'+(inviteData?.code_secret||'qr')+'.png';a.click();

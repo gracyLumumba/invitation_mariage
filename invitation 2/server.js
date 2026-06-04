@@ -459,7 +459,14 @@ app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
     return res.status(403).json({ erreur: 'Accès interdit.' });
   }
 
+  if (String(invite.statut || '').toLowerCase() !== 'accepte') {
+    return res.status(403).json({ erreur: 'Le QR code est disponible uniquement après confirmation de présence.' });
+  }
+
   const fullInvite = await db.findInvite(invite.code_secret);
+  if (!fullInvite || String(fullInvite.statut || '').toLowerCase() !== 'accepte') {
+    return res.status(403).json({ erreur: 'Le QR code est disponible uniquement après confirmation de présence.' });
+  }
   const baseUrl = getRequestBaseUrl(req);
   const url = qrUrl(fullInvite, baseUrl);
 
