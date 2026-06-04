@@ -65,14 +65,14 @@ svg{max-width:100%;}
 .floral-corner{display:none;}
 .inv-header > svg{display:none!important;}
 .inv-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--text-light);margin:.2rem 0 .35rem;}
-.inv-main-title{font-family:'Great Vibes',cursive;font-size:clamp(40px,10vw,82px);color:var(--marsala);line-height:1;margin-bottom:.15rem;width:100%;overflow-wrap:break-word;}
-.inv-amp{font-style:italic;color:var(--gold);padding: 0 12px;}
+.inv-main-title{font-family:'Great Vibes',cursive;font-size:clamp(40px,10vw,82px);color:var(--marsala);line-height:1;margin-bottom:.15rem;width:100%;overflow-wrap:anywhere;text-wrap:balance;}
+.inv-amp{font-style:italic;color:var(--gold);padding:0 12px;display:inline-block;}
 .inv-date{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.55rem;}
-.inv-poem-main{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,3.5vw,17px);font-style:italic;color:var(--text-light);line-height:1.55;max-width:480px;margin:0 auto .15rem;}
+.inv-poem-main{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,3.5vw,17px);font-style:italic;color:var(--text-light);line-height:1.55;max-width:480px;margin:0 auto .15rem;overflow-wrap:anywhere;}
 .inv-poem-auth{font-size:11px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;}
-.inv-welcome{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,20px);font-style:italic;color:var(--text);margin:.65rem 0 .25rem;}
-.inv-guest-name{font-family:'Great Vibes',cursive;font-size:clamp(30px,7vw,48px);color:var(--marsala);line-height:1.1;}
-.inv-body{font-size:14px;color:var(--text-light);line-height:1.6;max-width:480px;margin:.45rem auto 0;}
+.inv-welcome{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,20px);font-style:italic;color:var(--text);margin:.65rem 0 .25rem;overflow-wrap:anywhere;text-wrap:balance;}
+.inv-guest-name{font-family:'Great Vibes',cursive;font-size:clamp(30px,7vw,48px);color:var(--marsala);line-height:1.1;overflow-wrap:anywhere;text-wrap:balance;}
+.inv-body{font-size:14px;color:var(--text-light);line-height:1.6;max-width:480px;margin:.45rem auto 0;overflow-wrap:anywhere;}
 
 /* DIVIDER FLORAL */
 .fdiv{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:.6rem 0;color:var(--gold);font-size:11px;letter-spacing:.3em;}
@@ -80,17 +80,17 @@ svg{max-width:100%;}
 .fdiv::before{background:linear-gradient(to left,transparent,var(--gold));}
 
 /* DÉTAILS */
-.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;}
+.details-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.75rem;margin-bottom:1.25rem;}
 .detail-card{background:var(--white);border:1px solid var(--beige-dark);padding:1.3rem 1rem;text-align:center;position:relative;overflow:hidden;}
 .detail-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold-light),transparent);}
 .detail-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-light);margin-bottom:4px;}
-.detail-val{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);}
-.detail-sub{font-size:12px;color:var(--text-light);margin-top:2px;}
+.detail-val{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);overflow-wrap:anywhere;text-wrap:balance;}
+.detail-sub{font-size:12px;color:var(--text-light);margin-top:2px;line-height:1.45;overflow-wrap:anywhere;}
 
 /* CITATION */
 .citation-block{background:linear-gradient(135deg,var(--beige) 0%,var(--cream) 100%);border:1px solid var(--beige-dark);border-left:3px solid var(--gold);padding:1.5rem 1.75rem;margin-bottom:1.25rem;text-align:center;position:relative;}
 .citation-q{position:absolute;font-family:'Cormorant Garamond',serif;font-size:80px;color:var(--gold-light);line-height:1;opacity:.35;top:-10px;left:14px;}
-.citation-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,20px);font-style:italic;color:var(--text);line-height:1.8;}
+.citation-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,20px);font-style:italic;color:var(--text);line-height:1.8;overflow-wrap:anywhere;}
 .citation-auth{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-top:.75rem;}
 
 /* QR */
@@ -99,8 +99,9 @@ svg{max-width:100%;}
 .qr-inner{display:flex;align-items:center;justify-content:center;gap:1.75rem;margin-bottom:1rem;}
 .qr-frame{flex-shrink:0;width:130px;height:130px;border:2px solid var(--gold);padding:7px;display:flex;align-items:center;justify-content:center;background:var(--cream);position:relative;}
 .qr-frame img{width:100%;height:100%;object-fit:contain;}
-.qr-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--marsala);margin-bottom:5px;}
-.qr-poem{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text-light);line-height:1.7;margin-bottom:10px;}
+.qr-info{min-width:0;}
+.qr-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--marsala);margin-bottom:5px;overflow-wrap:anywhere;text-wrap:balance;}
+.qr-poem{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text-light);line-height:1.7;margin-bottom:10px;overflow-wrap:anywhere;}
 .qr-badges{display:flex;flex-wrap:wrap;gap:6px;}
 .badge-code{display:inline-block;background:var(--beige);border:1px solid var(--beige-dark);padding:4px 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--marsala);letter-spacing:.15em;}
 .badge-table{display:inline-flex;align-items:center;gap:5px;background:var(--beige);border:1px solid var(--gold-light);padding:4px 12px;font-size:13px;color:var(--text);font-weight:600;}
@@ -110,8 +111,8 @@ svg{max-width:100%;}
 /* RSVP */
 .rsvp-card{background:var(--white);border:1px solid var(--beige-dark);padding:2rem;text-align:center;margin-bottom:1.25rem;position:relative;overflow:hidden;}
 .rsvp-card::after{content:'';position:absolute;inset:8px;border:1px solid var(--gold-pale);pointer-events:none;}
-.rsvp-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--marsala);margin-bottom:.3rem;}
-.rsvp-poem{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-light);margin-bottom:1rem;line-height:1.7;}
+.rsvp-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--marsala);margin-bottom:.3rem;overflow-wrap:anywhere;text-wrap:balance;}
+.rsvp-poem{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-light);margin-bottom:1rem;line-height:1.7;overflow-wrap:anywhere;}
 .rsvp-deadline{font-size:12.5px;color:var(--text-light);margin-bottom:1.25rem;}
 .rsvp-deadline strong{color:var(--marsala);}
 .rsvp-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
@@ -132,7 +133,7 @@ svg{max-width:100%;}
 /* FOOTER */
 .inv-footer{background:var(--white);border:1px solid var(--beige-dark);padding:2rem;text-align:center;position:relative;overflow:hidden;}
 .inv-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold),transparent);}
-.footer-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);font-style:italic;color:var(--marsala);margin-bottom:.5rem;}
+.footer-poem{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);font-style:italic;color:var(--marsala);margin-bottom:.5rem;overflow-wrap:anywhere;text-wrap:balance;}
 .footer-sub{font-size:13px;color:var(--text-light);}
 .footer-mention{font-size:11.5px;font-style:italic;color:var(--text-light);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--beige-dark);}
 .footer-credit{font-size:10.5px;color:var(--text-light);line-height:1.7;margin-top:.85rem;opacity:.82;overflow-wrap:anywhere;}
@@ -164,25 +165,48 @@ svg{max-width:100%;}
   .qr-badges{justify-content:center;}
   .qr-card,.rsvp-card,.inv-footer,.citation-block{padding:1.25rem;}
   .qr-card::before,.rsvp-card::after{inset:6px;}
-  .qr-frame{width:150px;height:150px;}
+  .qr-frame{width:138px;height:138px;}
   .details-grid{grid-template-columns:1fr;}
-  .inv-header{padding:1.6rem 1rem 1.35rem;}
+  .inv-header{padding:1.4rem .9rem 1.15rem;}
   .theme-flower.top{top:-28px;left:-42px;width:210px;opacity:.68;}
   .theme-flower.bottom{right:-48px;bottom:-32px;width:180px;opacity:.62;}
   .inv-header::before{inset:6px;}
   .inv-header::after{inset:10px;}
   .inv-label,.inv-date{letter-spacing:.14em;}
-  .inv-main-title{font-size:clamp(44px,16vw,62px);}
-  .inv-guest-name{overflow-wrap:anywhere;}
-  .rsvp-btns{flex-direction:column;}
+  .inv-main-title{font-size:clamp(32px,12vw,52px);line-height:.95;}
+  .inv-amp{padding:0 6px;}
+  .inv-date{font-size:12px;}
+  .inv-poem-main{font-size:clamp(13px,3.4vw,15px);}
+  .inv-welcome{font-size:clamp(14px,4vw,18px);}
+  .inv-guest-name{font-size:clamp(26px,8.5vw,40px);}
+  .inv-body{font-size:13px;}
+  .detail-val{font-size:15px;}
+  .detail-sub{font-size:11px;}
+  .citation-block{padding:1.05rem 1rem;}
+  .citation-q{font-size:60px;left:10px;top:-6px;}
+  .citation-text{font-size:15px;line-height:1.65;}
+  .qr-title{font-size:16px;}
+  .qr-poem{font-size:12px;line-height:1.6;}
+  .badge-code{font-size:12px;letter-spacing:.08em;}
+  .badge-table{font-size:12px;padding:4px 10px;}
+  .rsvp-card{padding:1.45rem 1rem;}
+  .rsvp-title{font-size:22px;}
+  .rsvp-poem{font-size:14px;line-height:1.6;}
   .btn-accept,.btn-decline{width:100%;padding:13px 14px;line-height:1.45;}
-  .footer-sub,.footer-mention,.footer-credit,.qr-warn{overflow-wrap:anywhere;}
+  .rsvp-btns{flex-direction:column;}
+  .footer-poem{font-size:18px;}
+  .footer-sub,.footer-mention,.footer-credit,.qr-warn{overflow-wrap:anywhere;font-size:11.5px;line-height:1.55;}
+  .music-toggle{width:38px;height:38px;right:10px;bottom:10px;}
 }
 @media(max-width:380px){
   .page-wrap{padding-left:.5rem;padding-right:.5rem;}
   .qr-card,.rsvp-card,.inv-footer,.citation-block,.detail-card{padding:1rem;}
-  .inv-header{padding:1.45rem .85rem 1.2rem;}
+  .inv-header{padding:1.25rem .8rem 1rem;}
+  .inv-main-title{font-size:clamp(28px,11vw,44px);}
+  .inv-guest-name{font-size:clamp(24px,8vw,36px);}
   .inv-body,.citation-text{line-height:1.65;}
+  .detail-val{font-size:14px;}
+  .detail-sub{font-size:10.5px;}
 }
 </style>
 <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
