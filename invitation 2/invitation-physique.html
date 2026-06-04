@@ -523,15 +523,16 @@ function normalizeCode(value) {
 }
 
 function qrUrl(code) {
-  // Créer une URL locale pour le QR code
-  // Le QR code pointera vers le scanner local
-  const base = 'https://localhost:3001';
+  // Créer une URL dynamique basée sur l'emplacement actuel
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port ? ':' + window.location.port : '';
+  const base = `${protocol}//${hostname}${port}`;
+  
   const url = new URL('/valider-entree', base);
   url.searchParams.set('code', code);
   url.searchParams.set('table', 'France');
   
-  // Pour éviter l'erreur HTTPS, on peut utiliser une URL relative
-  // mais le QR code doit pointer vers une URL absolue
   return url.toString();
 }
 
@@ -610,32 +611,28 @@ function renderQrFromStaticFile(code) {
 async function renderQr(code) {
   const normalized = normalizeCode(code) || 'TL01';
   qrEl.innerHTML = '';
+  
+  // Générer le QR code directement dans le navigateur
+  // Le QR code pointe vers votre URL Render pour la validation
+  const base = window.location.protocol + '//' + window.location.host;
+  const url = base + '/valider-entree?code=' + normalized + '&table=France';
+  
   try {
-    await renderQrFromServer(normalized);
-    return;
-  } catch (serverErr) {
-    try {
-      await renderQrFromStaticFile(normalized);
-      return;
-    } catch (staticErr) {
-      // Continue with the in-browser QR generator below.
-    }
-    if (typeof QRCode === 'undefined') {
-      statusEl.textContent = 'Demarrez le serveur local puis rechargez cette page pour generer le QR du code ' + normalized + '.';
-      qrEl.innerHTML = '<span style="font-size:10px;color:#4a5568;text-align:center;line-height:1.3;">QR en attente</span>';
-      return;
-    }
-  }
-  QRCode.toCanvas(qrUrl(normalized), { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
-    if (err) {
-      renderQrFromServer(normalized).catch(() => {
-        statusEl.textContent = 'QR indisponible pour le moment.';
+    if (typeof QRCode !== 'undefined') {
+      QRCode.toCanvas(url, { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
+        if (err) {
+          qrEl.innerHTML = '<div class="qr-fallback">QR<br>Code</div>';
+          return;
+        }
+        qrEl.appendChild(canvas);
+        statusEl.textContent = '';
       });
-      return;
+    } else {
+      qrEl.innerHTML = '<div class="qr-fallback">QR<br>Code</div>';
     }
-    qrEl.appendChild(canvas);
-    statusEl.textContent = '';
-  });
+  } catch (err) {
+    qrEl.innerHTML = '<div class="qr-fallback">QR<br>Code</div>';
+  }
 }
 
 function renderQrPlaceholder(message) {
