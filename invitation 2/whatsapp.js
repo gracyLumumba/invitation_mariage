@@ -84,14 +84,14 @@ async function envoyerNotification(message) {
 function msgAcceptation(invite) {
   return `ACCEPTE - ${invite.nom}
 Code : ${invite.code_secret}
-Table : ${invite.table_num} | Couverts : ${invite.nb_couverts}
+Pays : ${invite.pays} | Couverts : ${invite.nb_couverts}
 Date : ${new Date().toLocaleString('fr-FR')}`;
 }
 
 function msgRefus(invite) {
   return `REFUS - ${invite.nom}
 Code : ${invite.code_secret}
-${invite.nb_couverts} place(s) liberee(s) a la table ${invite.table_num}
+${invite.nb_couverts} place(s) liberee(s) (Pays : ${invite.pays})
 Date : ${new Date().toLocaleString('fr-FR')}`;
 }
 
@@ -106,7 +106,7 @@ Verifiez le panneau admin`;
 
 function msgEntreeValidee(invite) {
   return `ENTREE VALIDEE - ${invite.nom}
-Table : ${invite.table_num} | ${invite.nb_couverts} couvert(s)
+Pays : ${invite.pays} | ${invite.nb_couverts} couvert(s)
 Date : ${new Date().toLocaleString('fr-FR')}`;
 }
 

@@ -1,4 +1,4 @@
-﻿// generate-qr.js
+﻿﻿// generate-qr.js
 // Génère les QR codes pour tous les invités ayant accepté
 // Lancer avec : node generate-qr.js
 
@@ -17,7 +17,7 @@ async function genererQRCode(invite) {
   const params = new URLSearchParams({
     code: invite.code_secret,
     nom: invite.nom,
-    table: String(invite.table_num || ''),
+    table: String(invite.pays || ''),
     boisson: String(invite.boisson || ''),
   });
   const url = `${SITE_URL}/scanner?${params.toString()}`;

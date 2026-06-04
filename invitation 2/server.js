@@ -1,4 +1,4 @@
-﻿﻿// server.js — Serveur principal Express
+﻿﻿﻿﻿// server.js — Serveur principal Express
 // Démarrer avec : node server.js  (ou  npm run dev  avec nodemon)
 
 require('dotenv').config();
@@ -227,7 +227,7 @@ function inviteUrl(invite, baseUrl) {
 function qrUrl(invite, baseUrl = SITE_URL.replace(/\/+$/, '')) {
   const params = new URLSearchParams({
     code: invite.code_secret,
-    pays: String(invite.pays || 'France'),
+    table: String(invite.pays || 'France'),
   });
   return `${baseUrl}/valider-entree?${params.toString()}`;
 }
@@ -250,6 +250,7 @@ async function publicInvitationPayload(invite, baseUrl) {
     nom: invite.nom,
     code_secret: invite.code_secret,
     pays: invite.pays,
+    table_num: invite.pays,
     grace_table_france: invite.grace_table_france,
     nb_couverts: invite.nb_couverts,
     menu: invite.menu,
@@ -331,7 +332,10 @@ const adminLimiter = rateLimit({
 });
 
 function timingSafeCompare(a, b) {
-  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
 }
 
 // ============================================
@@ -388,6 +392,7 @@ app.post('/api/connexion', loginLimiter,
     req.session.invite = {
       code_secret: invite.code_secret,
       nom:         invite.nom,
+      table_num:   invite.pays,
       pays:        invite.pays,
       grace_table_france: invite.grace_table_france,
       nb_couverts: invite.nb_couverts,
@@ -590,7 +595,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
-      invite: { nom: invite.nom, pays: invite.pays, grace_table_france: invite.grace_table_france, menu: invite.menu, boisson: invite.boisson }
+      invite: { nom: invite.nom, pays: invite.pays, table_num: invite.pays, grace_table_france: invite.grace_table_france, menu: invite.menu, boisson: invite.boisson }
     });
   }
 
@@ -615,6 +620,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     invite: {
       nom:         updatedInvite.nom,
       pays:        updatedInvite.pays,
+      table_num:   updatedInvite.pays,
       grace_table_france: updatedInvite.grace_table_france,
       nb_couverts: updatedInvite.nb_couverts,
       menu:        updatedInvite.menu,
