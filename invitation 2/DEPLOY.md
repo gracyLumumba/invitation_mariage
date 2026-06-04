@@ -1,4 +1,4 @@
-﻿# Deploiement public gratuit
+﻿﻿# Deploiement public gratuit
 
 Solution choisie : Render pour le site + Supabase PostgreSQL pour la base.
 
@@ -19,7 +19,7 @@ postgresql://postgres.xxxxx:VOTRE_MOT_DE_PASSE@aws-0-region.pooler.supabase.com:
 Creer un **Web Service** depuis GitHub :
 
 ```text
-Root Directory: invitation
+Root Directory: invitation 2
 Build Command: npm install && npm run build
 Start Command: npm start
 ```

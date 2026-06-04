@@ -26,7 +26,7 @@ Important : ne pas utiliser l'URL directe `db.xxxxx.supabase.co:5432` sur Render
 
 ```text
 Name: invitation-mariage
-Root Directory: invitation
+Root Directory: invitation 2
 Runtime: Node
 Build Command: npm install && npm run build
 Start Command: npm start
