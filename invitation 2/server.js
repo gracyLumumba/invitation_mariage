@@ -15,7 +15,6 @@ const crypto       = require('crypto');
 const { spawnSync } = require('child_process');
 const selfsigned   = require('selfsigned');
 const QRCode       = require('qrcode');
-const nodemailer   = require('nodemailer');
 const mongoSanitize = require('express-mongo-sanitize');
 const { body, validationResult } = require('express-validator');
 
@@ -31,17 +30,6 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
-
-// Configuration Email pour les notifications
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'gragralulu31@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru' 
-  }
-});
-
-const ADMIN_EMAIL = 'gragralulu31@gmail.com';
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
 const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
@@ -861,12 +849,16 @@ app.get('/api/admin/logs', requireAdmin, async (req, res) => {
 // Export CSV
 app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   const invites = await db.getAllInvites();
-  const header = ['Nom', 'Table', 'Code', 'Statut'];
+  const header = ['ID','Nom','Code','Pays','Grace Table France','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
   const rows = invites.map(i => [
+    i.id,
     `"${i.nom}"`,
-    `"${i.pays || ''}"`,
     i.code_secret,
-    i.statut
+    `"${i.pays || ''}"`,
+    `"${i.grace_table_france || ''}"`,
+    i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
+    i.statut, `${i.acces_count || 0}/${i.acces_max || MAX_INVITE_ACCES}`, i.presente ? 'oui' : 'non',
+    i.ip_connexion || '', i.date_reponse || '', i.date_presence || ''
   ]);
   const csv = [header, ...rows].map(r => r.join(',')).join('\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');

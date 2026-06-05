@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Administration — Mariage Yannick & Chantia</title>
 <link rel="stylesheet" href="/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
   body { background: var(--beige); }
   .layout { display: flex; min-height: 100vh; }
@@ -375,6 +377,7 @@
             <select class="table-filter" id="table-filter" onchange="filtrerTableNum(this.value)">
               <option value="">Toutes les tables</option>
             </select>
+            <button class="btn-csv" onclick="exportPDF()"><i data-lucide="file-text" class="icon"></i> Export PDF</button>
             <button class="btn-csv" onclick="exportCSV()"><i data-lucide="download" class="icon"></i> Export CSV</button>
           </div>
           <div class="table-wrap">
