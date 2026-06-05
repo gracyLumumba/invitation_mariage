@@ -450,6 +450,7 @@ let allInvites = [];
 let filtreTexte = '';
 let filtreStatut = '';
 let filtreTableNum = '';
+let maxInviteAcces = 5; 
 let publicInviteUrl = window.location.origin + '/';
 let activeSection = 'dashboard';
 let isEditingTable = false;
@@ -508,6 +509,7 @@ async function chargerStats() {
     document.getElementById('login-overlay').classList.add('hidden');
 
     const s = await res.json();
+    maxInviteAcces = s.max_invite_acces || 5;
     document.getElementById('s-total').textContent   = s.total;
     document.getElementById('s-acceptes').textContent = s.acceptes;
     document.getElementById('s-refuses').textContent  = s.refuses;

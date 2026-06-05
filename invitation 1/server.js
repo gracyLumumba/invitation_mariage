@@ -808,7 +808,9 @@ app.get('/api/admin/logout', (req, res) => {
 });
 
 app.get('/api/admin/stats', requireAdmin, async (req, res) => {
-  res.json(await db.getStats());
+  const stats = await db.getStats();
+  stats.max_invite_acces = MAX_INVITE_ACCES;
+  res.json(stats);
 });
 
 app.get('/api/admin/invites', requireAdmin, async (req, res) => {
@@ -913,7 +915,7 @@ app.get('/api/admin/scanner-token', requireAdmin, (req, res) => {
 
 async function startServer() {
   console.log('[DEMARRAGE] Initialisation de la base de données...');
-  await db.initDb();
+  await db.initDb(MAX_INVITE_ACCES);
   console.log('[DEMARRAGE] Base de données initialisée.');
 
   if (USE_HTTPS) {

@@ -82,6 +82,7 @@ async function initDb() {
       acces_count   INTEGER DEFAULT 0,
       presente      BOOLEAN DEFAULT false,
       date_presence TEXT DEFAULT NULL,
+      acces_max     INTEGER DEFAULT ${_maxInviteAcces},
       created_at    TIMESTAMPTZ DEFAULT now()
     );
 
@@ -108,6 +109,7 @@ async function initDb() {
   await query(`
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS boisson TEXT DEFAULT NULL;
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_count INTEGER DEFAULT 0;
+    ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_max INTEGER DEFAULT ${_maxInviteAcces};
     UPDATE invites
     SET acces_count = 1
     WHERE code_utilise = true AND COALESCE(acces_count, 0) = 0;
@@ -172,7 +174,7 @@ async function marquerCodeUtilise(code_secret, ip) {
   return query(
     `UPDATE invites
      SET acces_count = COALESCE(acces_count, 0) + 1,
-         code_utilise = (COALESCE(acces_count, 0) + 1) >= 5,
+         code_utilise = (COALESCE(acces_count, 0) + 1) >= COALESCE(acces_max, ${_maxInviteAcces}),
          ip_connexion = $1
      WHERE UPPER(code_secret) = UPPER($2)`,
     [ip, code_secret]
@@ -244,7 +246,7 @@ async function createInvite(data) {
   const { nom, code_secret, table_num, nb_couverts, menu } = data;
   const result = await query(
     `INSERT INTO invites (nom, code_secret, table_num, nb_couverts, menu)
-     VALUES ($1, UPPER($2), $3, $4, $5)
+     VALUES ($1, UPPER($2), $3, $4, $5, ${_maxInviteAcces})
      RETURNING id`,
     [nom, code_secret, table_num, nb_couverts, menu]
   );
@@ -299,7 +301,8 @@ async function getStats() {
       COALESCE(
         ROUND(100.0 * COUNT(*) FILTER (WHERE statut != 'en_attente') / NULLIF(COUNT(*), 0)),
         0
-      )::int AS taux_reponse
+      )::int AS taux_reponse,
+      (SELECT COALESCE(MAX(acces_max), ${_maxInviteAcces}) FROM invites)::int AS default_acces_max
     FROM invites
   `);
   return result.rows[0];
