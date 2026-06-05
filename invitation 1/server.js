@@ -393,11 +393,14 @@ function timingSafeCompare(a, b) {
 // ============================================
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/civil', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
 app.get('/i/:code', (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
   res.redirect(`/?code=${encodeURIComponent(code)}`);
 });
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
+app.get('/invitation-mariage-civile', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation mariage civil.html')));
+app.get('/invitation-physique', (req, res) => res.sendFile(path.join(__dirname, 'invitation-physique.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
 app.get('/serveurs', (req, res) => res.sendFile(path.join(__dirname, 'serveurs.html')));
@@ -901,7 +904,7 @@ async function startServer() {
     const credentials = getHttpsCredentials();
     const localIp = getLocalIp();
     https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré en HTTPS !');
+      console.log('\n[DEMARRAGE] Système MARIAGE CIVIL démarré en HTTPS !');
       console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
       console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
@@ -912,7 +915,7 @@ async function startServer() {
   } else {
     const localIp = getLocalIp();
     app.listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système mariage Yannick & Chantia démarré !');
+      console.log('\n[DEMARRAGE] Système MARIAGE CIVIL démarré !');
       console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
       console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
