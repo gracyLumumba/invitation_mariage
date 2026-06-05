@@ -42,6 +42,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Vérification de la configuration email au démarrage
+transporter.verify((error) => {
+  if (error) {
+    console.warn('[EMAIL] La configuration Gmail a échoué. Vérifiez GMAIL_APP_PASSWORD.', error.message);
+  } else {
+    console.log('[EMAIL] Serveur prêt à envoyer des notifications à gragralulu31@gmail.com');
+  }
+});
+
 const ADMIN_EMAIL = 'gragralulu31@gmail.com';
 
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
@@ -159,6 +168,22 @@ async function envoyerAlerteConnexion(nom, code, ip) {
     console.log('[EMAIL] Alerte envoyée:', info.messageId);
   } catch (err) {
     console.error('[EMAIL] Erreur envoi alerte:', err.message, err.response);
+  }
+}
+
+async function envoyerAlerteRSVP(invite, statut) {
+  const mailOptions = {
+    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    to: ADMIN_EMAIL,
+    subject: `💌 RSVP ${statut === 'accepte' ? 'ACCEPTE' : 'REFUSE'} : ${invite.nom}`,
+    text: `L'invité ${invite.nom} a répondu : ${statut.toUpperCase()}.\nNombre de couverts : ${invite.nb_couverts}\nTable : ${invite.table_num}\nHeure : ${new Date().toLocaleString('fr-FR')}`
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[EMAIL] Notification RSVP envoyée:', info.messageId);
+  } catch (err) {
+    console.error('[EMAIL] Erreur envoi notification RSVP:', err.message);
   }
 }
 
@@ -482,6 +507,9 @@ app.post('/api/repondre', requireInvite, apiLimiter,
   const msg = statut === 'accepte' ? wa.msgAcceptation(updatedInvite) : wa.msgRefus(updatedInvite);
   const notif = await wa.envoyerNotification(msg);
   if (!notif.ok) console.error('[WhatsApp] Notification non envoyée:', notif.raison);
+
+  // Alerte par email à l'admin lors d'une réponse
+  envoyerAlerteRSVP(updatedInvite, statut);
 
   res.json({ ok: true, statut });
 });
