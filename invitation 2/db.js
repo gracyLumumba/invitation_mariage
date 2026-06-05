@@ -15,17 +15,18 @@ const pool = connectionString
   : null;
 
 const demoInvites = [
-  { id: 1, nom: 'Jean & Marie Dupont', code_secret: 'TL01', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 2, nom: 'Luc Bernard', code_secret: 'TL02', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 3, nom: 'Anne Rousseau', code_secret: 'TL03', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 4, nom: 'Michel & Nicole Leclerc', code_secret: 'TL04', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 5, nom: 'Francoise Gérard', code_secret: 'TL05', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 6, nom: 'Claude Laurent', code_secret: 'TL06', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 7, nom: 'Sylvain Gautier', code_secret: 'TL07', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 8, nom: 'Brigitte & Pierre Moreau', code_secret: 'TL08', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 9, nom: 'Evelyne Robert', code_secret: 'TL09', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 10, nom: 'Olivier & Christine Durand', code_secret: 'TL10', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: 3, code_utilise: false, presente: false },
-  { id: 11, nom: 'Gracy', code_secret: 'TL11', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, acces_max: null, code_utilise: false, presente: false },
+  { id: 1, nom: 'Jean & Marie Dupont', code_secret: 'TL01', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 2, nom: 'Luc Bernard', code_secret: 'TL02', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 3, nom: 'Anne Rousseau', code_secret: 'TL03', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 4, nom: 'Michel & Nicole Leclerc', code_secret: 'TL04', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 5, nom: 'Francoise Gerard', code_secret: 'TL05', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 6, nom: 'Claude Laurent', code_secret: 'TL06', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 7, nom: 'Sylvain Gautier', code_secret: 'TL07', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 8, nom: 'Brigitte & Pierre Moreau', code_secret: 'TL08', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 9, nom: 'Evelyne Robert', code_secret: 'TL09', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'vegetarien', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 10, nom: 'Olivier & Christine Durand', code_secret: 'TL10', pays: 'France', grace_table_france: 'Oui', nb_couverts: 2, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 11, nom: 'Gracy', code_secret: 'TL011', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
+  { id: 12, nom: 'Tresor', code_secret: 'TL012', pays: 'France', grace_table_france: 'Oui', nb_couverts: 1, menu: 'standard', statut: 'en_attente', boisson: null, acces_count: 0, code_utilise: false, presente: false },
 ];
 
 const demoLogs = [];
@@ -58,7 +59,6 @@ function normalizeInvite(row) {
     ...row,
     code_utilise: row.code_utilise ? 1 : 0,
     acces_count: Number(row.acces_count || 0),
-    acces_max: row.acces_max == null ? null : Number(row.acces_max),
     presente: row.presente ? 1 : 0,
   };
 }
@@ -84,7 +84,6 @@ async function initDb() {
       boisson       TEXT DEFAULT NULL,
       ip_connexion  TEXT DEFAULT NULL,
       acces_count   INTEGER DEFAULT 0,
-      acces_max     INTEGER DEFAULT 3,
       presente      BOOLEAN DEFAULT false,
       date_presence TEXT DEFAULT NULL,
       created_at    TIMESTAMPTZ DEFAULT now()
@@ -110,13 +109,9 @@ async function initDb() {
   await query(`
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS boisson TEXT DEFAULT NULL;
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_count INTEGER DEFAULT 0;
-    ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_max INTEGER DEFAULT 3;
     UPDATE invites
     SET acces_count = 1
     WHERE code_utilise = true AND COALESCE(acces_count, 0) = 0;
-    UPDATE invites
-    SET acces_max = NULL
-    WHERE UPPER(code_secret) = 'TL11' OR LOWER(nom) = 'gracy';
   `);
 }
 
@@ -177,14 +172,11 @@ async function marquerCodeUtilise(code_secret, ip) {
     return { rowCount: 1 };
   }
   return query(
-     `UPDATE invites
-      SET acces_count = COALESCE(acces_count, 0) + 1,
-          code_utilise = CASE
-            WHEN acces_max IS NULL THEN false
-            ELSE (COALESCE(acces_count, 0) + 1) >= COALESCE(acces_max, 3)
-          END,
-          ip_connexion = $1
-      WHERE UPPER(code_secret) = UPPER($2)`,
+    `UPDATE invites
+     SET acces_count = COALESCE(acces_count, 0) + 1,
+         code_utilise = (COALESCE(acces_count, 0) + 1) >= 3,
+         ip_connexion = $1
+     WHERE UPPER(code_secret) = UPPER($2)`,
     [ip, code_secret]
   );
 }
@@ -264,12 +256,12 @@ async function updateInvite(id, data) {
 }
 
 async function createInvite(data) {
-  const { nom, code_secret, pays, grace_table_france, nb_couverts, menu, acces_max = 3 } = data;
+  const { nom, code_secret, pays, grace_table_france, nb_couverts, menu } = data;
   const result = await query(
-    `INSERT INTO invites (nom, code_secret, pays, grace_table_france, nb_couverts, menu, acces_max)
-     VALUES ($1, UPPER($2), $3, $4, $5, $6, $7)
+    `INSERT INTO invites (nom, code_secret, pays, grace_table_france, nb_couverts, menu)
+     VALUES ($1, UPPER($2), $3, $4, $5, $6)
      RETURNING id`,
-    [nom, code_secret, pays, grace_table_france, nb_couverts, menu, acces_max]
+    [nom, code_secret, pays, grace_table_france, nb_couverts, menu]
   );
   return { lastInsertRowid: result.rows[0].id };
 }
