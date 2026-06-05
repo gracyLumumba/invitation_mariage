@@ -387,8 +387,8 @@ const adminLimiter = rateLimit({
 });
 
 function timingSafeCompare(a, b) {
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
+  const bufA = Buffer.from(String(a || ''));
+  const bufB = Buffer.from(String(b || ''));
   if (bufA.length !== bufB.length) return false; // Important pour éviter les erreurs de buffer
   return crypto.timingSafeEqual(bufA, bufB);
 }

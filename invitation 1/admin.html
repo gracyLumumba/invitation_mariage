@@ -134,13 +134,46 @@
     position: fixed; inset: 0;
     background: rgba(44,31,31,0.6);
     display: flex; align-items: center; justify-content: center;
-    z-index: 200;
+    z-index: 9999;
   }
+  .login-overlay.hidden { display: none !important; }
   .login-box {
-    background: var(--white); border-radius: 2px;
+    background: #fff; border-radius: 4px;
     padding: 2.5rem 2rem; width: 360px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   }
   .login-box h2 { font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--marsala); margin-bottom:1.5rem; }
+
+  /* Styles de secours pour le login */
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #7A6060; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 12px; border: 1px solid #E5DDD0;
+    border-radius: 2px; font-size: 15px; outline: none;
+    background: #FAF7F2; color: #2C1F1F;
+  }
+  .form-input:focus { border-color: #8B4A4A; background: #fff; }
+  .btn-primary {
+    background: #8B4A4A; color: #fff; border: none; padding: 12px;
+    border-radius: 2px; cursor: pointer; font-size: 13px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #6B3535; transform: translateY(-1px); }
+  .btn-full { width: 100%; }
+  .alert {
+    display: none; padding: 12px; border-radius: 2px; font-size: 13px; margin-top: 1rem;
+  }
+  .alert-danger { background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .alert.show { display: block; }
+  
+  /* Fix pour l'écriture du mot de passe */
+  #admin-pwd {
+    -webkit-text-security: disc;
+    background-color: #fff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
 
   @media (max-width: 700px) {
     .sidebar { width: 56px; }
@@ -287,7 +320,8 @@
     <div class="form-group" style="text-align:left;">
       <label class="form-label">Mot de passe</label>
       <input class="form-input" id="admin-pwd" type="password" placeholder="Mot de passe admin"
-             onkeydown="if(event.key==='Enter') adminLogin()" />
+             onkeydown="if(event.key==='Enter') adminLogin()" 
+             autocomplete="current-password" />
     </div>
     <button class="btn btn-primary btn-full" onclick="adminLogin()">Accéder</button>
     <div class="alert" id="login-err"></div>
@@ -445,7 +479,7 @@ async function adminLogin() {
     const res  = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pwd}) });
     const data = await res.json();
     if (data.ok) {
-      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('login-overlay').classList.add('hidden');
       refreshAdmin(true);
       startAdminAutoRefresh();
     } else {
@@ -469,6 +503,10 @@ async function chargerStats() {
     chargerPublicUrl();
     const res  = await fetch('/api/admin/stats');
     if (!res.ok) return;
+
+    // Si la requête réussit, on cache l'overlay (session déjà active)
+    document.getElementById('login-overlay').classList.add('hidden');
+
     const s = await res.json();
     document.getElementById('s-total').textContent   = s.total;
     document.getElementById('s-acceptes').textContent = s.acceptes;
