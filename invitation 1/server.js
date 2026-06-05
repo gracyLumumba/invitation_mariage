@@ -52,7 +52,7 @@ transporter.verify((error) => {
 
 const ADMIN_EMAIL = 'gragralulu31@gmail.com';
 
-const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
+const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 5);
 const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
   .split(',')
   .map(v => v.trim())

@@ -591,7 +591,7 @@ function renderTable() {
           <option value="refuse" ${i.statut === 'refuse' ? 'selected' : ''}>Refusé</option>
         </select>
       </td>
-      <td style="text-align:center;">${i.acces_count || 0}/3</td>
+      <td style="text-align:center;">${i.acces_count || 0}/5</td>
       <td style="text-align:center;">${i.presente ? '<span class="badge badge-present">Présent</span>' : '—'}</td>
       <td><code>${i.ip_connexion || '—'}</code></td>
       <td style="font-size:12px;color:var(--text-light);">${i.date_reponse || '—'}</td>

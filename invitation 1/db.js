@@ -172,7 +172,7 @@ async function marquerCodeUtilise(code_secret, ip) {
   return query(
     `UPDATE invites
      SET acces_count = COALESCE(acces_count, 0) + 1,
-         code_utilise = (COALESCE(acces_count, 0) + 1) >= 3,
+         code_utilise = (COALESCE(acces_count, 0) + 1) >= 5,
          ip_connexion = $1
      WHERE UPPER(code_secret) = UPPER($2)`,
     [ip, code_secret]
