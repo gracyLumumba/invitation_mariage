@@ -268,9 +268,11 @@ async function publicInvitationPayload(invite, baseUrl) {
 }
 
 async function nextInviteCode() {
-  for (let i = 1; i < 10000; i += 1) {
-    const code = `TL${String(i).padStart(2, '0')}`;
-    if (!(await db.codeExists(code))) return code;
+  for (let i = 1; i < 10000; i++) {
+    const code = 'TL' + String(i).padStart(2, '0');
+    if (!(await db.codeExists(code))) {
+      return code;
+    }
   }
   throw new Error('Impossible de générer un code disponible.');
 }
@@ -599,16 +601,20 @@ app.get('/scanner-auth', apiLimiter, (req, res) => {
 
 app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   const { code_secret } = req.body;
+  const ip = getIp(req);
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
-  const invite = await db.findInvite(code_secret.trim().toUpperCase());
+  const code = code_secret.trim().toUpperCase();
+  const invite = await db.findInvite(code);
 
   if (!invite) {
+    await db.logSecurite('scan_inconnu', code, null, ip, 'Scanner : Code non reconnu');
     return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
   }
 
   if (invite.presente) {
+    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : Invité déjà présent');
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
@@ -617,6 +623,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   if (invite.statut === 'refuse') {
+    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation déclinée');
     return res.json({
       resultat: 'refuse',
       message: `${invite.nom} a décliné l'invitation.`
@@ -629,6 +636,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     return res.status(500).json({ resultat: 'erreur', message: 'La présence n’a pas été enregistrée dans la base de données.' });
   }
   const updatedInvite = updateResult.rows[0] || invite;
+  await db.logSecurite('scan_valide', code, updatedInvite.nom, ip, 'Scanner : Entrée validée avec succès');
   wa.envoyerNotification(wa.msgEntreeValidee(updatedInvite));
 
   res.json({
