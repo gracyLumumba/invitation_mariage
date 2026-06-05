@@ -1,4 +1,4 @@
-﻿/* public/css/style.css — Charte graphique Tresor & Laurene */
+﻿﻿/* public/css/style.css — Charte graphique Tresor & Laurene */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap');
 
@@ -31,7 +31,7 @@ body {
   font-family: 'Jost', sans-serif;
   background: var(--cream);
   color: var(--text);
-  min-height: 100dvh;
+  min-height: 100vh;
   font-size: 15px;
   line-height: 1.6;
 }
@@ -97,7 +97,6 @@ body {
   outline: none;
   border-radius: 2px;
   transition: border-color 0.2s, background 0.2s;
-  min-width: 0;
 }
 .form-input:focus {
   border-color: var(--marsala-light);
@@ -208,11 +207,114 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---- PANNEAU ADMIN & DASHBOARD ---- */
+.admin-wrapper {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--beige-dark);
+}
+
+.admin-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  color: var(--marsala);
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-box {
+  background: var(--white);
+  padding: 1.5rem;
+  border: 1px solid var(--beige-dark);
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 61, 137, 0.05);
+  transition: transform 0.2s;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+  border-color: var(--marsala-light);
+}
+
+.stat-box .number {
+  display: block;
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--marsala);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-box .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.table-container {
+  background: var(--white);
+  border: 1px solid var(--beige-dark);
+  border-radius: 4px;
+  overflow-x: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 800px;
+}
+
+thead th {
+  background: var(--beige);
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--beige-dark);
+}
+
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--beige-dark);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+tbody tr:hover {
+  background: var(--cream);
+}
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 600px) {
   body { font-size: 14px; }
   .card-framed { padding: 1.5rem 1rem; }
   .card-framed::after { inset: 6px; }
-  .btn { width: 100%; }
-  .form-input { font-size: 14px; padding: 10px 12px; }
 }
