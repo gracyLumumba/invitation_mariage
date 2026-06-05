@@ -15,7 +15,7 @@ const crypto       = require('crypto');
 const { spawnSync } = require('child_process');
 const selfsigned   = require('selfsigned');
 const QRCode       = require('qrcode');
-const csurf        = require('csurf');
+const nodemailer   = require('nodemailer');
 const mongoSanitize = require('express-mongo-sanitize');
 const { body, validationResult } = require('express-validator');
 
@@ -31,6 +31,17 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
+
+// Configuration Email pour les notifications
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'gragralulu31@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru' 
+  }
+});
+
+const ADMIN_EMAIL = 'gragralulu31@gmail.com';
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
 const CERT_HOST = process.env.CERT_HOST || DISPLAY_HOST;
 const QR_DIR = path.join(__dirname, 'qrcodes');
@@ -124,9 +135,6 @@ app.use(session({
     sameSite: 'lax' 
   }
 }));
-
-// CSRF Protection
-const csrfProtection = csurf({ cookie: false });
 
 // Rate limiting
 const loginLimiter = rateLimit({
