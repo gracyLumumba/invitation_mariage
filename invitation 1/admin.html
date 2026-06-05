@@ -482,7 +482,7 @@ async function chargerStats() {
     const res2 = await fetch('/api/admin/invites');
     const inv  = await res2.json();
     allInvites  = inv;
-    const recent = inv.filter(i => i.statut !== 'en_attente').slice(0, 8);
+    const recent = (inv || []).filter(i => i.statut !== 'en_attente').slice(0, 8);
     document.getElementById('quick-list').innerHTML = recent.length ? recent.map(i => `
       <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--beige);">
         <span class="badge ${i.statut === 'accepte' ? 'badge-accept' : 'badge-decline'}">${i.statut === 'accepte' ? '<i data-lucide="check" class="icon"></i> Accepté' : '<i data-lucide="x" class="icon"></i> Refusé'}</span>
@@ -495,7 +495,7 @@ async function chargerStats() {
     // Connexions récentes
     const resLogs = await fetch('/api/admin/logs');
     const logs = await resLogs.json();
-    const connexions = logs.filter(l => l.type === 'connexion').slice(0, 8);
+    const connexions = (logs || []).filter(l => l.type === 'connexion').slice(0, 8);
     document.getElementById('online-list').innerHTML = connexions.length ? connexions.map(l => `
       <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--beige-dark);">
         <span style="color:#22C55E;"><i data-lucide="mouse-pointer-2" class="icon" style="width:12px;"></i></span>
@@ -507,10 +507,7 @@ async function chargerStats() {
       </div>`).join('') : '<p style="color:var(--text-light);font-size:13px;">Aucune connexion récente.</p>';
 
     renderIcons(); // Re-render icons for new content
-  } catch(e) {}
-}
-
-
+  } catch(e) { console.error("Erreur stats:", e); }
 }
 
 async function chargerInvites(options = {}) {
