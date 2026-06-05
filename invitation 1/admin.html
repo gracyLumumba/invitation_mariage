@@ -711,20 +711,20 @@ function exportCSV() {
 
 function exportPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('l', 'mm', 'a4');
+  const doc = new jsPDF('p', 'mm', 'a4');
   
   doc.text("Liste des Invités - Mariage Yannick & Chantia", 14, 15);
   
-  const columns = ["ID", "Nom", "Code", "Table", "Couverts", "Menu", "Statut", "Présent"];
+  const columns = ["Nom", "Table"];
   const rows = allInvites.map(i => [
-    i.id, i.nom, i.code_secret, i.table_num || '0', i.nb_couverts, i.menu, i.statut, i.presente ? 'Oui' : 'Non'
+    i.nom, i.table_num || '0'
   ]);
 
   doc.autoTable({
     head: [columns],
     body: rows,
     startY: 20,
-    styles: { fontSize: 8 },
+    styles: { fontSize: 10 },
     headStyles: { fillColor: [139, 74, 74] }
   });
 

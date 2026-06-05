@@ -16,7 +16,6 @@ const { spawnSync } = require('child_process');
 const selfsigned   = require('selfsigned');
 const QRCode       = require('qrcode');
 const nodemailer   = require('nodemailer');
-const csurf        = require('csurf');
 const mongoSanitize = require('express-mongo-sanitize');
 const { body, validationResult } = require('express-validator');
 
@@ -238,9 +237,7 @@ function validateInput(req, res, next) {
 }
 
 function getRequestBaseUrl(req) {
-  const configuredUrl = String(process.env.SITE_URL || '').trim().replace(/\/+$/, '');
   const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
-  const proto = forwardedProto || req.protocol || (USE_HTTPS ? 'https' : 'http');
   const proto = req.headers['x-forwarded-proto'] || req.protocol || (USE_HTTPS ? 'https' : 'http');
   const host = req.get('host');
   const localIp = getLocalIp();
@@ -255,7 +252,7 @@ function getRequestBaseUrl(req) {
     }
     return `${proto}://${host}`;
   }
-  return configuredUrl || SITE_URL.replace(/\/+$/, '');
+  return SITE_URL.replace(/\/+$/, '');
 }
 
 function inviteUrl(invite, baseUrl) {
@@ -387,7 +384,6 @@ const adminLimiter = rateLimit({
 });
 
 function timingSafeCompare(a, b) {
-  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   const bufA = Buffer.from(String(a));
   const bufB = Buffer.from(String(b));
   if (bufA.length !== bufB.length) return false; // Important pour éviter les erreurs de buffer
@@ -402,7 +398,6 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/civil', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
 app.get('/i/:code', (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
-  res.redirect(`/?code=${encodeURIComponent(code)}`);
   const baseUrl = getRequestBaseUrl(req);
   res.redirect(`${baseUrl}/?code=${encodeURIComponent(code)}`);
 });
