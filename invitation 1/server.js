@@ -116,9 +116,6 @@ app.use(session({
   cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }
 }));
 
-// CSRF Protection
-const csrfProtection = csurf({ cookie: false });
-
 // Rate limiting
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
