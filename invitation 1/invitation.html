@@ -757,11 +757,6 @@ async function repondre(statut){
   const err=document.getElementById('rsvp-err');err.className='alert-err';
   const boissons=getSelectedBoissons();
   const boisson=boissons.join(' / ');
-  if(statut==='accepte'&&boissons.some(v=>!v)){
-    err.textContent=boissons.length>1?"Veuillez choisir une boisson pour chaque personne. L'eau est prévue automatiquement.":"Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.";
-    err.className='alert-err show';
-    return;
-  }
   try{
     const payload=statut==='accepte'?{statut,boisson}:{statut};
     const res=await fetch('/api/repondre',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});

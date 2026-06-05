@@ -153,9 +153,13 @@ async function envoyerAlerteConnexion(nom, code, ip) {
     text: `L'invité ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
   };
 
-  transporter.sendMail(mailOptions).catch(err => {
-    console.error('[EMAIL] Erreur envoi alerte:', err.message);
-  });
+  try {
+    console.log(`[EMAIL] Tentative d'envoi d'alerte pour ${nom} à ${ADMIN_EMAIL}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[EMAIL] Alerte envoyée:', info.messageId);
+  } catch (err) {
+    console.error('[EMAIL] Erreur envoi alerte:', err.message, err.response);
+  }
 }
 
 function normaliserNom(value) {
