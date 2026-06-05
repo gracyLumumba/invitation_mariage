@@ -898,9 +898,12 @@ app.get('/api/admin/scanner-token', requireAdmin, (req, res) => {
 // ============================================
 
 async function startServer() {
+  console.log('[DEMARRAGE] Initialisation de la base de données...');
   await db.initDb();
+  console.log('[DEMARRAGE] Base de données initialisée.');
 
   if (USE_HTTPS) {
+    console.log('[DEMARRAGE] Configuration HTTPS...');
     const credentials = getHttpsCredentials();
     const localIp = getLocalIp();
     https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {

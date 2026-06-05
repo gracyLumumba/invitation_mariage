@@ -93,13 +93,21 @@ async function initDb() {
       message     TEXT,
       created_at  TIMESTAMPTZ DEFAULT now()
     );
+    `);
+    console.log('[DB] Table "logs_securite" vérifiée/créée.');
 
-    CREATE TABLE IF NOT EXISTS sessions_admin (
+    await query(`
+      CREATE TABLE IF NOT EXISTS sessions_admin (
       id         BIGSERIAL PRIMARY KEY,
       token      TEXT NOT NULL UNIQUE,
       created_at TIMESTAMPTZ DEFAULT now()
     );
-  `);
+    `);
+    console.log('[DB] Table "sessions_admin" vérifiée/créée.');
+  } catch (err) {
+    console.error('[DB] Erreur lors de la création des tables :', formatDbError(err));
+    throw err; // Re-throw to be caught by startServer().catch()
+  }
 
   await query(`
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS boisson TEXT DEFAULT NULL;
