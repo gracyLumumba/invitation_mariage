@@ -615,6 +615,7 @@ async function renderQr(code) {
   
   // Charger le QR code via l'API (comme l'invitation en ligne)
   try {
+    // Utiliser l'URL de base du serveur Render ou du serveur local
     const base = window.location.protocol + '//' + window.location.host;
     const response = await fetch(base + '/api/invitation-physique/' + normalized);
     const result = await response.json();
@@ -707,7 +708,7 @@ function renderInvitation(invite) {
     }
   }
   
-  renderQr(currentCode);
+  renderQr(invite.code_secret || currentCode);
   
   // NE PAS modifier le message de remerciement - le garder original
   document.title = 'Invitation - ' + (invite?.nom || currentCode) + ' - Mariage Tresor & Laurette';
