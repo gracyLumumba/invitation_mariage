@@ -122,13 +122,13 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'mariage2026secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
+  cookie: { secure: USE_HTTPS, maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
 }));
 
 // Rate limiting
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Réduit de 20 à 5
+  max: 20, // Remis à 20 pour éviter les blocages intempestifs
   message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' },
   standardHeaders: false,
   skip: (req) => req.session?.admin // Admin ne sont pas limités
@@ -241,6 +241,7 @@ function getRequestBaseUrl(req) {
   const configuredUrl = String(process.env.SITE_URL || '').trim().replace(/\/+$/, '');
   const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
   const proto = forwardedProto || req.protocol || (USE_HTTPS ? 'https' : 'http');
+  const proto = req.headers['x-forwarded-proto'] || req.protocol || (USE_HTTPS ? 'https' : 'http');
   const host = req.get('host');
   const localIp = getLocalIp();
 
@@ -248,6 +249,7 @@ function getRequestBaseUrl(req) {
     const hostParts = host.split(':');
     const hostname = hostParts[0];
     const port = hostParts.slice(1).join(':');
+    // Si accès local, on utilise l'IP réseau pour que le QR code fonctionne sur mobile
     if ((hostname === 'localhost' || hostname === '127.0.0.1') && localIp !== 'localhost') {
       return `${proto}://${localIp}${port ? `:${port}` : ''}`;
     }
@@ -379,13 +381,17 @@ function getHttpsCredentials() {
 
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 3, // Strictement limité
+  max: 1000000, // Quasi infini pour l'administration
   skipSuccessfulRequests: true,
   message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' }
 });
 
 function timingSafeCompare(a, b) {
   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false; // Important pour éviter les erreurs de buffer
+  return crypto.timingSafeEqual(bufA, bufB);
 }
 
 // ============================================
@@ -397,6 +403,8 @@ app.get('/civil', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.h
 app.get('/i/:code', (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
   res.redirect(`/?code=${encodeURIComponent(code)}`);
+  const baseUrl = getRequestBaseUrl(req);
+  res.redirect(`${baseUrl}/?code=${encodeURIComponent(code)}`);
 });
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
 app.get('/invitation-mariage-civile', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation mariage civil.html')));

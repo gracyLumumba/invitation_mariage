@@ -709,6 +709,28 @@ function exportCSV() {
   window.location.href = '/api/admin/export-csv';
 }
 
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('l', 'mm', 'a4');
+  
+  doc.text("Liste des Invités - Mariage Yannick & Chantia", 14, 15);
+  
+  const columns = ["ID", "Nom", "Code", "Table", "Couverts", "Menu", "Statut", "Présent"];
+  const rows = allInvites.map(i => [
+    i.id, i.nom, i.code_secret, i.table_num || '0', i.nb_couverts, i.menu, i.statut, i.presente ? 'Oui' : 'Non'
+  ]);
+
+  doc.autoTable({
+    head: [columns],
+    body: rows,
+    startY: 20,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [139, 74, 74] }
+  });
+
+  doc.save('invites_mariage.pdf');
+}
+
 async function chargerLogs() {
   const res  = await fetch('/api/admin/logs');
   const logs = await res.json();
