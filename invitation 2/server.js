@@ -28,16 +28,6 @@ const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les 
 const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
 const USE_HTTPS = process.env.HTTPS !== 'false';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
-
-// Configuration Email pour les notifications
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'gragralulu31@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru'
-  }
-});
-
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
@@ -127,11 +117,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    // On n'active le 'secure' que si on n'est pas sur localhost
-    secure: USE_HTTPS && process.env.NODE_ENV === 'production', 
+    // Utilisation de la variable globale USE_HTTPS pour la robustesse des sessions
+    secure: USE_HTTPS, 
     maxAge: 6 * 60 * 60 * 1000, 
     httpOnly: true, 
-    sameSite: 'lax' // 'lax' est nécessaire pour que la session survive au redirect du scan QR
+    sameSite: 'lax' 
   }
 }));
 
@@ -165,6 +155,19 @@ app.use('/qrcodes', (req, res, next) => {
 
 function getIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'inconnue';
+}
+
+async function envoyerAlerteConnexion(nom, code, ip) {
+  const mailOptions = {
+    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    to: 'gragralulu31@gmail.com',
+    subject: `🔔 Connexion : ${nom}`,
+    text: `L'invité ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
+  };
+
+  transporter.sendMail(mailOptions).catch(err => {
+    console.error('[EMAIL] Erreur envoi alerte:', err.message);
+  });
 }
 
 function normaliserNom(value) {
@@ -408,6 +411,10 @@ app.post('/api/connexion', loginLimiter,
     // Marquer le code comme utilisé
     await db.marquerCodeUtilise(invite.code_secret, ip);
     await db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
+    
+    // Alerte par email à l'admin lors d'une connexion
+    envoyerAlerteConnexion(invite.nom, code_secret, ip);
+
     ensureQrCode(invite, getRequestBaseUrl(req)).catch(err => console.error('[QR] Erreur génération:', err.message));
 
     // Sauvegarder la session
@@ -611,16 +618,20 @@ app.get('/scanner-auth', apiLimiter, (req, res) => {
 
 app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   const { code_secret } = req.body;
+  const ip = getIp(req);
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
-  const invite = await db.findInvite(code_secret.trim().toUpperCase());
+  const code = code_secret.trim().toUpperCase();
+  const invite = await db.findInvite(code);
 
   if (!invite) {
+    await db.logSecurite('scan_inconnu', code, null, ip, 'Scanner : Code non reconnu');
     return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
   }
 
   if (invite.presente) {
+    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : Invité déjà présent');
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
@@ -629,6 +640,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   if (invite.statut === 'refuse') {
+    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation déclinée');
     return res.json({
       resultat: 'refuse',
       message: `${invite.nom} a décliné l'invitation.`
@@ -636,7 +648,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   // Valider la présence
-  const updateResult = await db.validerPresence(invite.code_secret);
+  const updateResult = await db.validerPresence(code);
   if (updateResult.rowCount !== 1) {
     return res.status(500).json({ resultat: 'erreur', message: 'La présence n’a pas été enregistrée dans la base de données.' });
   }
