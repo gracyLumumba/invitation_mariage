@@ -231,6 +231,10 @@ function requireScanner(req, res, next) {
 function validateInput(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.warn('[VALIDATION] Erreur de saisie :', {
+      path: req.path,
+      errors: errors.array()
+    });
     return res.status(400).json({ erreur: 'Données invalides', details: errors.array() });
   }
   next();
@@ -822,10 +826,10 @@ app.get('/api/admin/public-url', requireAdmin, (req, res) => {
 
 app.post('/api/admin/invites', requireAdmin, apiLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
-  body('code_secret').optional().trim().isLength({ min: 4, max: 10 }).withMessage('Code invalide'),
-  body('table_num').optional().isInt({ min: 0 }).withMessage('Numéro table invalide'),
-  body('nb_couverts').optional().isInt({ min: 1, max: 10 }).withMessage('Couverts invalides'),
-  body('menu').optional().isIn(['standard', 'vegetarien', 'vegan']).withMessage('Menu invalide'),
+  body('code_secret').optional({ values: 'falsy' }).trim().isLength({ min: 4, max: 10 }).withMessage('Le code doit faire entre 4 et 10 caractères'),
+  body('table_num').optional({ values: 'falsy' }).isInt({ min: 0 }).withMessage('Numéro table invalide'),
+  body('nb_couverts').optional({ values: 'falsy' }).isInt({ min: 1, max: 20 }).withMessage('Couverts invalides (1-20)'),
+  body('menu').optional({ values: 'falsy' }).trim().isLength({ max: 50 }).withMessage('Menu trop long'),
   validateInput,
   async (req, res) => {
   const nom = String(req.body.nom || '').trim();
@@ -841,7 +845,15 @@ app.post('/api/admin/invites', requireAdmin, apiLimiter,
   res.json({ ok: true, id: result.lastInsertRowid, code_secret });
 });
 
-app.put('/api/admin/invites/:id', requireAdmin, async (req, res) => {
+app.put('/api/admin/invites/:id', requireAdmin,
+  body('nom').optional().trim().isLength({ min: 1, max: 100 }),
+  body('table_num').optional({ values: 'falsy' }).isInt({ min: 0 }),
+  body('nb_couverts').optional({ values: 'falsy' }).isInt({ min: 1, max: 20 }),
+  body('menu').optional({ values: 'falsy' }).trim(),
+  body('boisson').optional({ values: 'null' }).trim(),
+  body('statut').optional().isIn(['en_attente', 'accepte', 'refuse']),
+  validateInput,
+  async (req, res) => {
   const current = await db.findInviteById(req.params.id);
   if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
   await db.updateInvite(req.params.id, {
