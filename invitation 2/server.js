@@ -95,7 +95,7 @@ app.use(helmet({
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:'],
       mediaSrc: ["'self'"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", 'https://unpkg.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
       frameSrc: ["'none'"]
     }
   },

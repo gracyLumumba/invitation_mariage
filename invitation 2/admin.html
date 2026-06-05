@@ -369,7 +369,40 @@ async function chargerStats() {
 
     updateRefreshStatus();
     renderIcons();
-  } catch(e) {}
+  } catch(e) { /* Silencieux avant login */ }
+}
+
+async function exportPDF() {
+  if (!window.jspdf) return alert("Erreur: Bibliothèque PDF non chargée.");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+
+  try {
+    const res = await fetch('/api/admin/invites');
+    if (!res.ok) throw new Error("Accès refusé");
+    const invites = await res.json();
+
+    const headers = [['Nom', 'Table']];
+    const data = invites.map(i => [i.nom, i.pays || 'Non défini']);
+
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 20,
+      styles: { fontSize: 11, cellPadding: 4 },
+      headStyles: { fillColor: [7, 85, 199] },
+      alternateRowStyles: { fillColor: [244, 249, 255] },
+      margin: { top: 20 },
+      didDrawPage: function (data) {
+        doc.setFontSize(16);
+        doc.text("Liste des invités - Mariage Tresor & Laurette", 14, 12);
+      }
+    });
+
+    doc.save('invites_mariage_tresor_laurette.pdf');
+  } catch (err) {
+    alert("Erreur lors de l'exportation : " + err.message);
+  }
 }
 
 async function chargerInvites(options = {}) {
