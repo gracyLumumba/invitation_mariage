@@ -115,7 +115,13 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'mariage2026secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }
+  cookie: { 
+    // On n'active le 'secure' que si on n'est pas sur localhost
+    secure: USE_HTTPS && process.env.NODE_ENV === 'production', 
+    maxAge: 6 * 60 * 60 * 1000, 
+    httpOnly: true, 
+    sameSite: 'lax' // 'lax' est nécessaire pour que la session survive au redirect du scan QR
+  }
 }));
 
 // CSRF Protection
@@ -854,6 +860,7 @@ async function startServer() {
       console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
       console.log(`[ADMIN] Admin réseau : https://${localIp}:${PORT}/admin`);
+      console.log(`[SCANNER] Scanner     : https://${DISPLAY_HOST}:${PORT}/scanner`);
       console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
       console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
     });
@@ -865,6 +872,7 @@ async function startServer() {
       console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
       console.log(`[ADMIN] Admin réseau : http://${localIp}:${PORT}/admin`);
+      console.log(`[SCANNER] Scanner     : http://${DISPLAY_HOST}:${PORT}/scanner`);
       console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
       console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
     });
