@@ -15,6 +15,7 @@ const crypto       = require('crypto');
 const { spawnSync } = require('child_process');
 const selfsigned   = require('selfsigned');
 const QRCode       = require('qrcode');
+const nodemailer   = require('nodemailer');
 const csurf        = require('csurf');
 const mongoSanitize = require('express-mongo-sanitize');
 const { body, validationResult } = require('express-validator');
@@ -31,6 +32,18 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
+
+// Configuration Email pour les notifications
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'gragralulu31@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru' 
+  }
+});
+
+const ADMIN_EMAIL = 'gragralulu31@gmail.com';
+
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 3);
 const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
   .split(',')
@@ -133,6 +146,19 @@ app.use('/qrcodes', (req, res, next) => {
 
 function getIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'inconnue';
+}
+
+async function envoyerAlerteConnexion(nom, code, ip) {
+  const mailOptions = {
+    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    to: ADMIN_EMAIL,
+    subject: `🔔 Connexion : ${nom}`,
+    text: `L'invité ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
+  };
+
+  transporter.sendMail(mailOptions).catch(err => {
+    console.error('[EMAIL] Erreur envoi alerte:', err.message);
+  });
 }
 
 function normaliserNom(value) {
@@ -384,6 +410,10 @@ app.post('/api/connexion', loginLimiter,
     // Marquer le code comme utilisé
     await db.marquerCodeUtilise(invite.code_secret, ip);
     await db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
+
+    // Alerte par email à l'admin
+    envoyerAlerteConnexion(invite.nom, code_secret, ip);
+
     ensureQrCode(invite, getRequestBaseUrl(req)).catch(err => console.error('[QR] Erreur génération:', err.message));
 
     // Sauvegarder la session
@@ -592,13 +622,17 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
-  const invite = await db.findInvite(code_secret.trim().toUpperCase());
+  const code = code_secret.trim().toUpperCase();
+  const invite = await db.findInvite(code);
+  const ip = getIp(req);
 
   if (!invite) {
+    await db.logSecurite('scan_inconnu', code, null, ip, 'Scanner : Code non reconnu');
     return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
   }
 
   if (invite.presente) {
+    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : Invité déjà présent');
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
@@ -607,6 +641,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   if (invite.statut === 'refuse') {
+    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation déclinée');
     return res.json({
       resultat: 'refuse',
       message: `${invite.nom} a décliné l'invitation.`
@@ -619,6 +654,7 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
     return res.status(500).json({ resultat: 'erreur', message: 'La présence n’a pas été enregistrée dans la base de données.' });
   }
   const updatedInvite = updateResult.rows[0] || invite;
+  await db.logSecurite('scan_valide', code, updatedInvite.nom, ip, 'Scanner : Entrée validée avec succès');
   wa.envoyerNotification(wa.msgEntreeValidee(updatedInvite));
 
   res.json({

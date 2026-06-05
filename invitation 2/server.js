@@ -28,6 +28,16 @@ const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les 
 const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
 const USE_HTTPS = process.env.HTTPS !== 'false';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
+
+// Configuration Email pour les notifications
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'gragralulu31@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru'
+  }
+});
+
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
@@ -601,20 +611,16 @@ app.get('/scanner-auth', apiLimiter, (req, res) => {
 
 app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   const { code_secret } = req.body;
-  const ip = getIp(req);
 
   if (!code_secret) return res.status(400).json({ erreur: 'Code requis.' });
 
-  const code = code_secret.trim().toUpperCase();
-  const invite = await db.findInvite(code);
+  const invite = await db.findInvite(code_secret.trim().toUpperCase());
 
   if (!invite) {
-    await db.logSecurite('scan_inconnu', code, null, ip, 'Scanner : Code non reconnu');
     return res.status(404).json({ resultat: 'inconnu', message: 'Code non reconnu.' });
   }
 
   if (invite.presente) {
-    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : Invité déjà présent');
     return res.json({
       resultat: 'deja_entre',
       message: `${invite.nom} est déjà enregistré(e).`,
@@ -623,7 +629,6 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   if (invite.statut === 'refuse') {
-    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation déclinée');
     return res.json({
       resultat: 'refuse',
       message: `${invite.nom} a décliné l'invitation.`

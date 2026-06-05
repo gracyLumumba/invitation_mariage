@@ -196,9 +196,15 @@
           <div class="stat-card"><span class="stat-num" id="s-couverts">—</span><span class="stat-label">Couverts</span></div>
           <div class="stat-card"><span class="stat-num" id="s-taux">—</span><span class="stat-label">Taux réponse</span></div>
         </div>
-        <div class="card" style="margin-bottom:1rem;">
-          <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:1rem;color:var(--marsala);">Réponses en temps réel</h3>
-          <div id="quick-list">Chargement…</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+          <div class="card">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:1rem;color:var(--admin-marsala);"><i data-lucide="mail-check" class="icon"></i> Réponses en temps réel</h3>
+            <div id="quick-list">Chargement…</div>
+          </div>
+          <div class="card">
+            <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:1rem;color:var(--admin-marsala);"><i data-lucide="zap" class="icon"></i> Activité en ligne (Connexions)</h3>
+            <div id="online-list">Chargement…</div>
+          </div>
         </div>
       </div>
 
@@ -334,15 +340,32 @@ async function chargerStats() {
     const res2 = await fetch('/api/admin/invites');
     const inv  = await res2.json();
     allInvites  = inv;
+    
+    // Réponses récentes
     const recent = inv.filter(i => i.statut !== 'en_attente').slice(0, 8);
     document.getElementById('quick-list').innerHTML = recent.length ? recent.map(i => `
       <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--beige);">
         <span class="badge ${i.statut === 'accepte' ? 'badge-accept' : 'badge-decline'}">${i.statut === 'accepte' ? '<i data-lucide="check" class="icon"></i> Accepté' : '<i data-lucide="x" class="icon"></i> Refusé'}</span>
         <strong style="font-size:13px;">${i.nom}</strong>
-        <span class="badge-code">${i.code_secret}</span>
         <span style="font-size:12px;color:var(--text-light);margin-left:auto;">${i.date_reponse || ''}</span>
       </div>`).join('') : '<p style="color:var(--text-light);font-size:13px;">Aucune réponse pour l\'instant.</p>';
+
+    // Connexions récentes
+    const resLogs = await fetch('/api/admin/logs');
+    const logs = await resLogs.json();
+    const connexions = logs.filter(l => l.type === 'connexion').slice(0, 8);
+    document.getElementById('online-list').innerHTML = connexions.length ? connexions.map(l => `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--admin-beige-dark);">
+        <span style="color:#22C55E;"><i data-lucide="mouse-pointer-2" class="icon" style="width:12px;"></i></span>
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.nom_tente || 'Invité'}</div>
+          <div style="font-size:10px;color:var(--text-light);">IP: ${l.ip}</div>
+        </div>
+        <span style="font-size:11px;color:var(--text-light);margin-left:auto;">${l.created_at.split(' ')[1]}</span>
+      </div>`).join('') : '<p style="color:var(--text-light);font-size:13px;">Aucune connexion récente.</p>';
+
     updateRefreshStatus();
+    renderIcons();
   } catch(e) {}
 }
 
