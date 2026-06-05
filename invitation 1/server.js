@@ -237,8 +237,7 @@ function validateInput(req, res, next) {
 }
 
 function getRequestBaseUrl(req) {
-  const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
-  const proto = req.headers['x-forwarded-proto'] || req.protocol || (USE_HTTPS ? 'https' : 'http');
+  const proto = req.headers['x-forwarded-proto']?.split(',')[0].trim() || req.protocol || (USE_HTTPS ? 'https' : 'http');
   const host = req.get('host');
   const localIp = getLocalIp();
 

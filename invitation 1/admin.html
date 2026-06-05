@@ -524,7 +524,7 @@ async function chargerInvites(options = {}) {
 function renderTableFilter() {
   const select = document.getElementById('table-filter');
   const current = select.value;
-  const tables = [...new Set(allInvites.map(i => i.table_num).filter(Boolean))].sort((a, b) => a - b);
+  const tables = [...new Set(allInvites.map(i => i.table_num).filter(t => t !== null && t !== undefined))].sort((a, b) => a - b);
   select.innerHTML = '<option value="">Toutes les tables</option>' + tables.map(t => `<option value="${t}">Table ${t}</option>`).join('');
   select.value = current;
 }

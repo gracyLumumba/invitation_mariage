@@ -65,6 +65,7 @@ async function initDb() {
     return;
   }
 
+  try {
   await query(`
     CREATE TABLE IF NOT EXISTS invites (
       id            BIGSERIAL PRIMARY KEY,
@@ -104,11 +105,6 @@ async function initDb() {
     );
     `);
     console.log('[DB] Table "sessions_admin" vérifiée/créée.');
-  } catch (err) {
-    console.error('[DB] Erreur lors de la création des tables :', formatDbError(err));
-    throw err; // Re-throw to be caught by startServer().catch()
-  }
-
   await query(`
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS boisson TEXT DEFAULT NULL;
     ALTER TABLE invites ADD COLUMN IF NOT EXISTS acces_count INTEGER DEFAULT 0;
@@ -116,6 +112,10 @@ async function initDb() {
     SET acces_count = 1
     WHERE code_utilise = true AND COALESCE(acces_count, 0) = 0;
   `);
+  } catch (err) {
+    console.error('[DB] Erreur lors de la création des tables :', formatDbError(err));
+    throw err; // Re-throw to be caught by startServer().catch()
+  }
 }
 
 // ---- INVITES ----
