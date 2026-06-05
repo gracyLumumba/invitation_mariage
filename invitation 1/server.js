@@ -114,6 +114,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }
+  cookie: { secure: USE_HTTPS, maxAge: 6 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
 }));
 
 // Rate limiting
@@ -461,6 +462,7 @@ app.post('/api/repondre', requireInvite, apiLimiter,
     const expected = Math.max(1, Number(invite.nb_couverts || 1));
     return res.status(400).json({ erreur: expected > 1 ? `Veuillez choisir ${expected} boissons avant de confirmer votre présence. L'eau est prévue automatiquement.` : `Veuillez choisir une boisson avant de confirmer votre présence. L'eau est prévue automatiquement.` });
   }
+  // Validation de boisson rendue optionnelle car l'eau est prévue
 
   if (invite.statut !== 'en_attente') {
     return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });

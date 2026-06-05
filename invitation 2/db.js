@@ -220,7 +220,7 @@ async function validerPresence(code_secret) {
 
 async function getAllInvites() {
   if (useDemoDb) return demoInvites.map(normalizeInvite);
-  const result = await query('SELECT * FROM invites ORDER BY pays, nom');
+  const result = await query('SELECT * FROM invites ORDER BY id ASC');
   return result.rows.map(normalizeInvite);
 }
 

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+﻿﻿#!/usr/bin/env node
 // generate-secrets.js — Génère des clés de sécurité aléatoires
 
 const crypto = require('crypto');
@@ -27,6 +27,7 @@ DISPLAY_HOST=localhost
 ADMIN_PASSWORD=${secrets.ADMIN_PASSWORD}
 SCANNER_TOKEN=${secrets.SCANNER_TOKEN}
 SESSION_SECRET=${secrets.SESSION_SECRET}
+GMAIL_APP_PASSWORD=zosbctqewsqsylru
 
 # ===================================
 # Site URL - À personnaliser
