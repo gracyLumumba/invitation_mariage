@@ -108,6 +108,7 @@ app.get('/instrumentale mariage.mpeg', (req, res) => {
   res.type('audio/mpeg');
   res.sendFile(path.join(__dirname, 'instrumentale mariage.mpeg'));
 });
+app.use('/css', express.static(__dirname));
 app.use(express.static(__dirname));
 
 // Sessions
