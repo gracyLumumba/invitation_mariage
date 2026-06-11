@@ -26,7 +26,7 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les interfaces
 const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
-const USE_HTTPS = process.env.HTTPS !== 'false';
+const USE_HTTPS = process.env.HTTPS === 'true';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';
@@ -409,7 +409,7 @@ app.get('/i/:code', (req, res) => {
   res.redirect(`${baseUrl}/?code=${encodeURIComponent(code)}`);
 });
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
-app.get('/invitation-mariage-civile', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation mariage civil.html')));
+app.get('/invitation-mariage-civile', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
 app.get('/invitation-physique', (req, res) => res.sendFile(path.join(__dirname, 'invitation-physique.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));

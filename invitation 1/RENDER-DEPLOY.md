@@ -37,7 +37,7 @@ Start Command: npm start
 Dans Render -> Environment, ajouter :
 
 ```text
-HTTPS=false
+HTTPS=true
 PORT=3000
 BIND_HOST=0.0.0.0
 DB_SSL=true
