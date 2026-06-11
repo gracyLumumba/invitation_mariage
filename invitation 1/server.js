@@ -423,9 +423,10 @@ app.get('/serveurs', (req, res) => res.sendFile(path.join(__dirname, 'serveurs.h
 app.post('/api/connexion', loginLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
   body('code_secret').trim().isLength({ min: 4, max: 10 }).toUpperCase().withMessage('Code invalide'),
+  body('redirect').optional().trim(),
   validateInput,
   async (req, res) => {
-    const { nom, code_secret } = req.body;
+    const { nom, code_secret, redirect } = req.body;
     const ip = getIp(req);
 
     const invite = await db.findInvite(code_secret);
@@ -466,7 +467,7 @@ app.post('/api/connexion', loginLimiter,
       statut:      invite.statut
     };
 
-    res.json({ ok: true, redirect: '/invitation' });
+    res.json({ ok: true, redirect: redirect || '/invitation' });
   }
 );
 
