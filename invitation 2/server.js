@@ -129,6 +129,10 @@ app.get('/instrumentale mariage.mpeg', (req, res) => {
   res.type('audio/mpeg');
   res.sendFile(path.join(__dirname, 'instrumentale mariage.mpeg'));
 });
+app.get('/forever-cherished_95244.mp3', (req, res) => {
+  res.type('audio/mpeg');
+  res.sendFile(path.join(__dirname, 'forever-cherished_95244.mp3'));
+});
 app.use('/css', express.static(__dirname));
 app.use(express.static(__dirname));
 
