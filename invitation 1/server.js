@@ -33,24 +33,40 @@ const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PA
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
 
 // Configuration Email pour les notifications
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'gragralulu31@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru' 
-  }
-});
+const MAIL_USER = process.env.MAIL_USER || process.env.GMAIL_USER || 'gragralulu31@gmail.com';
+const MAIL_PASS = process.env.MAIL_PASS || process.env.GMAIL_APP_PASSWORD || '';
+const MAIL_FROM = process.env.MAIL_FROM || `"Système Mariage" <${MAIL_USER}>`;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || MAIL_USER;
+const MAIL_HOST = process.env.MAIL_HOST || '';
+const MAIL_PORT = Number(process.env.MAIL_PORT || 587);
+const MAIL_SECURE = process.env.MAIL_SECURE === 'true' || MAIL_PORT === 465;
+
+const transporter = MAIL_HOST
+  ? nodemailer.createTransport({
+      host: MAIL_HOST,
+      port: MAIL_PORT,
+      secure: MAIL_SECURE,
+      auth: {
+        user: MAIL_USER,
+        pass: MAIL_PASS
+      }
+    })
+  : nodemailer.createTransport({
+      service: process.env.MAIL_SERVICE || 'gmail',
+      auth: {
+        user: MAIL_USER,
+        pass: MAIL_PASS
+      }
+    });
 
 // Vérification de la configuration email au démarrage
 transporter.verify((error) => {
   if (error) {
-    console.warn('[EMAIL] La configuration Gmail a échoué. Vérifiez GMAIL_APP_PASSWORD.', error.message);
+    console.warn('[EMAIL] La configuration mail a échoué. Vérifiez MAIL_USER / MAIL_PASS ou MAIL_HOST.', error.message);
   } else {
-    console.log('[EMAIL] Serveur prêt à envoyer des notifications à gragralulu31@gmail.com');
+    console.log(`[EMAIL] Serveur prêt à envoyer des notifications à ${ADMIN_EMAIL}`);
   }
 });
-
-const ADMIN_EMAIL = 'gragralulu31@gmail.com';
 
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 5);
 const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
@@ -155,7 +171,7 @@ function getIp(req) {
 
 async function envoyerAlerteConnexion(nom, code, ip) {
   const mailOptions = {
-    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    from: MAIL_FROM,
     to: ADMIN_EMAIL,
     subject: `🔔 Connexion : ${nom}`,
     text: `L'invité ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
@@ -172,7 +188,7 @@ async function envoyerAlerteConnexion(nom, code, ip) {
 
 async function envoyerAlerteRSVP(invite, statut) {
   const mailOptions = {
-    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    from: MAIL_FROM,
     to: ADMIN_EMAIL,
     subject: `💌 RSVP ${statut === 'accepte' ? 'ACCEPTE' : 'REFUSE'} : ${invite.nom}`,
     text: `L'invité ${invite.nom} a répondu : ${statut.toUpperCase()}.\nNombre de couverts : ${invite.nb_couverts}\nTable : ${invite.table_num}\nHeure : ${new Date().toLocaleString('fr-FR')}`
