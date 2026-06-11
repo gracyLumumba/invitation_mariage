@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Votre invitation — Mariage Yannick & Chantia</title>
+<title>Invitation Mariage Civil</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
 :root {
   --marsala:#8B4A4A;--marsala-dark:#6B3535;--marsala-light:#C9897A;
   --gold:#C6A43F;--gold-light:#E8D48A;--gold-pale:#F5ECC8;
   --beige:#F5F0E8;--beige-dark:#E5DDD0;--cream:#FAF7F2;
+  --marsala:#9C27B0;--marsala-dark:#7B1FA2;--marsala-light:#E91E63; /* Mauve & Rose */
+  --gold:#D81B60;--gold-light:#F48FB1;--gold-pale:#FCE4EC;
+  --beige:#F3E5F5;--beige-dark:#E1BEE7;--cream:#FFF0F5;
   --text:#2C1F1F;--text-light:#7A6060;--white:#FFFFFF;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -26,6 +30,7 @@ svg{max-width:100%;}
 .env-inner{text-align:center;animation:envFloat 3s ease-in-out infinite;padding:2rem;}
 @keyframes envFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 .env-tagline{font-family:'Great Vibes',cursive;font-size:clamp(20px,5vw,32px);color:var(--gold-light);margin-bottom:1rem;opacity:0;animation:fiu 1s ease .5s forwards;}
+.env-tagline{font-family:'Great Vibes',cursive;font-size:clamp(20px,5vw,32px);color:var(--white);margin-bottom:1rem;opacity:0;animation:fiu 1s ease .5s forwards;}
 .env-icon{font-size:clamp(60px,15vw,90px);margin-bottom:1rem;opacity:0;animation:fiu 1s ease .8s forwards;filter:drop-shadow(0 4px 20px rgba(198,164,63,.3));}
 .env-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,52px);font-weight:300;color:var(--gold-light);opacity:0;animation:fiu 1s ease 1.1s forwards;line-height:1.2;margin-bottom:.5rem;}
 .env-amp{font-style:italic;color:var(--gold);}
@@ -202,6 +207,8 @@ svg{max-width:100%;}
     <div class="env-icon"><i data-lucide="mail-heart" class="icon"></i></div>
     <div class="env-title">Yannick <span class="env-amp">&amp;</span> Chantia</div>
     <div class="env-sub">Vous invitent à leur mariage</div>
+    <div class="env-title">Mariage Civil</div>
+    <div class="env-sub">Invitation &agrave; la c&eacute;l&eacute;bration</div>
     <div class="env-poem">
       "Nous vous invitons à tourner<br>la première page de notre histoire."
     </div>
@@ -376,6 +383,8 @@ svg{max-width:100%;}
     <div class="inv-label">Invitation personnelle au mariage de</div>
     <div class="inv-main-title">Yannick <span class="inv-amp">&amp;</span> Chantia</div>
     <div class="inv-date"><i data-lucide="sparkles" class="icon"></i> &nbsp;Vendredi 3 juillet 2026 &nbsp;<i data-lucide="sparkles" class="icon"></i></div>
+    <div class="inv-main-title">Mariage Civil</div>
+    <div class="inv-date"><i data-lucide="sparkles" class="icon"></i> &nbsp;Jeudi 2 juillet 2026 &nbsp;<i data-lucide="sparkles" class="icon"></i></div>
 
     <svg style="display:block;margin:.5rem auto;" width="160" height="18" viewBox="0 0 160 18" fill="none">
       <path d="M10 9 Q40 4 80 9 Q120 14 150 9" stroke="#C6A43F" stroke-width="1" fill="none" opacity=".45"/>
@@ -390,6 +399,7 @@ svg{max-width:100%;}
       qui s'appelle <em>"Pour toujours".</em> »
     </div>
     <div class="inv-poem-auth">— Yannick &amp; Chantia —</div>
+    <div class="inv-poem-auth">— Ensemble pour toujours —</div>
 
     <svg style="display:block;margin:.75rem auto .5rem;" width="110" height="14" viewBox="0 0 110 14" fill="none">
       <path d="M5 7 Q27 2 55 7 Q83 12 105 7" stroke="#C6A43F" stroke-width=".8" fill="none" opacity=".4"/>
@@ -420,6 +430,7 @@ svg{max-width:100%;}
       </svg>
       <div class="detail-label">Cérémonie</div>
       <div class="detail-val">Vendredi 3 juillet 2026</div>
+      <div class="detail-val">Jeudi 2 juillet 2026</div>
       <div class="detail-sub">Accueil dès 14h30 · Début à 15h00</div>
     </div>
     <div class="detail-card">
@@ -532,6 +543,7 @@ svg{max-width:100%;}
         Merci de nous confirmer votre venue."
       </div>
       <div class="rsvp-deadline">Merci de répondre avant le <strong>1er juin 2026</strong></div>
+      <div class="rsvp-deadline">Merci de répondre avant le <strong>15 juin 2026</strong></div>
       <div class="drink-field">
         <label class="drink-label" for="drink-choice">Boisson souhaitée</label>
         <select class="drink-select" id="drink-choice">

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿// server.js — Serveur principal Express
+﻿﻿﻿﻿﻿﻿﻿﻿// server.js — Serveur principal Express
 // Démarrer avec : node server.js  (ou  npm run dev  avec nodemon)
 
 require('dotenv').config();
@@ -26,7 +26,7 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les interfaces
 const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
-const USE_HTTPS = process.env.HTTPS !== 'false';
+const USE_HTTPS = process.env.HTTPS === 'true';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
 
 // Configuration Email pour les notifications

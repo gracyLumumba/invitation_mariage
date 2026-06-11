@@ -5,21 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invitation - Tresor &amp; Laurette</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<!-- Librairies pour l'export -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
 <style>
 :root {
-  --blue: #0755c7;
-  --blue-deep: #003d89;
-  --blue-soft: #d9ecff;
-  --ink: #151515;
-  --muted: #4a5568;
-  --gold: #c8952d;
-  --paper: #fffdf9;
+  --blue: #0755c7;      /* Bleu Principal */
+  --blue-deep: #003d89; /* Bleu Profond */
+  --blue-soft: #d9ecff; /* Bleu Doux */
+  --ink: #151515;       /* Texte foncé */
+  --muted: #4a5568;     /* Texte estompé */
+  --gold: #c8952d;      /* Doré */
+  --paper: #fffdf9;     /* Fond de carte */
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: #C8B89A;
+  background-image: radial-gradient(ellipse at 20% 20%, rgba(198,164,63,0.12) 0%, transparent 60%);
   min-height: 100vh;
   padding: 28px 14px 46px;
   background:
@@ -27,778 +36,331 @@ body {
     radial-gradient(circle at 86% 84%, rgba(0, 88, 160, .12), transparent 34%),
     #e7edf3;
   font-family: Georgia, "Times New Roman", serif;
-  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
 }
+
 .print-controls {
   display: flex;
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 20px;
+  margin-bottom: 2rem;
+  z-index: 100;
 }
+
 .btn-print {
-  border: 1px solid rgba(7, 85, 199, .22);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
   background: var(--blue);
   color: #fff;
-  padding: 10px 18px;
+  border: none;
   border-radius: 4px;
   font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
   box-shadow: 0 8px 22px rgba(7, 85, 199, .18);
+  transition: 0.2s;
 }
-.sheet {
+.btn-print:hover { background: var(--blue-deep); transform: translateY(-1px); }
+
+.invitation-card {
   position: relative;
-  width: min(100%, 540px);
-  min-height: 760px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 500px;
   background: var(--paper);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  padding: 0;
   overflow: hidden;
-  box-shadow: 0 24px 70px rgba(20, 38, 60, .18);
 }
-.sheet::before {
-  content: "";
+
+.card-border {
   position: absolute;
   inset: 14px;
   border: 1px solid rgba(7, 85, 199, .18);
   pointer-events: none;
   z-index: 4;
 }
-.sheet::after {
+
+.card-border::after {
   content: "";
   position: absolute;
-  inset: 10px;
+  inset: -4px;
   border: 1px solid rgba(200, 149, 45, .35);
   pointer-events: none;
-  z-index: 5;
 }
+
 .floral {
   position: absolute;
-  z-index: 10;
+  z-index: 1;
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 10px 18px rgba(11, 53, 92, .12));
   display: block;
-  height: auto;
+  height: auto; /* Maintenu pour la flexibilité */
   max-width: 100%;
 }
+
 .floral-top {
   top: -25px;
   left: -60px;
-  width: 250px;
+  width: 250px; /* Maintenu pour la taille */
   transform-origin: left top;
 }
+
 .floral-bottom {
   right: -30px;
   bottom: -30px;
-  width: 320px;
-  transform: rotate(2deg);
+  width: 280px;
+  transform: rotate(2deg); /* Maintenu pour la rotation */
   transform-origin: right bottom;
 }
-.rings {
-  display: none;
-}
-.content {
+
+.card-body {
   position: relative;
-  z-index: 3;
-  padding: 76px 54px 120px;
+  z-index: 5;
+  padding: 4rem 3rem 5rem;
   text-align: center;
 }
+
 .names {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: end;
-  gap: 20px;
-  width: min(100%, 380px);
-  margin: 4px auto 0;
-  font-family: Georgia, "Times New Roman", serif;
+  gap: 15px;
+  margin: 10px auto 1rem;
   color: var(--blue);
-  line-height: 1.04;
 }
+
 .name {
-  min-width: 0;
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 600;
+  font-family: 'Great Vibes', cursive;
   text-shadow: 0 1px 0 rgba(255,255,255,.9);
 }
 .name:first-child { text-align: right; }
 .name:last-child { text-align: left; }
+
 .amp {
   font-family: "Cormorant Garamond", serif;
   font-size: 43px;
   font-style: italic;
   font-weight: 400;
   color: var(--gold);
-  padding-bottom: 0;
+  line-height: 1;
 }
-.intro {
-  margin: 0 auto 4px;
-  max-width: 510px;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 15px;
-  font-style: italic;
+
+.manual-name-section {
+  margin: 1.5rem 0;
+  border-bottom: 1px dashed var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  padding-bottom: 5px;
   color: var(--muted);
-  letter-spacing: .06em;
-  line-height: 1.26;
-}
-.date {
-  margin: 5px auto 12px;
-  font-family: Georgia, "Times New Roman", serif;
-  color: var(--muted);
-  font-size: 14.5px;
-  font-style: italic;
-  line-height: 1.2;
-}
-.ornament {
-  color: var(--gold);
+  min-height: 35px;
+  text-align: left;
   font-size: 14px;
-  letter-spacing: .5em;
-  margin: 3px auto 12px;
-  opacity: .8;
 }
-.poem {
-  max-width: 340px;
-  margin: 0 auto 8px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 13px;
+
+.inv-text {
+  font-size: 14px;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.6;
   font-style: italic;
-  line-height: 1.9;
-}
-.share-line {
-  margin: 0 auto 15px;
-  color: var(--muted);
-  font-size: 12.5px;
-  font-style: italic;
-}
-.details {
-  max-width: none;
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 12px;
-  line-height: 1.75;
-  text-align: left;
-}
-.details strong {
-  color: var(--blue);
-  font-weight: 600;
-}
-.details-title {
-  color: var(--blue);
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.1;
-  margin-bottom: 4px;
-  text-align: left;
-}
-.schedule {
-  list-style: none;
-}
-.schedule li {
-  margin: 2px 0;
-}
-.venue {
-  margin-top: 5px;
   color: var(--ink);
+  margin-bottom: 1.5rem;
 }
-.venue small {
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-  font-family: "Jost", Arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-.confirm {
-  margin: 12px auto 0;
-  max-width: 330px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 12.5px;
-  font-style: italic;
-  line-height: 1.28;
-}
-.signature {
-  margin-top: 10px;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 18px;
-}
-.thank-you-poem {
-  max-width: 360px;
-  margin: 0 auto;
-  color: var(--muted);
-  text-align: center;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 18px;
-  font-style: italic;
-  line-height: 1.45;
-}
-.thank-you-poem strong {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--blue);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 600;
-  letter-spacing: .03em;
-}
-.guest-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  max-width: min(100%, 330px);
-  margin: 8px auto 0;
-  padding: 7px 15px;
-  border: 1px solid rgba(7, 85, 199, .2);
-  background: rgba(255, 255, 255, .76);
-  color: var(--blue-deep);
-  font-size: 13px;
-  font-weight: 700;
-}
-.guest-badge-sep {
-  width: 1px;
-  height: 18px;
-  background: rgba(7, 85, 199, .22);
-}
-.guest-badge-pays {
-  color: var(--muted);
-  font-size: 12px;
-  font-style: italic;
-  white-space: nowrap;
-}
-.qr-venue-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 22px;
-  max-width: 360px;
-  margin: 0 auto 10px;
-}
-.qr-frame {
-  flex-shrink: 0;
-  border: 1.5px solid var(--gold);
-  padding: 6px;
-  background: #fff;
-  line-height: 0;
-}
-#qrcode {
-  width: 90px;
-  height: 90px;
-  display: grid;
-  place-items: center;
-}
-#qrcode canvas, #qrcode img { width: 90px !important; height: 90px !important; }
-.qr-fallback {
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.3;
-  text-align: center;
-}
-.venue-block {
-  text-align: left;
-  padding-top: 3px;
-}
-.venue-name {
-  color: var(--blue);
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.venue-address {
-  color: var(--muted);
-  font-size: 12px;
-  font-style: italic;
-  line-height: 1.72;
-}
-.card-footer-ornament {
-  color: var(--gold);
-  font-size: 13px;
-  letter-spacing: .45em;
-  margin-top: 10px;
-  opacity: .68;
-}
-.code-panel {
-  width: min(100%, 620px);
-  margin: 18px auto 0;
-  background: rgba(255, 253, 249, .96);
-  border: 1px solid rgba(7, 85, 199, .18);
-  padding: 16px;
-}
-.code-panel h2 {
-  color: var(--blue-deep);
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 21px;
-  letter-spacing: .08em;
-  margin-bottom: 8px;
-  text-align: center;
-  text-transform: uppercase;
-}
-.code-form {
+
+.venue-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
-.code-form label {
+
+.venue-item {
+  padding: 10px;
+  background: rgba(217, 236, 255, 0.3);
+  border-radius: 8px;
+}
+
+.venue-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  margin-bottom: 5px;
+}
+
+.venue-address {
+  font-size: 12px;
   color: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  letter-spacing: .04em;
-  text-transform: uppercase;
 }
-.code-form label svg,
-.code-form button svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.code-form input {
-  width: 100%;
-  min-width: 0;
-  border: 1px solid rgba(7, 85, 199, .24);
-  border-radius: 999px;
-  background: #fff;
-  padding: 12px 16px;
-  font: inherit;
-}
-.code-form button {
-  border: 0;
-  border-radius: 999px;
-  background: var(--blue);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 11px 16px;
-  cursor: pointer;
-  font-family: "Jost", Arial, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.code-form button:disabled { opacity: .68; cursor: wait; }
-.code-status {
-  margin-top: 8px;
+
+.footer-text {
+  margin-top: 2rem;
+  font-size: 12px;
+  line-height: 1.72;
   color: var(--muted);
-  font-size: 13px;
+  letter-spacing: 2px;
 }
-@media (max-width: 620px) {
-  .sheet { min-height: 750px; }
-  .content { padding: 70px 30px 112px; }
-  .floral-top { width: 180px; top: -35px; left: -40px; }
-  .floral-bottom { width: 170px; transform: translate(42px, 44px) rotate(2deg); }
-  .names { width: min(100%, 300px); gap: 12px; }
-  .name { font-size: 31px; }
-  .amp { font-size: 34px; }
-  .intro { font-size: 13px; }
-  .poem { font-size: 12px; line-height: 1.72; }
-  .qr-venue-row { gap: 16px; }
-  .details, .confirm { font-size: 12px; }
-}
+
 @media print {
-  body { padding: 0; background: #fff; }
-  .print-controls, .code-panel { display: none !important; }
-  .sheet {
-    width: 148mm;
-    height: 210mm;
-    min-height: 210mm;
-    box-shadow: none;
-    page-break-inside: avoid;
-  }
+  .print-controls { display: none; }
+  body { background: none; padding: 0; }
+  .invitation-card { box-shadow: none; border: 1px solid #eee; }
 }
 </style>
 </head>
 <body>
-  <div class="print-controls">
-    <button class="btn-print" id="download-pdf">Telecharger le PDF</button>
+<div class="print-controls">
+  <button class="btn-print" id="btn-png">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    Télécharger en PNG
+  </button>
+  <button class="btn-print" id="btn-pdf">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Télécharger en PDF
+  </button>
+</div>
+
+<article class="invitation-card" id="invitation-card">
+  <div class="card-border"></div>
+  <img class="floral floral-top" src="fleur-du-dessus-transparent.png" alt="">
+  <img class="floral floral-bottom" src="fleure-en-bas-transparent.png" alt="">
+  
+  <div class="card-body">
+    <p style="font-size: 10px; letter-spacing: 3px; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase;">Invitation au mariage</p>
+    
+    <div class="names">
+      <div class="name">Trésor</div>
+      <div class="amp">&amp;</div>
+      <div class="name">Laurette</div>
+    </div>
+
+    <div style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold); margin-bottom: 1rem;">Vendredi 19 Juin 2026</div>
+
+    <div class="manual-name-section">
+      M. / Mme / Couple ............................................................ Table :
+    </div>
+
+    <p class="inv-text">
+      « L'amour ne se voit pas avec les yeux, mais avec le cœur. <br>
+      C'est avec une immense joie que nous vous invitons à célébrer notre union. »
+    </p>
+
+    <div class="venue-container">
+      <div class="venue-item">
+        <div class="venue-title">Mariage Civil</div>
+        <div class="venue-address">Commune Annexe Kamalondo</div>
+        <div style="font-size: 11px; margin-top: 5px;">À 09h00</div>
+      </div>
+
+      <div class="venue-item">
+        <div class="venue-title">Cérémonie Religieuse</div>
+        <div class="venue-address">Église E.M.S.E, Av. Savonnier (Réf. Cimenkat)</div>
+        <div style="font-size: 11px; margin-top: 5px;">À 15h00</div>
+      </div>
+
+      <div class="venue-item">
+        <div class="venue-title">Réception &amp; Soirée</div>
+        <div class="venue-address">Salle polyvalente L.M., avenue Savonnier (En face de la morgue SNCC)</div>
+        <div style="font-size: 11px; margin-top: 5px;">À partir de 18h00</div>
+      </div>
+    </div>
+
+    <div class="footer-text">✦ ENSEMBLE POUR TOUJOURS ✦</div>
   </div>
 
-  <article class="sheet" id="invitation-card" aria-label="Invitation de mariage Tresor et Laurette">
-    <img class="floral floral-top" src="fleur-du-dessus-transparent.png" alt="">
-    <img class="floral floral-bottom" src="fleure-en-bas-transparent.png" alt="">
-    <img class="rings" src="wedding-rings-transparent.png" alt="">
-
-    <div class="content">
-      <p class="intro">
-        Invitation au mariage de
-      </p>
-
-      <div class="names">
-        <div class="name">Tr&eacute;sor</div>
-        <div class="amp">&amp;</div>
-        <div class="name">Laurette</div>
-      </div>
-
-      <div class="date">Vendredi 19 Juin 2026</div>
-
-      <div class="ornament" aria-hidden="true">&bull; &bull; &bull;</div>
-
-      <p class="poem">
-        &laquo; L'amour est un pont entre deux &acirc;mes,<br>
-        Un chemin qui se trace &agrave; deux,<br>
-        Un r&ecirc;ve qui s'&eacute;crit sans fin,<br>
-        Une promesse qui grandit chaque jour. &raquo;
-      </p>
-
-      <p class="share-line">Nous serions heureux de partager ce jour avec vous.</p>
-
-      <div class="qr-venue-row">
-        <div class="qr-frame" aria-label="QR code d'entree">
-          <div id="qrcode"><div class="qr-fallback">QR<br>Code</div></div>
-        </div>
-
-        <div class="venue-block">
-          <div class="venue-name">Civil &amp; &Eacute;glise &amp; R&eacute;ception</div>
-          <div class="venue-address">
-            09h00 : Mariage Civil (Mairie)<br>
-            15h00 : C&eacute;r&eacute;monie Religieuse (E.M.S.E)<br>
-            Av. Savonnier (R&eacute;f. Cimenkat)<br>
-            18h00 : R&eacute;ception &agrave; la Salle L.M. (face morgue SNCC)
-          </div>
-        </div>
-      </div>
-
-      <div id="guest-badge-container"></div>
-
-      <div class="signature">
-        <div class="thank-you-poem" id="guest-thank-you">
-          <strong>Merci du fond du cœur</strong>
-          Que votre présence illumine ce jour,<br>
-          et que ces instants partagés restent un doux souvenir.
-        </div>
-      </div>
-      <div class="card-footer-ornament" aria-hidden="true">&bull; &bull; &bull;</div>
-    </div>
-  </article>
-
-  <section class="code-panel" aria-label="Generation du QR code">
-    <h2>G&eacute;n&eacute;rer le QR code invit&eacute;</h2>
-    <form class="code-form" id="code-form">
-      <label for="invite-name-input">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
-        </svg>
-        Votre nom complet
-      </label>
-      <input id="invite-name-input" name="nom" type="text" autocomplete="name" placeholder="Jeanne & Paul Martin">
-      <label for="invite-pays-input">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 10h16M6 10v10M18 10v10M8 4h8l2 6H6l2-6z"/>
-        </svg>
-        Pays
-      </label>
-      <input id="invite-pays-input" name="pays" type="text" autocomplete="country-name" placeholder="Ex: France">
-      <button type="submit">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/>
-        </svg>
-        V&eacute;rifier & d&eacute;voiler mon QR
-      </button>
-    </form>
-    <p class="code-status" id="code-status">Saisissez votre nom et votre pays pour afficher le QR.</p>
-  </section>
+  <div style="height: 20px; background: linear-gradient(to top, var(--blue-soft), transparent); opacity: 0.2;"></div>
+</article>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const nameInput = document.getElementById('invite-name-input');
-const paysInput = document.getElementById('invite-pays-input');
-const statusEl = document.getElementById('code-status');
-const qrEl = document.getElementById('qrcode');
-const badgeContainer = document.getElementById('guest-badge-container');
-let currentCode = normalizeCode(params.get('code')) || '';
-
-function normalizeCode(value) {
-  return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-}
-
-function qrUrl(code) {
-  // Le QR doit mener au scanner via la route de validation
-  const base = window.location.protocol === 'file:' ? 'https://localhost:3001' : window.location.origin;
-  const url = new URL('/valider-entree', base);
-  url.searchParams.set('code', code);
-  url.searchParams.set('table', 'France');
-  return url.toString();
-}
-
-function getApiBases() {
-  const origins = [];
-  if (window.location.protocol !== 'file:' && window.location.origin) {
-    origins.push(window.location.origin);
-  }
-  origins.push('https://localhost:3001', 'http://localhost:3001');
-  return [...new Set(origins)];
-}
-
-function apiUrl(code, base) {
-  return new URL('/api/invitation-physique/' + encodeURIComponent(code), base).toString();
-}
-
-function verifyApiUrl(base) {
-  return new URL('/api/invitation-physique/verifier', base).toString();
-}
-
-async function fetchWithFallback(pathBuilder, options) {
-  const bases = getApiBases();
-  let lastError = null;
-
-  for (const base of bases) {
+  // Gestion du téléchargement PNG
+  document.getElementById('btn-png').addEventListener('click', async function() {
+    const btn = this;
+    const card = document.getElementById('invitation-card');
+    btn.disabled = true;
+    btn.textContent = "Génération...";
     try {
-      const response = await fetch(pathBuilder(base), options);
-      return { response, base };
-    } catch (error) {
-      lastError = error;
+      // On s'assure que les images sont chargées
+      const images = Array.from(card.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+
+      const canvas = await html2canvas(card, {
+        scale: 2,
+        allowTaint: true,
+        useCORS: false, /* Changé à false pour les fichiers locaux */
+        backgroundColor: '#fffdf9',
+        foreignObjectRendering: false /* Ajouté pour la compatibilité */
+      });
+      
+      const link = document.createElement('a');
+      link.download = 'invitation-tresor-laurette.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error(err); alert("Erreur lors de la création du PNG. Essayez de recharger la page.");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Télécharger en PNG';
     }
-  }
-
-  throw lastError || new Error('Aucune base API disponible.');
-}
-
-async function renderQrFromServer(code) {
-  const { response } = await fetchWithFallback((base) => apiUrl(code, base));
-  const result = await response.json();
-  if (!response.ok || !result.ok || !result.invite?.qr_image) {
-    throw new Error(result.erreur || 'QR indisponible.');
-  }
-  const img = document.createElement('img');
-  img.src = result.invite.qr_image;
-  img.alt = "QR code d'entree";
-  qrEl.innerHTML = '';
-  qrEl.appendChild(img);
-  statusEl.textContent = '';
-}
-
-function localQrImageUrl(code) {
-  const normalized = encodeURIComponent(code);
-  if (window.location.protocol === 'file:') {
-    return 'qrcodes/' + normalized + '.png';
-  }
-  return '/qrcodes/' + normalized + '.png';
-}
-
-function renderQrFromStaticFile(code) {
-  return new Promise((resolve, reject) => {
-    const img = document.createElement('img');
-    img.alt = "QR code d'entree";
-    img.onload = () => {
-      qrEl.innerHTML = '';
-      qrEl.appendChild(img);
-      statusEl.textContent = '';
-      resolve();
-    };
-    img.onerror = reject;
-    img.src = localQrImageUrl(code);
   });
-}
 
-async function renderQr(code) {
-  const normalized = normalizeCode(code);
-  if (!normalized) return renderQrPlaceholder();
-
-  qrEl.innerHTML = '';
-  try {
-    await renderQrFromServer(normalized);
-    return;
-  } catch (serverErr) {
+  // Gestion du téléchargement PDF
+  document.getElementById('btn-pdf').addEventListener('click', async function() {
+    const btn = this;
+    const card = document.getElementById('invitation-card');
+    btn.disabled = true;
+    btn.textContent = "Génération...";
     try {
-      await renderQrFromStaticFile(normalized);
-      return;
-    } catch (staticErr) {
-      // Continue with the in-browser QR generator below.
+      // On s'assure que les images sont chargées
+      const images = Array.from(card.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+
+      const canvas = await html2canvas(card, {
+        scale: 2, /* Maintenu à 2 */
+        allowTaint: true,
+        useCORS: false, /* Changé à false pour les fichiers locaux */
+        backgroundColor: '#fffdf9',
+        foreignObjectRendering: false /* Ajouté pour la compatibilité */
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      // Format A5 portrait
+      const pdf = new jsPDF('p', 'mm', 'a5');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('invitation-tresor-laurette.pdf');
+    } catch (err) {
+      console.error(err); alert("Erreur lors de la création du PDF.");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Télécharger en PDF';
     }
-    if (typeof QRCode === 'undefined') {
-      statusEl.textContent = 'Demarrez le serveur local puis rechargez cette page pour generer le QR du code ' + normalized + '.';
-      qrEl.innerHTML = '<span style="font-size:10px;color:#4a5568;text-align:center;line-height:1.3;">QR en attente</span>';
-      return;
-    }
-  }
-  QRCode.toCanvas(qrUrl(normalized), { width: 90, margin: 1, color: { dark: '#061a2f', light: '#ffffff' } }, (err, canvas) => {
-    if (err) {
-      console.error('Erreur génération QR:', err);
-      statusEl.textContent = 'Erreur QR.';
-      return;
-    }
-    if (!canvas) {
-      statusEl.textContent = 'QR indisponible.';
-      return;
-    }
-    qrEl.appendChild(canvas);
-    statusEl.textContent = '';
   });
-}
-
-function renderQrPlaceholder(message) {
-  qrEl.innerHTML = '<div class="qr-fallback">' + (message || 'Complétez le nom et le pays pour afficher le QR') + '</div>';
-}
-
-function setStatus(message, isError) {
-  statusEl.textContent = message || '';
-  statusEl.style.color = isError ? '#9b1c1c' : '#4a5568';
-}
-
-function renderBadge(invite) {
-  badgeContainer.innerHTML = '';
-  if (!invite?.nom) return;
-
-  const badge = document.createElement('div');
-  badge.className = 'guest-badge';
-
-  const nameSpan = document.createElement('span');
-  nameSpan.className = 'guest-badge-name';
-  nameSpan.textContent = invite.nom;
-  badge.appendChild(nameSpan);
-
-  if (invite.pays) {
-    const sep = document.createElement('span');
-    sep.className = 'guest-badge-sep';
-    sep.setAttribute('aria-hidden', 'true');
-    badge.appendChild(sep);
-
-    const paysSpan = document.createElement('span');
-    paysSpan.className = 'guest-badge-pays';
-    paysSpan.textContent = invite.pays;
-    badge.appendChild(paysSpan);
-  }
-
-  badgeContainer.appendChild(badge);
-}
-
-function renderInvitation(invite) {
-  if (!invite || !invite.code_secret) return;
-  currentCode = normalizeCode(invite.code_secret);
-  
-  renderBadge(invite);
-
-  renderQr(currentCode);
-  document.title = 'Invitation - ' + (invite.nom || currentCode) + ' - Tresor & Laurette';
-}
-
-async function readJson(response) {
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('application/json')) {
-    throw new Error("Le serveur n'a pas renvoye de donnees valides.");
-  }
-  return response.json();
-}
-
-async function loadInvitationByCode(code) {
-  const normalized = normalizeCode(code);
-  if (!normalized) {
-    renderQrPlaceholder();
-    return;
-  }
-
-  try {
-    setStatus("Chargement de l'invitation...", false);
-    const { response } = await fetchWithFallback((base) => apiUrl(normalized, base));
-    const result = await readJson(response);
-    if (!response.ok || !result.ok) {
-      throw new Error(result.erreur || 'Invitation introuvable.');
-    }
-    renderInvitation(result.invite);
-    if (nameInput) nameInput.value = result.invite.nom || '';
-    if (paysInput) paysInput.value = result.invite.pays || '';
-    setStatus('', false);
-  } catch (err) {
-    setStatus('Mode hors ligne : l’invitation s’affiche quand même.', false);
-    renderInvitation({
-      code_secret: normalized,
-      nom: nameInput ? nameInput.value.trim() : 'Invité',
-      pays: paysInput ? paysInput.value.trim() : 'Pays'
-    });
-  }
-}
-
-async function verifyInvitationFromForm() {
-  const nom = nameInput ? nameInput.value.trim() : '';
-  const pays = paysInput ? paysInput.value.trim() : '';
-
-  if (!nom || !pays) {
-    setStatus('Veuillez saisir le nom complet et le pays.', true);
-    return;
-  }
-
-  const submitBtn = document.querySelector('#code-form button[type="submit"]');
-  const oldHtml = submitBtn ? submitBtn.innerHTML : '';
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM15 15h5M15 20h5M20 15v5"/></svg> Verification...';
-  }
-
-  try {
-    setStatus('Verification dans la base...', false);
-    const { response } = await fetchWithFallback((base) => verifyApiUrl(base), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nom, pays })
-    });
-    const result = await readJson(response);
-    if (!response.ok || !result.ok) {
-      throw new Error(result.erreur || 'Informations non reconnues.');
-    }
-    renderInvitation(result.invite);
-    setStatus('', false);
-    document.getElementById('invitation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } catch (err) {
-    renderInvitation({
-      code_secret: currentCode || normalizeCode(params.get('code')) || 'TL01',
-      nom,
-      pays
-    });
-    setStatus('Mode hors ligne activé : l’invitation s’affiche quand même.', false);
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = oldHtml;
-    }
-  }
-}
-
-document.getElementById('code-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  verifyInvitationFromForm();
-});
-
-document.getElementById('download-pdf').addEventListener('click', async () => {
-  const btn = document.getElementById('download-pdf');
-  const oldText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Generation du PDF...';
-  try {
-    if (typeof html2canvas === 'undefined' || !window.jspdf?.jsPDF) {
-      throw new Error('Téléchargement PDF indisponible pour le moment.');
-    }
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    const canvas = await html2canvas(document.getElementById('invitation-card'), {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#fffdf9'
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a5');
-    pdf.addImage(imgData, 'PNG', 0, 0, 148, 210);
-    pdf.save('invitation-tresor-laurette.pdf');
-  } catch (err) {
-    statusEl.textContent = err.message || 'Impossible de generer le PDF.';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = oldText;
-  }
-});
-
-if (nameInput) nameInput.value = params.get('nom') || '';
-if (paysInput) paysInput.value = params.get('pays') || '';
-loadInvitationByCode(currentCode);
 </script>
-</body>
-</html>
+ 
