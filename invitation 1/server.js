@@ -99,7 +99,7 @@ app.use(helmet({
       imgSrc: ["'self'", 'data:'],
       mediaSrc: ["'self'"],
       connectSrc: ["'self'", 'https://unpkg.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
-      frameSrc: ["'none'"]
+      frameSrc: ["'self'", "https://www.google.com"]
     }
   },
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
