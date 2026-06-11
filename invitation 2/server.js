@@ -47,7 +47,7 @@ transporter.verify((error) => {
   }
 });
 
-const ADMIN_EMAIL = 'gragralulu31@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'gragralulu31@gmail.com';
 
 const SCANNER_TOKEN = process.env.SCANNER_TOKEN || 'SCANNER2026';
 const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PASSWORD || 'SERVEURS2026';

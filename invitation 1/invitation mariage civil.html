@@ -590,6 +590,7 @@ function updateMusicButton(){
 }
 
 function demarrerMusique(){
+  music.currentTime = 0.1; // Élimine le micro-silence du début du fichier
   music.volume=0.35;
   music.muted=false;
   musicToggle.classList.add('show');
@@ -643,11 +644,11 @@ function creerPetales(){
 /* OUVERTURE */
 function ouvrirInvitation(){
   document.getElementById('env-screen').classList.add('hidden');
-  demarrerMusique();
+  if(!musicStarted) demarrerMusique();
   setTimeout(()=>{
     document.querySelector('.container').classList.add('visible');
     chargerInvite();
-  },600);
+  },300); // Contenu apparaît plus vite pour suivre la musique
 }
 
 async function chargerInvite() {
@@ -787,9 +788,15 @@ document.getElementById('btn-rsvp-accept').addEventListener('click', () => repon
 document.getElementById('btn-rsvp-decline').addEventListener('click', () => repondre('refuse'));
 
 document.getElementById('music-toggle').addEventListener('click', toggleMusic);
-document.getElementById('btn-open-invitation').addEventListener('click', ouvrirInvitation);
+const btnOpen = document.getElementById('btn-open-invitation');
+btnOpen.addEventListener('pointerdown', () => {
+  // Déclenchement immédiat dès le toucher (plus rapide que le clic)
+  if(!musicStarted) demarrerMusique();
+});
+btnOpen.addEventListener('click', ouvrirInvitation);
 
 /* INITIALISATION */
+music.load(); // Force le chargement du fichier dès l'ouverture de la page
 creerPetales();
 renderIcons(); // Initial render of icons
 </script>

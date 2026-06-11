@@ -631,12 +631,12 @@ function creerPetales(){
 /* OUVERTURE */
 function ouvrirInvitation(){
   document.getElementById('env-screen').classList.add('hidden');
-  demarrerMusique();
+  if(!musicStarted) demarrerMusique();
   setTimeout(()=>{
     const pw=document.getElementById('page-wrap');
     pw.classList.add('visible');
     chargerInvite();
-  },600);
+  },300);
 }
 
 /* MUSIQUE */
@@ -653,6 +653,7 @@ function updateMusicButton(){
 }
 
 function demarrerMusique(){
+  music.currentTime = 0.1;
   music.volume=0.35;
   music.muted=false;
   musicToggle.classList.add('show');
@@ -818,7 +819,11 @@ function deconnexionInvite(){
   window.location.href = base + '/api/deconnexion';
 }
 
-document.getElementById('btn-open-invitation').addEventListener('click', ouvrirInvitation);
+const btnOpen = document.getElementById('btn-open-invitation');
+btnOpen.addEventListener('pointerdown', () => {
+  if(!musicStarted) demarrerMusique();
+});
+btnOpen.addEventListener('click', ouvrirInvitation);
 document.getElementById('music-toggle').addEventListener('click', toggleMusic);
 document.getElementById('btn-download-qr').addEventListener('click', telechargerQR);
 document.getElementById('btn-rsvp-accept').addEventListener('click', event => {event.preventDefault();repondre('accepte');});
