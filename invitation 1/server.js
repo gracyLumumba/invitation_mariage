@@ -118,6 +118,8 @@ app.get('/forever-cherished_95244.mp3', (req, res) => {
   res.type('audio/mpeg');
   res.sendFile(path.join(__dirname, 'forever-cherished_95244.mp3'));
 });
+// Permettre l'accès au dossier affiche situé au même niveau que le dossier du serveur
+app.use('/affiche', express.static(path.join(__dirname, '..', 'affiche')));
 app.use(express.static(__dirname));
 
 // Sessions

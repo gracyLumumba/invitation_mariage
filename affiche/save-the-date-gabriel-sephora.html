@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save the Date — Gabriel & Sephora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --deep: #2b1620;
+    --rose: #c9786b;
+    --gold: #d8b685;
+    --cream: #f7ede2;
+    --blush: #f1ddd5;
+    --sage: #9aab84;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  body{
+    font-family:'Poppins', sans-serif;
+    background:#1a0f15;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:12px;
+  }
+
+  .toolbar{
+    width:100%;
+    max-width:680px;
+    margin-bottom:10px;
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'Poppins', sans-serif;
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--deep);
+    background:linear-gradient(135deg, var(--gold), var(--blush));
+    border:none;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-pdf{
+    background:linear-gradient(135deg, #c9786b, #e0a890);
+    color:white;
+  }
+
+  /* Poster - VERSION ULTRA COMPACTE (taille écran téléphone) */
+  #poster{
+    width:100%;
+    max-width:680px;
+    margin:0 auto;
+    background: #f7ede2; /* Couleur de base pour html2canvas */
+    border-radius:12px;
+    overflow:hidden;
+    image-rendering: -webkit-optimize-contrast;
+    box-shadow:0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  /* PHOTO - plus petite */
+  .photo{
+    width:100%;
+    height:400px;
+    position:relative;
+    overflow:hidden;
+  }
+  .photo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position: center 30%; /* Descend légèrement le cadrage pour mieux voir les visages sans couper le haut */
+  }
+  .photo-overlay{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    height:30px;
+    background:linear-gradient(to top, var(--cream), transparent);
+  }
+
+  .save-band{
+    background:var(--deep);
+    position:relative;
+    margin:15px 20px 0;
+    text-align:center;
+    padding:6px 12px;
+    border-radius:30px;
+    color:white;
+    font-size:12px;
+    letter-spacing:3px;
+    font-weight:500;
+  }
+  .save-band span{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:var(--gold);
+    margin-left:3px;
+    font-size:12px;
+  }
+
+  .stamp{
+    position:absolute;
+    bottom:6px;
+    right:6px;
+    background:var(--cream);
+    padding:3px 5px;
+    border-radius:5px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    width:110px;
+    transform:rotate(2deg);
+  }
+  .stamp .month{
+    font-size:9px;
+    font-weight:600;
+    color:var(--rose);
+    letter-spacing:0.5px;
+  }
+  .stamp-calendar{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:1px;
+    font-size:8px;
+    margin:1px 0;
+    text-align:center;
+  }
+  .stamp-calendar .dow{
+    color:var(--rose);
+    font-weight:600;
+    font-size:7px;
+  }
+  .stamp-calendar .day{
+    padding:0px 0;
+  }
+  .stamp-calendar .day.highlight{
+    background:var(--rose);
+    color:white;
+    border-radius:50%;
+  }
+  .stamp-foot{
+    font-size:7px;
+    font-style:italic;
+    color:var(--deep);
+  }
+
+  .names{
+    text-align:center;
+    padding:6px 12px 2px;
+  }
+  .name{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:48px;
+    line-height:1;
+    color:var(--deep);
+  }
+  .amp{
+    font-family:'Cormorant Garamond', serif;
+    font-size:16px;
+    color:var(--rose);
+    margin:1px 0;
+  }
+  .invite-line{
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:#8a6a63;
+    margin-top:3px;
+  }
+
+  .date-block{
+    text-align:center;
+    margin:2px 0 3px;
+  }
+  .day-number{
+    font-family:'Cormorant Garamond', serif;
+    font-size:56px;
+    font-weight:600;
+    color:var(--rose);
+    line-height:1;
+  }
+  .month-year{
+    font-size:12px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--deep);
+  }
+  .month-year strong{
+    color:var(--rose);
+    font-size:10px;
+  }
+
+  .floral-divider{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    margin:3px 20px;
+  }
+  .floral-divider .line{
+    height:1px;
+    flex:1;
+    background:linear-gradient(90deg, transparent, var(--rose), transparent);
+  }
+
+  .poem{
+    text-align:center;
+    padding:0 15px 3px;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:16px;
+    line-height:1.35;
+    color:#5a3d3a;
+  }
+  .poem p{
+    margin-bottom:2px;
+  }
+  .poem-sign{
+    margin-top:2px;
+    font-weight:600;
+    color:var(--rose);
+    font-size:13px;
+  }
+
+  .mini-gallery{
+    display:flex;
+    justify-content: space-around;
+    gap:6px;
+    padding:10px 15px 15px;
+  }
+  .mini-gallery .polaroid{
+    background:white;
+    padding:2px 2px 4px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    border-radius:0px;
+    width:120px;
+  }
+  .mini-gallery .polaroid img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:1px;
+  }
+  .mini-gallery .polaroid:first-child{ transform:rotate(-2deg); }
+  .mini-gallery .polaroid:last-child{ transform:rotate(2deg); }
+
+  .footer{
+    text-align:center;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:#a98079;
+    background: rgba(255,255,255,0.3);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(201, 120, 107, 0.1);
+    padding-bottom:8px;
+  }
+
+  @media (max-width: 680px){
+    #poster { border-radius: 0; width: 100vw; }
+    .photo{ height: 300px; }
+    .name{ font-size: 34px; }
+    .day-number{ font-size: 40px; }
+    .poem{ font-size: 13px; }
+    .mini-gallery .polaroid{ width: 85px; }
+    .mini-gallery .polaroid img{ height: 110px; }
+    .save-band, .save-band span { font-size: 9px; }
+    .stamp { width: 90px; }
+    .stamp .month { font-size: 7px; }
+    .stamp-calendar { font-size: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="btn" id="downloadPngBtn">📸 PNG</button>
+  <button class="btn btn-pdf" id="downloadPdfBtn">📄 PDF</button>
+</div>
+
+<div id="poster">
+  <!-- PHOTO -->
+  <div class="photo">
+    <img src="WhatsApp%20Image%202026-06-13%20at%2019.06.39.jpeg" alt="Gabriel et Sephora" crossorigin="anonymous">
+    <div class="photo-overlay"></div>
+    
+    <div class="stamp">
+      <div class="month">JUILLET 2026</div>
+      <div class="stamp-calendar" id="calendarGrid"></div>
+      <div class="stamp-foot">à vos agendas</div>
+    </div>
+  </div>
+
+  <div class="save-band">
+    SAVE THE DATE <span>• nous nous marions</span>
+  </div>
+
+  <!-- NOMS -->
+  <div class="names">
+    <div class="name">Gabriel</div>
+    <div class="amp">&amp;</div>
+    <div class="name">Sephora</div>
+    <div class="invite-line">vous invitent à célébrer leur union</div>
+  </div>
+
+  <!-- DATE -->
+  <div class="date-block">
+    <div class="day-number">12</div>
+    <div class="month-year">Juillet <strong>2026</strong></div>
+  </div>
+
+  <!-- DIVIDER 1 -->
+  <div class="floral-divider">
+    <div class="line"></div>
+    <svg width="18" height="12" viewBox="0 0 30 20">
+      <circle cx="15" cy="10" r="1.5" fill="#d8b685"/>
+      <circle cx="8" cy="6" r="1.8" fill="#c9786b"/>
+      <circle cx="22" cy="6" r="1.8" fill="#c9786b"/>
+      <circle cx="8" cy="14" r="1.8" fill="#9aab84"/>
+      <circle cx="22" cy="14" r="1.8" fill="#9aab84"/>
+    </svg>
+    <div class="line"></div>
+  </div>
+
+  <!-- POEME -->
+  <div class="poem">
+    <p>
+      Comme deux fleurs portées par le même vent,<br>
+      nos chemins se sont croisés, doucement.<br>
+      Le douze juillet, sous un ciel bienveillant,<br>
+      nous dirons « oui » pour la vie, en cet instant.
+    </p>
+    <div class="poem-sign">— Gabriel &amp; Sephora</div>
+  </div>
+
+  <!-- DIVIDER 2 -->
+  <div class="floral-divider">
+    <div class="line"></div>
+    <svg width="18" height="12" viewBox="0 0 30 20">
+      <circle cx="15" cy="10" r="1.5" fill="#d8b685"/>
+      <circle cx="8" cy="6" r="1.8" fill="#9aab84"/>
+      <circle cx="22" cy="6" r="1.8" fill="#9aab84"/>
+      <circle cx="8" cy="14" r="1.8" fill="#c9786b"/>
+      <circle cx="22" cy="14" r="1.8" fill="#c9786b"/>
+    </svg>
+    <div class="line"></div>
+  </div>
+
+  <!-- GALERIE -->
+  <div class="mini-gallery">
+    <div class="polaroid">
+      <img src="WhatsApp%20Image%202026-06-13%20at%2019.06.37.jpeg" alt="Photo" crossorigin="anonymous">
+    </div>
+    <div class="polaroid">
+      <img src="WhatsApp%20Image%202026-06-13%20at%2019.06.38.jpeg" alt="Photo" crossorigin="anonymous">
+    </div>
+    <div class="polaroid">
+      <img src="WhatsApp%20Image%202026-06-13%20at%2019.06.52.jpeg" alt="Photo" crossorigin="anonymous">
+    </div>
+  </div>
+
+  <div class="footer">
+    LES DÉTAILS SUIVRONT PROCHAINEMENT
+  </div>
+</div>
+
+<script>
+  // Générer le calendrier Juillet 2026
+  (function(){
+    const grid = document.getElementById('calendarGrid');
+    const jours = ['L','M','M','J','V','S','D'];
+    jours.forEach(j => {
+      let d = document.createElement('div');
+      d.className = 'dow';
+      d.textContent = j;
+      grid.appendChild(d);
+    });
+    
+    const year = 2026, month = 6;
+    const firstDay = new Date(year, month, 1);
+    let startOffset = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    for(let i=0; i<startOffset; i++){
+      let empty = document.createElement('div');
+      empty.className = 'day';
+      empty.style.opacity = '0';
+      grid.appendChild(empty);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      let dayDiv = document.createElement('div');
+      dayDiv.className = 'day';
+      dayDiv.textContent = d;
+      if(d === 12){
+        dayDiv.classList.add('highlight');
+      } else {
+        dayDiv.style.opacity = '0.55';
+      }
+      grid.appendChild(dayDiv);
+    }
+  })();
+
+  // Fonction pour attendre le chargement de toutes les images
+  async function waitForImagesLoaded() {
+    // Attendre que les polices Google Fonts soient prêtes
+    if (document.fonts) await document.fonts.ready;
+
+    const images = document.querySelectorAll('#poster img');
+    const promises = Array.from(images).map(img => {
+      return new Promise((resolve) => {
+        if (img.complete && img.naturalWidth !== 0) {
+          resolve();
+        } else {
+          img.onload = resolve;
+          img.onerror = resolve;
+        }
+      });
+    });
+    await Promise.all(promises);
+    // Attendre un peu supplémentaire pour que le rendu soit complet
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  // Fonction générique pour capturer l'affiche avec meilleure qualité
+  async function capturePoster() {
+    // Attendre que toutes les images soient chargées
+    await waitForImagesLoaded();
+    
+    const poster = document.getElementById('poster');
+    
+    const canvas = await html2canvas(poster, {
+      scale: 3, // Qualité supérieure
+      backgroundColor: '#f7ede2',
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 10000,
+      width: 680,
+      windowWidth: 1200, // Simule un écran large pour éviter les media queries mobiles
+      onclone: function(clonedDoc) {
+        const clonedPoster = clonedDoc.getElementById('poster');
+        if (clonedPoster) {
+          // On bloque les dimensions du poster pour éviter tout flottement
+          clonedPoster.style.width = '680px';
+          clonedPoster.style.maxWidth = '680px';
+          clonedPoster.style.minWidth = '680px';
+          clonedPoster.style.borderRadius = '12px';
+          
+          // Correction Photo Principale : Simulation manuelle de "object-fit: cover"
+          const mainPhoto = clonedPoster.querySelector('.photo');
+          if (mainPhoto) {
+            mainPhoto.style.width = '680px';
+            mainPhoto.style.height = '400px';
+            mainPhoto.style.overflow = 'hidden';
+            mainPhoto.style.position = 'relative';
+            const img = mainPhoto.querySelector('img');
+            if (img) {
+              img.style.position = 'absolute';
+              img.style.top = '30%'; // Aligne sur le repère 30% pour correspondre au style CSS
+              img.style.left = '50%'; // Centrage horizontal
+              img.style.transform = 'translate(-50%, -30%)'; // Applique le décalage pour un rendu "cover" fidèle
+              
+              // Calcul du ratio pour simuler un "object-fit: cover" parfait sans étirement
+              const ratio = img.naturalWidth / img.naturalHeight;
+              const targetRatio = 680 / 400;
+              if (ratio > targetRatio) {
+                // L'image est plus large que le cadre
+                img.style.height = '400px';
+                img.style.width = 'auto';
+              } else {
+                // L'image est plus haute que le cadre
+                img.style.width = '680px';
+                img.style.height = 'auto';
+              }
+              img.style.minWidth = '100%';
+              img.style.minHeight = '100%';
+              img.style.maxWidth = 'none';
+            }
+          }
+
+          // On force les dimensions de la galerie (ratio 120/150)
+          const polaroids = clonedPoster.querySelectorAll('.mini-gallery .polaroid');
+          polaroids.forEach(p => {
+            p.style.width = '120px'; 
+            p.style.height = '156px'; // 150px + bordures
+            p.style.padding = '0'; // On gère le centrage manuellement pour éviter les bugs
+            p.style.overflow = 'hidden';
+            p.style.position = 'relative';
+            
+            const img = p.querySelector('img');
+            if (img) {
+              img.style.position = 'absolute';
+              img.style.top = '50%';
+              img.style.left = '50%';
+              img.style.transform = 'translate(-50%, -50%)';
+              
+              const ratio = img.naturalWidth / img.naturalHeight;
+              const targetRatio = 120 / 156;
+              if (ratio > targetRatio) {
+                img.style.height = '156px';
+                img.style.width = 'auto';
+              } else {
+                img.style.width = '120px';
+                img.style.height = 'auto';
+              }
+              img.style.minWidth = '100%';
+              img.style.minHeight = '100%';
+              img.style.maxWidth = 'none';
+              img.style.borderRadius = '0';
+            }
+          });
+
+          const saveBand = clonedPoster.querySelector('.save-band');
+          if (saveBand) saveBand.style.backdropFilter = 'none';
+        }
+      }
+    });
+    
+    return canvas;
+  }
+
+  // Téléchargement PNG
+  const pngBtn = document.getElementById('downloadPngBtn');
+  pngBtn.addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    
+    try {
+      const canvas = await capturePoster();
+      const link = document.createElement('a');
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      link.download = `save-the-date-${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+      btn.textContent = '✓';
+    } catch (err) {
+      console.error('Erreur PNG:', err);
+      alert('Erreur lors du téléchargement PNG. Vérifiez la console.');
+      btn.textContent = originalText;
+    } finally {
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }, 1500);
+    }
+  });
+
+  // Téléchargement PDF
+  const pdfBtn = document.getElementById('downloadPdfBtn');
+  pdfBtn.addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    
+    try {
+      const canvas = await capturePoster();
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      const { jsPDF } = window.jspdf;
+      
+      // Calculer les dimensions pour un rendu optimal
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const aspectRatio = canvasHeight / canvasWidth;
+      
+      // Créer un PDF en portrait avec les bonnes dimensions
+      const pdf = new jsPDF({
+        orientation: aspectRatio > 1 ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculer les dimensions pour remplir la page au maximum
+      let imgWidth = pageWidth - 10;  // Marges de 5mm
+      let imgHeight = (canvasHeight * imgWidth) / canvasWidth;
+      
+      // Si l'image est trop haute, réduire la largeur
+      if (imgHeight > pageHeight - 10) {
+        imgHeight = pageHeight - 10;
+        imgWidth = (canvasWidth * imgHeight) / canvasHeight;
+      }
+      
+      // Centrer l'image sur la page
+      const xOffset = (pageWidth - imgWidth) / 2;
+      const yOffset = (pageHeight - imgHeight) / 2;
+      
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+      
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      pdf.save(`save-the-date-${timestamp}.pdf`);
+      
+      btn.textContent = '✓';
+    } catch (err) {
+      console.error('Erreur PDF:', err);
+      alert('Erreur lors du téléchargement PDF. Vérifiez la console.');
+      btn.textContent = originalText;
+    } finally {
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }, 1500);
+    }
+  });
+</script>
+</body>
+</html>

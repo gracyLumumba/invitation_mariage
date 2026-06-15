@@ -1,0 +1,12 @@
+{
+  "name": "affiche-mariage",
+  "version": "1.0.0",
+  "description": "Serveur pour l'affiche Save the Date",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
