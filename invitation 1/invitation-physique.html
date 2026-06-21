@@ -42,9 +42,11 @@ body {
     radial-gradient(ellipse at 80% 80%, rgba(139,74,74,0.10) 0%, transparent 60%);
   min-height: 100vh;
   display: flex;
+  display: flex; /* Utilisation de flexbox pour centrer */
   flex-direction: column;
   align-items: center;
   padding: 2.5rem 1rem 5rem;
+  padding: 1.5rem 1rem 2.5rem;
 }
 
 /* ================================================
@@ -55,6 +57,8 @@ body {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 2rem;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -87,7 +91,7 @@ body {
 .invitation-card {
   position: relative;
   width: 100%;
-  max-width: 540px;
+  max-width: 740px;
   background: var(--cream);
   /* Ombre portée élégante */
   box-shadow:
@@ -101,6 +105,7 @@ body {
 .card-border-frame {
   position: absolute;
   top: 10px; left: 10px; right: 10px; bottom: 10px;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
   border: 1px solid rgba(198,164,63,0.45);
   pointer-events: none;
   z-index: 10;
@@ -130,8 +135,10 @@ body {
   position: relative;
   width: 100%;
   /* Légère hauteur fixe pour la cohérence */
-  min-height: 160px;
+  min-height: 130px;
   overflow: hidden;
+  min-height: 100px;
+  overflow: hidden; /* Cache le débordement de l'image */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -142,6 +149,7 @@ body {
   display: block;
   /* Recadrage pour ne montrer que les fleurs, pas le fond photo */
   object-fit: cover;
+  object-fit: cover; /* Assure que l'image couvre la zone */
   object-position: center top;
   /* Fondu vers le cream au bas de l'image */
   -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
@@ -154,7 +162,8 @@ body {
 .card-body {
   position: relative;
   z-index: 5;
-  padding: 0.5rem 3.5rem 0;
+  padding: 0.4rem 4rem 0;
+  padding: 0.2rem 4rem 0;
   text-align: center;
 }
 
@@ -162,9 +171,11 @@ body {
 .ornament-row {
   display: flex;
   align-items: center;
+  align-items: center; /* Centre verticalement les éléments */
   justify-content: center;
   gap: 10px;
-  margin: 0.4rem auto 0.9rem;
+  margin: 0.3rem auto 0.6rem;
+  margin: 0.2rem auto 0.4rem;
   color: var(--gold);
   font-size: 13px;
   letter-spacing: 0.35em;
@@ -188,15 +199,19 @@ body {
   color: var(--text-lt);
   letter-spacing: 0.07em;
   margin-bottom: 0.35rem;
+  letter-spacing: 0.07em; /* Espacement des lettres */
+  margin-bottom: 0.2rem;
 }
 
 /* ---- Noms des mariés ---- */
 .couple-names {
-  font-size: 42px;
+  font-size: 48px;
   font-weight: normal;
   color: var(--marsala);
   line-height: 1.08;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
+  line-height: 1.08; /* Hauteur de ligne */
+  margin-bottom: 0.1rem;
   letter-spacing: 0.015em;
 }
 .couple-amp {
@@ -211,7 +226,7 @@ body {
   color: var(--text-lt);
   font-style: italic;
   letter-spacing: 0.18em;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.8rem;
 }
 
 /* ---- Texte de corps ---- */
@@ -220,8 +235,8 @@ body {
   color: var(--text);
   font-style: italic;
   line-height: 1.92;
-  max-width: 320px;
-  margin: 0 auto 0.6rem;
+  max-width: 550px;
+  margin: 0 auto 0.4rem;
 }
 
 /* ---- RSVP ---- */
@@ -229,7 +244,7 @@ body {
   font-size: 12.5px;
   font-style: italic;
   color: var(--text-lt);
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.8rem;
   letter-spacing: 0.04em;
 }
 
@@ -237,12 +252,15 @@ body {
    SECTION QR CODE + LIEU
 ================================================ */
 .qr-venue-row {
+div.qr-venue-row { /* Spécificité pour éviter conflit avec d'autres div */
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 1.4rem;
-  margin: 0 auto 0.9rem;
-  max-width: 360px;
+  margin: 0 auto 0.6rem;
+  gap: 1rem;
+  margin: 0 auto 0.4rem;
+  max-width: 550px;
 }
 
 /* ---- QR code encadré doré ---- */
@@ -279,6 +297,7 @@ body {
   padding-top: 4px;
 }
 .venue-name {
+div.venue-name {
   font-size: 15.5px;
   font-weight: bold;
   color: var(--marsala);
@@ -289,6 +308,7 @@ body {
   font-size: 12px;
   color: var(--text-lt);
   font-style: italic;
+  font-style: italic; /* Texte en italique */
   line-height: 1.75;
 }
 
@@ -303,7 +323,10 @@ body {
   background: var(--beige);
   border: 1px solid var(--gold-lt);
   padding: 8px 20px;
-  margin: 0.3rem auto 0.9rem;
+  margin: 0.2rem auto 0.6rem;
+  border: 1px solid var(--gold-lt); /* Bordure dorée */
+  padding: 6px 16px;
+  margin: 0.1rem auto 0.4rem;
   max-width: 100%;
 }
 .guest-badge-name {
@@ -330,8 +353,10 @@ body {
   font-size: 12px;
   font-style: italic;
   color: var(--text-lt);
-  max-width: 290px;
-  margin: 0 auto 0.75rem;
+  max-width: 500px;
+  margin: 0 auto 0.5rem;
+  max-width: 500px; /* Largeur maximale pour le texte */
+  margin: 0 auto 0.3rem;
   line-height: 1.7;
 }
 
@@ -340,7 +365,8 @@ body {
   color: var(--gold);
   font-size: 14px;
   letter-spacing: 0.5em;
-  margin: 0.25rem 0 1rem;
+  margin: 0.15rem 0 0.5rem;
+  margin: 0.1rem 0 0.3rem;
   opacity: 0.6;
 }
 
@@ -355,6 +381,8 @@ body {
   align-items: flex-end;
   pointer-events: none;
   margin-top: -5px;
+  pointer-events: none; /* Ne bloque pas les clics */
+  margin-top: -10px;
   /* Compense le padding du card-body */
   padding: 0;
   overflow: hidden;
@@ -370,15 +398,18 @@ body {
 
 .code-panel {
   width: 100%;
-  max-width: 540px;
+  max-width: 740px;
   margin-top: 1.25rem;
+  margin-top: 0.8rem;
   background: rgba(253,250,245,0.94);
   border: 1px solid rgba(198,164,63,0.45);
   padding: 1rem;
+  padding: 0.75rem;
   box-shadow: 0 8px 24px rgba(44,31,31,0.12);
 }
 .code-panel h2 {
   color: var(--marsala);
+  color: var(--marsala); /* Couleur du titre */
   font-size: 14px;
   font-weight: normal;
   letter-spacing: 0.08em;
@@ -390,6 +421,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  gap: 0.6rem;
 }
 .code-form label {
   color: var(--text);
@@ -415,12 +447,15 @@ body {
   border-radius: 999px;
   background: #fff;
   color: var(--text);
+  color: var(--text); /* Couleur du texte */
   font-family: Georgia, serif;
   font-size: 14px;
   padding: 11px 15px;
+  padding: 9px 12px;
 }
 .code-form button {
   border: 0;
+  border: 0; /* Pas de bordure */
   border-radius: 999px;
   background: var(--gold);
   color: var(--text);
@@ -430,6 +465,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   min-height: 44px;
+  min-height: 38px;
   width: 100%;
   padding: 10px 18px;
   font-weight: 700;
@@ -437,6 +473,7 @@ body {
   text-transform: uppercase;
 }
 .code-form button svg {
+div.code-form button svg { /* Spécificité pour éviter conflit */
   width: 18px;
   height: 18px;
   fill: none;
@@ -451,6 +488,8 @@ body {
   font-size: 12px;
   font-style: italic;
   margin-top: 0.7rem;
+  font-style: italic; /* Texte en italique */
+  margin-top: 0.5rem;
   text-align: center;
 }
 
@@ -515,11 +554,17 @@ body {
   .couple-names   { font-size: 30px; }
   .couple-amp     { font-size: 33px; }
   .qr-venue-row   { flex-direction: column; align-items: center; gap: 1rem; }
+  .couple-amp     { font-size: 33px; } /* Taille de l'esperluette */
+  div.qr-venue-row   { flex-direction: column; align-items: center; gap: 0.8rem; }
   .venue-block    { text-align: center; }
   .flowers-header { min-height: 120px; }
   .card-border-frame { top: 8px; left: 8px; right: 8px; bottom: 8px; }
   .code-form { flex-direction: column; }
   .code-form button { width: 100%; height: 42px; }
+  .flowers-header { min-height: 90px; } /* Hauteur minimale réduite */
+  .card-border-frame { top: 6px; left: 6px; right: 6px; bottom: 6px; }
+  .code-form { flex-direction: column; } /* Empile les éléments du formulaire */
+  .code-form button { width: 100%; min-height: 36px; }
 }
 </style>
 </head>
@@ -1025,4 +1070,3 @@ body {
 
 </body>
 </html>
-
