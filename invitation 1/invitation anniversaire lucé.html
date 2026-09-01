@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Invitation Anniversaire de 1 an - Lucé Tshibola</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
+<script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --rose: #FF4FA3;
+    --rose-fonce: #E60073;
+    --mauve: #E07AD1;
+    --mauve-fonce: #C14AB7;
+    --lavande: #F4E9FF;
+    --beige: #FFF2F7;
+    --beige-dk: #E5DDD0;
+    --cream: #FAF7F2;
+    --text: #2C1F1F;
+    --text-light: #7A6060;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Jost', sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.84), transparent 20%),
+      radial-gradient(circle at top right, rgba(255,79,163,0.30), transparent 18%),
+      linear-gradient(145deg, #FFD1EA 0%, var(--cream) 52%, #FFD7E7 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: .7s ease;
+  }
+  .container.visible { opacity: 1; transform: translateY(0); }
+  .invitation-card {
+    background: var(--white);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    border: 1px solid rgba(197, 185, 214, 0.3);
+    position: relative;
+  }
+  .invitation-card::before,
+  .invitation-card::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,79,163,0.50), rgba(255,79,163,0));
+    pointer-events: none;
+  }
+  .invitation-card::before { top: -30px; right: -20px; }
+  .invitation-card::after { bottom: 110px; left: -40px; }
+  .inv-header {
+    text-align: center;
+    padding: 2.2rem 2rem 1.8rem;
+    background: linear-gradient(135deg, rgba(255, 79, 163, 0.28), rgba(230, 0, 115, 0.10));
+    position: relative;
+    overflow: hidden;
+  }
+  .inv-header::before,
+  .inv-header::after {
+    content: "🎈";
+    position: absolute;
+    font-size: 28px;
+    opacity: 0.35;
+    animation: floatToy 4s ease-in-out infinite;
+  }
+  .inv-header::before { top: 18px; left: 18px; }
+  .inv-header::after { top: 18px; right: 18px; animation-delay: 1.2s; }
+  @keyframes floatToy {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-8px) rotate(4deg); }
+  }
+  .inv-label, .env-sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rose-fonce);
+  }
+  .inv-main-title, .env-title {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(52px, 12vw, 84px);
+    color: var(--rose-fonce);
+    line-height: 1.05;
+    margin: 0.4rem 0;
+  }
+  .inv-amp, .env-amp { font-style: italic; color: var(--mauve-fonce); }
+  .inv-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    letter-spacing: 0.22em;
+    color: var(--mauve-fonce);
+    text-transform: uppercase;
+    margin: 0.6rem 0;
+  }
+  .inv-poem, .env-poem-envelope, .citation-text, .footer-poem, .location-text {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .inv-poem {
+    font-size: 18px;
+    font-style: italic;
+    color: var(--text-light);
+    line-height: 1.9;
+    max-width: 470px;
+    margin: 1rem auto 0;
+  }
+  .birthday-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.8rem;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fff 0%, #ffd6ea 100%);
+    border: 1px solid rgba(230, 0, 115, 0.24);
+    color: var(--rose-fonce);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .inv-welcome {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--rose-fonce);
+    margin: 1rem 0 0.5rem;
+  }
+  .inv-guest-name {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(30px, 7vw, 50px);
+    color: var(--rose-fonce);
+    margin: 0.2rem 0 0;
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+  .detail-card {
+    background: var(--white);
+    border: 1px solid var(--beige-dk);
+    border-radius: 20px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .detail-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--rose-fonce);
+    margin-bottom: 0.5rem;
+  }
+  .detail-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .detail-val.big {
+    font-size: 20px;
+    color: var(--rose-fonce);
+  }
+  .detail-sub { font-size: 12px; color: var(--text-light); margin-top: 4px; line-height: 1.5; }
+  .location-card {
+    margin: 0 1.5rem 1.5rem;
+    padding: 1.1rem;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 110, 159, 0.14);
+    background:
+      radial-gradient(circle at top right, rgba(255, 79, 163, 0.30), transparent 36%),
+      linear-gradient(180deg, #fff 0%, #fff0f7 100%);
+    box-shadow: 0 20px 36px rgba(230, 0, 115, 0.14);
+  }
+  .location-head { margin-bottom: 1rem; }
+  .location-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--rose-fonce);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .location-text {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-top: 0.4rem;
+  }
+  .map-frame {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 110, 159, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 14px 28px rgba(230, 0, 115, 0.12);
+    background: #fff;
+  }
+  .map-frame iframe {
+    display: block;
+    width: 100%;
+    height: 320px;
+    border: 0;
+  }
+  .citation {
+    background: linear-gradient(135deg, rgba(255, 79, 163, 0.18), rgba(230, 0, 115, 0.08));
+    border-left: 3px solid var(--rose);
+    padding: 1.2rem 1.5rem;
+    margin: 0 1.5rem 1.5rem;
+    border-radius: 16px;
+  }
+  .citation-text {
+    font-size: 17px;
+    font-style: italic;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+  .citation-auth {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--rose-fonce);
+    margin-top: 0.5rem;
+  }
+  .inv-footer {
+    background: linear-gradient(135deg, rgba(255, 79, 163, 0.18), rgba(230, 0, 115, 0.08));
+    padding: 2rem;
+    text-align: center;
+  }
+  .footer-poem {
+    font-size: 18px;
+    font-style: italic;
+    color: var(--rose-fonce);
+  }
+  .footer-contact {
+    margin-top: 0.85rem;
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.75;
+  }
+  .gift-banner {
+    margin-top: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255,79,163,0.34), rgba(230,0,115,0.18));
+    color: var(--rose-fonce);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+  .footer-mention {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 1rem;
+  }
+  .footer-contact strong { color: var(--rose-fonce); font-weight: 600; }
+  .music-toggle {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 80;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(198,164,63,.55);
+    background: rgba(250,247,242,.92);
+    color: var(--rose-fonce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(44,31,31,.14);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity .25s, visibility .25s, transform .25s, background .2s;
+  }
+  .music-toggle.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .music-toggle:hover { background: var(--white); border-color: var(--rose); }
+  .music-toggle .icon { width: 20px; height: 20px; }
+
+  #env-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background:
+      radial-gradient(circle at top, rgba(255,79,163,0.38), transparent 34%),
+      radial-gradient(circle at bottom, rgba(230,0,115,0.14), transparent 30%),
+      linear-gradient(160deg, #ffc4e1 0%, #fff2f8 45%, #fff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity .8s, visibility .8s;
+  }
+  #env-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .env-inner { text-align: center; animation: envFloat 3s ease-in-out infinite; padding: 2rem; }
+  @keyframes envFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .env-tagline {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(20px, 5vw, 32px);
+    color: var(--rose-fonce);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fiu 1s ease .5s forwards;
+  }
+  .env-icon {
+    font-size: clamp(60px, 15vw, 90px);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fiu 1s ease .8s forwards;
+    color: var(--rose-fonce);
+    filter: drop-shadow(0 8px 24px rgba(255,110,159,0.24));
+  }
+  .env-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 7vw, 52px);
+    font-weight: 300;
+    color: var(--rose-fonce);
+    opacity: 0;
+    animation: fiu 1s ease 1.1s forwards;
+    line-height: 1.2;
+    margin-bottom: .5rem;
+    text-shadow: 0 1px 0 rgba(255,255,255,.7), 0 8px 24px rgba(255,110,159,.10);
+  }
+  .env-sub {
+    font-size: clamp(10px, 2.5vw, 13px);
+    opacity: 0;
+    animation: fiu 1s ease 1.4s forwards;
+    margin-bottom: .4rem;
+  }
+  .env-poem-envelope {
+    font-size: clamp(13px, 3vw, 16px);
+    font-style: italic;
+    color: var(--text-light);
+    max-width: 340px;
+    margin: 1rem auto;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fiu 1s ease 1.7s forwards;
+  }
+  .btn-open {
+    opacity: 0;
+    animation: fiu 1s ease 2.2s forwards;
+    background: linear-gradient(135deg, #ffb0d6 0%, var(--rose) 40%, var(--rose-fonce) 100%);
+    border: 1px solid rgba(255,255,255,.4);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    padding: 13px 28px;
+    cursor: pointer;
+    transition: all .3s;
+    margin-top: .5rem;
+    max-width: 100%;
+    border-radius: 40px;
+    box-shadow: 0 12px 24px rgba(230, 0, 115, 0.28);
+  }
+  .btn-open:hover {
+    filter: brightness(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(230, 0, 115, 0.34);
+  }
+  .env-petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .petal {
+    position: absolute;
+    opacity: 0;
+    width: 14px;
+    height: 20px;
+    border-radius: 70% 70% 70% 0;
+    filter: drop-shadow(0 2px 4px rgba(255,110,159,.08));
+    animation: petalFall linear infinite;
+  }
+  .petal.balloon {
+    width: 26px;
+    height: 34px;
+    border-radius: 50% 50% 48% 48%;
+    position: absolute;
+    box-shadow: inset -4px -8px 0 rgba(255,255,255,0.16), 0 8px 14px rgba(230,0,115,0.12);
+  }
+  .petal.balloon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 32px;
+    background: rgba(120, 70, 110, 0.55);
+    transform: translateX(-50%);
+  }
+  .petal.confetti {
+    width: 10px;
+    height: 16px;
+    border-radius: 3px;
+  }
+  @keyframes petalFall {
+    0% { opacity: 0; transform: translateY(-20px) rotate(0) }
+    10% { opacity: .6 }
+    90% { opacity: .3 }
+    100% { opacity: 0; transform: translateY(100vh) rotate(360deg) }
+  }
+  @keyframes fiu {
+    from { opacity: 0; transform: translateY(20px) }
+    to { opacity: 1; transform: translateY(0) }
+  }
+  .icon { width: 16px; height: 16px; }
+  @media (max-width: 560px) {
+    .details-grid { grid-template-columns: 1fr; }
+    .map-frame iframe { height: 280px; }
+  }
+</style>
+</head>
+<body>
+<audio id="wedding-music" src="chanson anniversaire.mpeg" preload="auto" loop></audio>
+<button class="music-toggle" id="music-toggle" type="button" title="Couper la musique" aria-label="Couper la musique">
+  <i data-lucide="volume-2" class="icon"></i>
+</button>
+
+<div id="env-screen">
+  <div class="env-petals" id="env-petals"></div>
+  <div class="env-inner">
+    <div class="env-tagline">Une fête pleine de couleurs et de joie...</div>
+    <div class="env-icon"><i data-lucide="mail-heart" class="icon"></i></div>
+    <div class="env-title">Lucé Tshibola</div>
+    <div class="env-sub">Invitation d'anniversaire de 1 an</div>
+    <div class="env-poem-envelope">
+      La famille Katupa Betu a la joie de vous inviter<br>
+      à la fête d'anniversaire de 1 an de Lucé Tshibola.
+    </div>
+    <button class="btn-open" id="btn-open-invitation" type="button">
+      <i data-lucide="sparkles" class="icon"></i> Découvrir l'invitation <i data-lucide="sparkles" class="icon"></i>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="invitation-card">
+    <div class="inv-header">
+      <div class="inv-label"><i data-lucide="party-popper" class="icon"></i> Invitation anniversaire</div>
+      <div class="inv-main-title">Lucé Tshibola</div>
+      <div class="inv-date"><i data-lucide="calendar" class="icon"></i> Samedi 19 septembre 2026</div>
+      <div class="birthday-badge"><i data-lucide="cake" class="icon"></i> Célébration de ses 1 an</div>
+      <div class="inv-poem">
+        « Un an de sourires, de câlins et de bonheur,<br>
+        une journée choisie pour célébrer notre petit trésor.<br>
+        Votre présence apportera joie, amour et lumière<br>
+        à cette belle fête de famille. »
+      </div>
+      <div class="inv-welcome">La famille Katupa Betu a l'honneur de vous inviter,</div>
+      <div class="inv-guest-name">Vous et vos proches</div>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-card">
+        <div class="detail-label"><i data-lucide="calendar-clock" class="icon"></i> Date</div>
+        <div class="detail-val">19 septembre 2026</div>
+        <div class="detail-sub">Fête d'anniversaire de 1 an</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label"><i data-lucide="map-pin" class="icon"></i> Lieu</div>
+        <div class="detail-val big">Domicile familial</div>
+        <div class="detail-sub">Avenue Kasangulu, arrêt Sinai n°79</div>
+      </div>
+    </div>
+
+    <div class="location-card">
+      <div class="location-head">
+        <div class="location-title"><i data-lucide="map-pin" class="icon"></i> Adresse du domicile</div>
+        <div class="location-text">
+          Avenue Kasangulu, arrêt Sinai n°79. Merci de noter cette adresse pour rejoindre facilement la famille Katupa Betu.
+        </div>
+      </div>
+      <div class="map-frame">
+        <iframe
+          src="https://www.google.com/maps?q=Avenue%20Kasangulu%20arr%C3%AAt%20Sinai%2079&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Carte du domicile familial">
+        </iframe>
+      </div>
+    </div>
+
+    <div class="citation">
+      <div class="citation-text">
+        "Nous avons la joie de vous convier à partager ce moment de famille, de douceur et de bénédiction."
+      </div>
+      <div class="citation-auth">— Famille Katupa Betu —</div>
+    </div>
+
+    <div class="inv-footer">
+      <div class="footer-poem"><i data-lucide="sparkles" class="icon"></i> "Ensemble, faisons de ce jour un souvenir éternel."</div>
+      <div class="footer-contact">
+        La famille Katupa Betu vous remercie pour votre présence et votre affection.<br>
+        Message important : les cadeaux sont obligatoires pour honorer cette grande joie.<br>
+        Pour toute information, veuillez utiliser l'adresse du domicile indiquée ci-dessus.
+      </div>
+      <div class="gift-banner"><i data-lucide="gift" class="icon"></i> Cadeau obligatoire</div>
+      <div class="footer-mention">Chaque invité compte. Votre présence est le plus beau des soutiens.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function renderIcons(){ if (window.lucide) window.lucide.createIcons(); }
+
+const music = document.getElementById('wedding-music');
+const musicToggle = document.getElementById('music-toggle');
+let musicMuted = false;
+let musicStarted = false;
+
+function updateMusicButton() {
+  musicToggle.innerHTML = '<i data-lucide="' + (musicMuted ? 'volume-x' : 'volume-2') + '" class="icon"></i>';
+  musicToggle.title = musicMuted ? 'Relancer la musique' : 'Couper la musique';
+  musicToggle.setAttribute('aria-label', musicToggle.title);
+  renderIcons();
+}
+
+function demarrerMusique() {
+  music.currentTime = 0.1;
+  music.volume = 0.35;
+  music.muted = false;
+  musicToggle.classList.add('show');
+  music.play().then(() => {
+    musicStarted = true;
+    musicMuted = false;
+    updateMusicButton();
+  }).catch(() => {
+    musicMuted = true;
+    updateMusicButton();
+    activerRelanceMusique();
+  });
+}
+
+function toggleMusic() {
+  if (music.paused) {
+    musicMuted = false;
+    music.muted = false;
+    music.play().then(() => { musicStarted = true; }).catch(() => { musicMuted = true; });
+  } else {
+    musicMuted = true;
+    music.pause();
+  }
+  updateMusicButton();
+}
+
+function activerRelanceMusique() {
+  const retry = () => {
+    if (musicStarted || !music.paused) return;
+    demarrerMusique();
+  };
+  ['click', 'touchstart', 'keydown'].forEach(eventName => {
+    document.addEventListener(eventName, retry, { once: true, passive: true });
+  });
+}
+
+function creerPetales() {
+  const c = document.getElementById('env-petals');
+  const colors = ['#FF4FA3', '#FF7CC2', '#FF2F86', '#FFD166', '#7DD3FC', '#F472B6'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal balloon';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (4 + Math.random() * 6) + 's';
+    p.style.animationDelay = (Math.random() * 5) + 's';
+    c.appendChild(p);
+  }
+  for (let i = 0; i < 42; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal confetti';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (3 + Math.random() * 5) + 's';
+    p.style.animationDelay = (Math.random() * 5) + 's';
+    p.style.transform = `rotate(${Math.random() * 180}deg)`;
+    c.appendChild(p);
+  }
+}
+
+function ouvrirInvitation() {
+  document.getElementById('env-screen').classList.add('hidden');
+  if (!musicStarted) demarrerMusique();
+  setTimeout(() => {
+    document.querySelector('.container').classList.add('visible');
+  }, 300);
+}
+
+document.getElementById('btn-open-invitation').addEventListener('pointerdown', () => {
+  if (!musicStarted) demarrerMusique();
+});
+document.getElementById('btn-open-invitation').addEventListener('click', ouvrirInvitation);
+document.getElementById('music-toggle').addEventListener('click', toggleMusic);
+
+music.load();
+creerPetales();
+renderIcons();
+</script>
+</body>
+</html>
