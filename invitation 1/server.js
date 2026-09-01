@@ -411,16 +411,16 @@ function timingSafeCompare(a, b) {
 // PAGES HTML
 // ============================================
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/civil', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
-app.get('/anniversaire', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
+app.get('/civil', (req, res) => res.redirect('/'));
+app.get('/anniversaire', (req, res) => res.redirect('/'));
 app.get('/i/:code', (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
   const baseUrl = getRequestBaseUrl(req);
   res.redirect(`${baseUrl}/?code=${encodeURIComponent(code)}`);
 });
-app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
-app.get('/invitation-anniversaire', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
+app.get('/invitation', (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
+app.get('/invitation-anniversaire', (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
 app.get('/invitation-mariage-civile', (req, res) => res.redirect('/invitation-anniversaire'));
 app.get('/invitation-physique', (req, res) => res.sendFile(path.join(__dirname, 'invitation-physique.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
