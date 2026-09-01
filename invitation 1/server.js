@@ -1,5 +1,5 @@
-// server.js — Serveur principal Express
-// Démarrer avec : node server.js  (ou  npm run dev  avec nodemon)
+﻿// server.js â€” Serveur principal Express
+// DÃ©marrer avec : node server.js  (ou  npm run dev  avec nodemon)
 
 require('dotenv').config();
 
@@ -24,7 +24,7 @@ const wa = require('./whatsapp');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Écoute sur toutes les interfaces
+const BIND_HOST = process.env.BIND_HOST || '0.0.0.0'; // Ã‰coute sur toutes les interfaces
 const DISPLAY_HOST = process.env.DISPLAY_HOST || 'localhost'; // Affichage pour l'utilisateur local
 const USE_HTTPS = process.env.HTTPS === 'true';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MARIAGE2026';
@@ -33,25 +33,33 @@ const SERVEUR_PASSWORD = process.env.SERVEUR_PASSWORD || process.env.SERVEURS_PA
 const SITE_URL = process.env.SITE_URL || `${USE_HTTPS ? 'https' : 'http'}://${DISPLAY_HOST}:${PORT}`;
 
 // Configuration Email pour les notifications
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'gragralulu31@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD || 'zosbctqewsqsylru' 
-  }
-});
+const MAIL_USER = process.env.MAIL_USER || process.env.GMAIL_USER || '';
+const MAIL_PASS = process.env.MAIL_PASS || process.env.GMAIL_APP_PASSWORD || '';
+const MAIL_FROM = process.env.MAIL_FROM || (MAIL_USER ? `Système Mariage <${MAIL_USER}>` : '');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || MAIL_USER || '';
+
+const transporter = MAIL_USER && MAIL_PASS
+  ? nodemailer.createTransport({
+      service: process.env.MAIL_SERVICE || 'gmail',
+      auth: {
+        user: MAIL_USER,
+        pass: MAIL_PASS
+      }
+    })
+  : null;
 
 // Vérification de la configuration email au démarrage
-transporter.verify((error) => {
-  if (error) {
-    console.warn('[EMAIL] La configuration Gmail a échoué. Vérifiez GMAIL_APP_PASSWORD.', error.message);
-  } else {
-    console.log('[EMAIL] Serveur prêt à envoyer des notifications à gragralulu31@gmail.com');
-  }
-});
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'gragralulu31@gmail.com';
-
+if (transporter) {
+  transporter.verify((error) => {
+    if (error) {
+      console.warn('[EMAIL] La configuration Gmail a échoué. Vérifiez MAIL_PASS ou GMAIL_APP_PASSWORD.', error.message);
+    } else {
+      console.log('[EMAIL] Serveur prêt à envoyer des notifications.');
+    }
+  });
+} else {
+  console.warn('[EMAIL] Notifications désactivées: renseignez MAIL_USER et MAIL_PASS dans les variables d\'environnement.');
+}
 const MAX_INVITE_ACCES = Number(process.env.MAX_INVITE_ACCES || 5);
 const BOISSON_OPTIONS = String(process.env.BOISSON_OPTIONS || 'Eau,Jus,Soda')
   .split(',')
@@ -118,7 +126,7 @@ app.get('/forever-cherished_95244.mp3', (req, res) => {
   res.type('audio/mpeg');
   res.sendFile(path.join(__dirname, 'forever-cherished_95244.mp3'));
 });
-// Permettre l'accès au dossier affiche situé au même niveau que le dossier du serveur
+// Permettre l'accÃ¨s au dossier affiche situÃ© au mÃªme niveau que le dossier du serveur
 app.use('/affiche', express.static(path.join(__dirname, '..', 'affiche')));
 app.use(express.static(__dirname));
 
@@ -133,10 +141,10 @@ app.use(session({
 // Rate limiting
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Remis à 20 pour éviter les blocages intempestifs
-  message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' },
+  max: 20, // Remis Ã  20 pour Ã©viter les blocages intempestifs
+  message: { erreur: 'Trop de tentatives. RÃ©essayez dans 15 minutes.' },
   standardHeaders: false,
-  skip: (req) => req.session?.admin // Admin ne sont pas limités
+  skip: (req) => req.session?.admin // Admin ne sont pas limitÃ©s
 });
 
 const apiLimiter = rateLimit({
@@ -161,16 +169,16 @@ function getIp(req) {
 
 async function envoyerAlerteConnexion(nom, code, ip) {
   const mailOptions = {
-    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    from: MAIL_FROM || MAIL_USER,
     to: ADMIN_EMAIL,
-    subject: `🔔 Connexion : ${nom}`,
-    text: `L'invité ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
+    subject: `ðŸ”” Connexion : ${nom}`,
+    text: `L'invitÃ© ${nom} (Code: ${code}) vient de se connecter en ligne.\nIP: ${ip}\nHeure: ${new Date().toLocaleString('fr-FR')}`
   };
 
   try {
-    console.log(`[EMAIL] Tentative d'envoi d'alerte pour ${nom} à ${ADMIN_EMAIL}`);
+    console.log(`[EMAIL] Tentative d'envoi d'alerte pour ${nom} Ã  ${ADMIN_EMAIL}`);
     const info = await transporter.sendMail(mailOptions);
-    console.log('[EMAIL] Alerte envoyée:', info.messageId);
+    console.log('[EMAIL] Alerte envoyÃ©e:', info.messageId);
   } catch (err) {
     console.error('[EMAIL] Erreur envoi alerte:', err.message, err.response);
   }
@@ -178,15 +186,15 @@ async function envoyerAlerteConnexion(nom, code, ip) {
 
 async function envoyerAlerteRSVP(invite, statut) {
   const mailOptions = {
-    from: '"Système Mariage" <gragralulu31@gmail.com>',
+    from: MAIL_FROM || MAIL_USER,
     to: ADMIN_EMAIL,
-    subject: `💌 RSVP ${statut === 'accepte' ? 'ACCEPTE' : 'REFUSE'} : ${invite.nom}`,
-    text: `L'invité ${invite.nom} a répondu : ${statut.toUpperCase()}.\nNombre de couverts : ${invite.nb_couverts}\nTable : ${invite.table_num}\nHeure : ${new Date().toLocaleString('fr-FR')}`
+    subject: `ðŸ’Œ RSVP ${statut === 'accepte' ? 'ACCEPTE' : 'REFUSE'} : ${invite.nom}`,
+    text: `L'invitÃ© ${invite.nom} a rÃ©pondu : ${statut.toUpperCase()}.\nNombre de couverts : ${invite.nb_couverts}\nTable : ${invite.table_num}\nHeure : ${new Date().toLocaleString('fr-FR')}`
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('[EMAIL] Notification RSVP envoyée:', info.messageId);
+    console.log('[EMAIL] Notification RSVP envoyÃ©e:', info.messageId);
   } catch (err) {
     console.error('[EMAIL] Erreur envoi notification RSVP:', err.message);
   }
@@ -206,7 +214,7 @@ function normaliserNom(value) {
 function requireInvite(req, res, next) {
   if (!req.session.invite) {
     if (req.path.startsWith('/api/')) {
-      return res.status(401).json({ erreur: 'Session expirée. Veuillez vous reconnecter.' });
+      return res.status(401).json({ erreur: 'Session expirÃ©e. Veuillez vous reconnecter.' });
     }
     return res.redirect('/');
   }
@@ -215,21 +223,21 @@ function requireInvite(req, res, next) {
 
 function requireAdmin(req, res, next) {
   if (!req.session.admin) {
-    return res.status(401).json({ erreur: 'Non autorisé' });
+    return res.status(401).json({ erreur: 'Non autorisÃ©' });
   }
   next();
 }
 
 function requireServeur(req, res, next) {
   if (!req.session.serveur) {
-    return res.status(401).json({ erreur: 'Accès serveur non autorisé.' });
+    return res.status(401).json({ erreur: 'AccÃ¨s serveur non autorisÃ©.' });
   }
   next();
 }
 
 function requireScanner(req, res, next) {
   if (!req.session.scanner) {
-    return res.status(401).json({ erreur: 'Accès scanner non autorisé.' });
+    return res.status(401).json({ erreur: 'AccÃ¨s scanner non autorisÃ©.' });
   }
   next();
 }
@@ -241,7 +249,7 @@ function validateInput(req, res, next) {
       path: req.path,
       errors: errors.array()
     });
-    return res.status(400).json({ erreur: 'Données invalides', details: errors.array() });
+    return res.status(400).json({ erreur: 'DonnÃ©es invalides', details: errors.array() });
   }
   next();
 }
@@ -255,7 +263,7 @@ function getRequestBaseUrl(req) {
     const hostParts = host.split(':');
     const hostname = hostParts[0];
     const port = hostParts.slice(1).join(':');
-    // Si accès local, on utilise l'IP réseau pour que le QR code fonctionne sur mobile
+    // Si accÃ¨s local, on utilise l'IP rÃ©seau pour que le QR code fonctionne sur mobile
     if ((hostname === 'localhost' || hostname === '127.0.0.1') && localIp !== 'localhost') {
       return `${proto}://${localIp}${port ? `:${port}` : ''}`;
     }
@@ -325,14 +333,14 @@ async function nextInviteCode() {
     const code = `YC${String(i).padStart(2, '0')}`;
     if (!(await db.codeExists(code))) return code;
   }
-  throw new Error('Impossible de générer un code disponible.');
+  throw new Error('Impossible de gÃ©nÃ©rer un code disponible.');
 }
 
 function getHttpsCredentials() {
   fs.mkdirSync(CERT_DIR, { recursive: true });
 
   if (fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT)) {
-    console.log('[HTTPS] Certificats locaux existants trouvés.');
+    console.log('[HTTPS] Certificats locaux existants trouvÃ©s.');
     return {
       key: fs.readFileSync(CERT_KEY),
       cert: fs.readFileSync(CERT_CRT)
@@ -341,22 +349,22 @@ function getHttpsCredentials() {
 
   const mkcertCheck = spawnSync('mkcert', ['-version'], { encoding: 'utf8' });
   if (!mkcertCheck.error && mkcertCheck.status === 0) {
-    console.log('[HTTPS] mkcert trouvé, génération de certificat local approuvé…');
+    console.log('[HTTPS] mkcert trouvÃ©, gÃ©nÃ©ration de certificat local approuvÃ©â€¦');
     const install = spawnSync('mkcert', ['-install'], { encoding: 'utf8' });
     if (install.error || install.status !== 0) {
-      console.warn('[HTTPS] mkcert -install a échoué :', install.stderr || install.stdout || install.error?.message);
+      console.warn('[HTTPS] mkcert -install a Ã©chouÃ© :', install.stderr || install.stdout || install.error?.message);
     }
     const mkcertCreate = spawnSync('mkcert', ['-key-file', CERT_KEY, '-cert-file', CERT_CRT, CERT_HOST, '127.0.0.1', '::1'], { encoding: 'utf8' });
     if (!mkcertCreate.error && mkcertCreate.status === 0) {
-      console.log('[HTTPS] Certificat mkcert créé avec succès.');
+      console.log('[HTTPS] Certificat mkcert crÃ©Ã© avec succÃ¨s.');
       return {
         key: fs.readFileSync(CERT_KEY),
         cert: fs.readFileSync(CERT_CRT)
       };
     }
-    console.warn('[HTTPS] Génération mkcert échouée, fallback vers certificat auto-signé.');
+    console.warn('[HTTPS] GÃ©nÃ©ration mkcert Ã©chouÃ©e, fallback vers certificat auto-signÃ©.');
   } else {
-    console.log('[HTTPS] mkcert non trouvé, création d’un certificat auto-signé.');
+    console.log('[HTTPS] mkcert non trouvÃ©, crÃ©ation dâ€™un certificat auto-signÃ©.');
   }
 
   const attrs = [{ name: 'commonName', value: CERT_HOST }];
@@ -389,13 +397,13 @@ const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000, // Quasi infini pour l'administration
   skipSuccessfulRequests: true,
-  message: { erreur: 'Trop de tentatives. Réessayez dans 15 minutes.' }
+  message: { erreur: 'Trop de tentatives. RÃ©essayez dans 15 minutes.' }
 });
 
 function timingSafeCompare(a, b) {
   const bufA = Buffer.from(String(a || ''));
   const bufB = Buffer.from(String(b || ''));
-  if (bufA.length !== bufB.length) return false; // Important pour éviter les erreurs de buffer
+  if (bufA.length !== bufB.length) return false; // Important pour Ã©viter les erreurs de buffer
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
@@ -405,23 +413,25 @@ function timingSafeCompare(a, b) {
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/civil', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
+app.get('/anniversaire', (req, res) => res.sendFile(path.join(__dirname, 'login-civil.html')));
 app.get('/i/:code', (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
   const baseUrl = getRequestBaseUrl(req);
   res.redirect(`${baseUrl}/?code=${encodeURIComponent(code)}`);
 });
 app.get('/invitation', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation.html')));
-app.get('/invitation-mariage-civile', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
+app.get('/invitation-anniversaire', requireInvite, (req, res) => res.sendFile(path.join(__dirname, 'invitation anniversaire lucé.html')));
+app.get('/invitation-mariage-civile', (req, res) => res.redirect('/invitation-anniversaire'));
 app.get('/invitation-physique', (req, res) => res.sendFile(path.join(__dirname, 'invitation-physique.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/scanner', (req, res) => res.sendFile(path.join(__dirname, 'scanner.html')));
 app.get('/serveurs', (req, res) => res.sendFile(path.join(__dirname, 'serveurs.html')));
 
 // ============================================
-// API INVITÉS
+// API INVITÃ‰S
 // ============================================
 
-// POST /api/connexion — Vérification nom + code secret
+// POST /api/connexion â€” VÃ©rification nom + code secret
 app.post('/api/connexion', loginLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
   body('code_secret').trim().isLength({ min: 4, max: 10 }).toUpperCase().withMessage('Code invalide'),
@@ -435,28 +445,28 @@ app.post('/api/connexion', loginLimiter,
 
     if (!invite) {
       await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Code inconnu');
-      return res.status(401).json({ erreur: 'Code secret introuvable. Vérifiez le code indiqué sur votre invitation.' });
+      return res.status(401).json({ erreur: 'Code secret introuvable. VÃ©rifiez le code indiquÃ© sur votre invitation.' });
     }
 
     if (normaliserNom(invite.nom) !== normaliserNom(nom)) {
       await db.logSecurite('tentative_invalide', code_secret, nom, ip, 'Nom incorrect pour ce code');
-      return res.status(401).json({ erreur: 'Ce code existe, mais le nom saisi ne correspond pas à cette invitation.' });
+      return res.status(401).json({ erreur: 'Ce code existe, mais le nom saisi ne correspond pas Ã  cette invitation.' });
     }
 
     if (Number(invite.acces_count || 0) >= MAX_INVITE_ACCES) {
-      await db.logSecurite('fraude', code_secret, nom, ip, 'Limite d’accès atteinte');
+      await db.logSecurite('fraude', code_secret, nom, ip, 'Limite dâ€™accÃ¨s atteinte');
       wa.envoyerNotification(wa.msgFraude(code_secret, invite.nom, ip));
-      return res.status(403).json({ erreur: `Ce code a déjà été utilisé ${MAX_INVITE_ACCES} fois. Contactez Yannick ou Chantia si vous pensez qu’il s’agit d’une erreur.` });
+      return res.status(403).json({ erreur: `Ce code a dÃ©jÃ  Ã©tÃ© utilisÃ© ${MAX_INVITE_ACCES} fois. Contactez Yannick ou Chantia si vous pensez quâ€™il sâ€™agit dâ€™une erreur.` });
     }
 
-    // Marquer le code comme utilisé
+    // Marquer le code comme utilisÃ©
     await db.marquerCodeUtilise(invite.code_secret, ip);
-    await db.logSecurite('connexion', code_secret, nom, ip, 'Connexion réussie');
+    await db.logSecurite('connexion', code_secret, nom, ip, 'Connexion rÃ©ussie');
 
-    // Alerte par email à l'admin
+    // Alerte par email Ã  l'admin
     envoyerAlerteConnexion(invite.nom, code_secret, ip);
 
-    ensureQrCode(invite, getRequestBaseUrl(req)).catch(err => console.error('[QR] Erreur génération:', err.message));
+    ensureQrCode(invite, getRequestBaseUrl(req)).catch(err => console.error('[QR] Erreur gÃ©nÃ©ration:', err.message));
 
     // Sauvegarder la session
     req.session.invite = {
@@ -473,9 +483,9 @@ app.post('/api/connexion', loginLimiter,
   }
 );
 
-// GET /api/moi — Données de l'invité connecté
+// GET /api/moi â€” DonnÃ©es de l'invitÃ© connectÃ©
 app.get('/api/moi', requireInvite, async (req, res) => {
-  // Recharger depuis la BDD pour avoir le statut à jour
+  // Recharger depuis la BDD pour avoir le statut Ã  jour
   const invite = await db.findInvite(req.session.invite.code_secret);
   res.json(invite);
 });
@@ -484,7 +494,7 @@ app.get('/api/boissons', requireInvite, (req, res) => {
   res.json({ boissons: BOISSON_CHOIX_OPTIONS, eauAutomatique: true });
 });
 
-// POST /api/repondre — Accepter ou refuser
+// POST /api/repondre â€” Accepter ou refuser
 app.post('/api/repondre', requireInvite, apiLimiter,
   body('statut').isIn(['accepte', 'refuse']).withMessage('Statut invalide'),
   body('boisson').optional({ values: 'falsy' }).trim().isLength({ min: 1, max: 200 }).withMessage('Boisson invalide'),
@@ -498,15 +508,15 @@ app.post('/api/repondre', requireInvite, apiLimiter,
 
   const invite = await db.findInvite(req.session.invite.code_secret);
 
-  // Validation de boisson rendue optionnelle car l'eau est prévue
+  // Validation de boisson rendue optionnelle car l'eau est prÃ©vue
 
   if (invite.statut !== 'en_attente') {
-    return res.status(400).json({ erreur: 'Vous avez déjà répondu.' });
+    return res.status(400).json({ erreur: 'Vous avez dÃ©jÃ  rÃ©pondu.' });
   }
 
   const updateResult = await db.enregistrerReponse(invite.code_secret, statut, statut === 'accepte' ? boisson : null);
   if (updateResult.rowCount !== 1) {
-    return res.status(500).json({ erreur: 'La réponse n’a pas été enregistrée dans la base de données.' });
+    return res.status(500).json({ erreur: 'La rÃ©ponse nâ€™a pas Ã©tÃ© enregistrÃ©e dans la base de donnÃ©es.' });
   }
   const updatedInvite = updateResult.rows[0] || {
     ...invite,
@@ -522,19 +532,19 @@ app.post('/api/repondre', requireInvite, apiLimiter,
   // Notification WhatsApp
   const msg = statut === 'accepte' ? wa.msgAcceptation(updatedInvite) : wa.msgRefus(updatedInvite);
   const notif = await wa.envoyerNotification(msg);
-  if (!notif.ok) console.error('[WhatsApp] Notification non envoyée:', notif.raison);
+  if (!notif.ok) console.error('[WhatsApp] Notification non envoyÃ©e:', notif.raison);
 
-  // Alerte par email à l'admin lors d'une réponse
+  // Alerte par email Ã  l'admin lors d'une rÃ©ponse
   envoyerAlerteRSVP(updatedInvite, statut);
 
   res.json({ ok: true, statut });
 });
 
-// GET /api/qrcode/:code — Génère le QR code à la volée (image PNG base64)
+// GET /api/qrcode/:code â€” GÃ©nÃ¨re le QR code Ã  la volÃ©e (image PNG base64)
 app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
   const invite = req.session.invite;
   if (invite.code_secret !== req.params.code.toUpperCase()) {
-    return res.status(403).json({ erreur: 'Accès interdit.' });
+    return res.status(403).json({ erreur: 'AccÃ¨s interdit.' });
   }
 
   const fullInvite = await db.findInvite(invite.code_secret);
@@ -546,11 +556,11 @@ app.get('/api/qrcode/:code', requireInvite, async (req, res) => {
     const qrDataUrl = `data:image/png;base64,${fs.readFileSync(filePath).toString('base64')}`;
     res.json({ ok: true, qr: qrDataUrl, url, file: `/qrcodes/${fullInvite.code_secret}.png` });
   } catch (err) {
-    res.status(500).json({ erreur: 'Erreur génération QR.' });
+    res.status(500).json({ erreur: 'Erreur gÃ©nÃ©ration QR.' });
   }
 });
 
-// GET /api/invitation-physique/:code — Données publiques pour une invitation imprimable
+// GET /api/invitation-physique/:code â€” DonnÃ©es publiques pour une invitation imprimable
 app.get('/api/invitation-physique/:code', async (req, res) => {
   const code = String(req.params.code || '').trim().toUpperCase();
   if (!code) return res.status(400).json({ ok: false, erreur: 'Code requis.' });
@@ -567,10 +577,10 @@ app.get('/api/invitation-physique/:code', async (req, res) => {
   });
 });
 
-// POST /api/invitation-physique/verifier — Recherche publique par nom + table
+// POST /api/invitation-physique/verifier â€” Recherche publique par nom + table
 app.post('/api/invitation-physique/verifier', apiLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
-  body('table_num').isInt({ min: 0 }).withMessage('Numéro de table invalide'),
+  body('table_num').isInt({ min: 0 }).withMessage('NumÃ©ro de table invalide'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -584,7 +594,7 @@ app.post('/api/invitation-physique/verifier', apiLimiter,
     if (!invite) {
       return res.status(404).json({
         ok: false,
-        erreur: 'Informations non reconnues. Vérifiez le nom complet et le numéro de table.'
+        erreur: 'Informations non reconnues. VÃ©rifiez le nom complet et le numÃ©ro de table.'
       });
     }
 
@@ -609,12 +619,12 @@ app.get('/api/deconnexion', (req, res) => {
 // ============================================
 
 // GET /valider-entree?code=YC01&table=5
-// Appelé par le scan du QR code
+// AppelÃ© par le scan du QR code
 app.get('/valider-entree', (req, res) => {
   res.redirect(`/scanner?code=${req.query.code || ''}`);
 });
 
-// POST /api/scanner/valider — Validation réelle
+// POST /api/scanner/valider â€” Validation rÃ©elle
 app.post('/api/scanner/login', apiLimiter,
   body('password').isLength({ min: 1 }).withMessage('Mot de passe requis'),
   validateInput,
@@ -674,29 +684,29 @@ app.post('/api/scanner/valider', requireScanner, async (req, res) => {
   }
 
   if (invite.presente) {
-    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : Invité déjà présent');
+    await db.logSecurite('scan_deja_valide', code, invite.nom, ip, 'Scanner : InvitÃ© dÃ©jÃ  prÃ©sent');
     return res.json({
       resultat: 'deja_entre',
-      message: `${invite.nom} est déjà enregistré(e).`,
+      message: `${invite.nom} est dÃ©jÃ  enregistrÃ©(e).`,
       invite: { nom: invite.nom, table_num: invite.table_num, menu: invite.menu, boisson: invite.boisson }
     });
   }
 
   if (invite.statut === 'refuse') {
-    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation déclinée');
+    await db.logSecurite('scan_refuse', code, invite.nom, ip, 'Scanner : Invitation dÃ©clinÃ©e');
     return res.json({
       resultat: 'refuse',
-      message: `${invite.nom} a décliné l'invitation.`
+      message: `${invite.nom} a dÃ©clinÃ© l'invitation.`
     });
   }
 
-  // Valider la présence
+  // Valider la prÃ©sence
   const updateResult = await db.validerPresence(invite.code_secret);
   if (updateResult.rowCount !== 1) {
-    return res.status(500).json({ resultat: 'erreur', message: 'La présence n’a pas été enregistrée dans la base de données.' });
+    return res.status(500).json({ resultat: 'erreur', message: 'La prÃ©sence nâ€™a pas Ã©tÃ© enregistrÃ©e dans la base de donnÃ©es.' });
   }
   const updatedInvite = updateResult.rows[0] || invite;
-  await db.logSecurite('scan_valide', code, updatedInvite.nom, ip, 'Scanner : Entrée validée avec succès');
+  await db.logSecurite('scan_valide', code, updatedInvite.nom, ip, 'Scanner : EntrÃ©e validÃ©e avec succÃ¨s');
   wa.envoyerNotification(wa.msgEntreeValidee(updatedInvite));
 
   res.json({
@@ -835,8 +845,8 @@ app.get('/api/admin/public-url', requireAdmin, (req, res) => {
 
 app.post('/api/admin/invites', requireAdmin, apiLimiter,
   body('nom').trim().isLength({ min: 1, max: 100 }).withMessage('Nom invalide'),
-  body('code_secret').optional({ values: 'falsy' }).trim().isLength({ min: 4, max: 10 }).withMessage('Le code doit faire entre 4 et 10 caractères'),
-  body('table_num').optional({ values: 'falsy' }).isInt({ min: 0 }).withMessage('Numéro table invalide'),
+  body('code_secret').optional({ values: 'falsy' }).trim().isLength({ min: 4, max: 10 }).withMessage('Le code doit faire entre 4 et 10 caractÃ¨res'),
+  body('table_num').optional({ values: 'falsy' }).isInt({ min: 0 }).withMessage('NumÃ©ro table invalide'),
   body('nb_couverts').optional({ values: 'falsy' }).isInt({ min: 1, max: 20 }).withMessage('Couverts invalides (1-20)'),
   body('menu').optional({ values: 'falsy' }).trim().isLength({ max: 50 }).withMessage('Menu trop long'),
   validateInput,
@@ -848,7 +858,7 @@ app.post('/api/admin/invites', requireAdmin, apiLimiter,
   const menu = String(req.body.menu || 'standard').trim();
 
   if (!nom) return res.status(400).json({ erreur: 'Nom requis.' });
-  if (await db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+  if (await db.codeExists(code_secret)) return res.status(409).json({ erreur: 'Ce code existe dÃ©jÃ .' });
 
   const result = await db.createInvite({ nom, code_secret, table_num, nb_couverts, menu });
   res.json({ ok: true, id: result.lastInsertRowid, code_secret });
@@ -864,7 +874,7 @@ app.put('/api/admin/invites/:id', requireAdmin,
   validateInput,
   async (req, res) => {
   const current = await db.findInviteById(req.params.id);
-  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  if (!current) return res.status(404).json({ erreur: 'InvitÃ© introuvable.' });
   await db.updateInvite(req.params.id, {
     nom: String(req.body.nom || current.nom).trim(),
     table_num: Number(req.body.table_num ?? current.table_num),
@@ -878,16 +888,16 @@ app.put('/api/admin/invites/:id', requireAdmin,
 
 app.delete('/api/admin/invites/:id', requireAdmin, async (req, res) => {
   const current = await db.findInviteById(req.params.id);
-  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  if (!current) return res.status(404).json({ erreur: 'InvitÃ© introuvable.' });
   await db.deleteInvite(req.params.id);
   res.json({ ok: true });
 });
 
 app.post('/api/admin/invites/:id/reset-code', requireAdmin, async (req, res) => {
   const current = await db.findInviteById(req.params.id);
-  if (!current) return res.status(404).json({ erreur: 'Invité introuvable.' });
+  if (!current) return res.status(404).json({ erreur: 'InvitÃ© introuvable.' });
   const newCode = String(req.body.code_secret || await nextInviteCode()).trim().toUpperCase();
-  if (await db.codeExists(newCode)) return res.status(409).json({ erreur: 'Ce code existe déjà.' });
+  if (await db.codeExists(newCode)) return res.status(409).json({ erreur: 'Ce code existe dÃ©jÃ .' });
   await db.resetInviteCode(req.params.id, newCode);
   res.json({ ok: true, code_secret: newCode });
 });
@@ -899,7 +909,7 @@ app.get('/api/admin/logs', requireAdmin, async (req, res) => {
 // Export CSV
 app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   const invites = await db.getAllInvites();
-  const header = ['ID','Nom','Code','Table','Couverts','Menu','Boisson','Statut','Accès','Présent','IP','Date réponse','Date présence'];
+  const header = ['ID','Nom','Code','Table','Couverts','Menu','Boisson','Statut','AccÃ¨s','PrÃ©sent','IP','Date rÃ©ponse','Date prÃ©sence'];
   const rows = invites.map(i => [
     i.id, `"${i.nom}"`, i.code_secret, i.table_num, i.nb_couverts, i.menu, `"${i.boisson || ''}"`,
     i.statut, `${i.acces_count || 0}/${MAX_INVITE_ACCES}`, i.presente ? 'oui' : 'non',
@@ -911,43 +921,43 @@ app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
   res.send('\uFEFF' + csv); // BOM UTF-8 pour Excel
 });
 
-// Token scanner (pour sécuriser le scanner sans session)
+// Token scanner (pour sÃ©curiser le scanner sans session)
 app.get('/api/admin/scanner-token', requireAdmin, (req, res) => {
   res.json({ token: SCANNER_TOKEN });
 });
 
 // ============================================
-// DÉMARRAGE
+// DÃ‰MARRAGE
 // ============================================
 
 async function startServer() {
-  console.log('[DEMARRAGE] Initialisation de la base de données...');
+  console.log('[DEMARRAGE] Initialisation de la base de donnÃ©es...');
   await db.initDb(MAX_INVITE_ACCES);
-  console.log('[DEMARRAGE] Base de données initialisée.');
+  console.log('[DEMARRAGE] Base de donnÃ©es initialisÃ©e.');
 
   if (USE_HTTPS) {
     console.log('[DEMARRAGE] Configuration HTTPS...');
     const credentials = getHttpsCredentials();
     const localIp = getLocalIp();
     https.createServer(credentials, app).listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système MARIAGE CIVIL démarré en HTTPS !');
+      console.log('\n[DEMARRAGE] SystÃ¨me MARIAGE CIVIL dÃ©marrÃ© en HTTPS !');
       console.log(`[WEB] Local          : https://${DISPLAY_HOST}:${PORT}`);
-      console.log(`[WEB] Réseau local   : https://${localIp}:${PORT}`);
+      console.log(`[WEB] RÃ©seau local   : https://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : https://${DISPLAY_HOST}:${PORT}/admin`);
-      console.log(`[ADMIN] Admin réseau : https://${localIp}:${PORT}/admin`);
+      console.log(`[ADMIN] Admin rÃ©seau : https://${localIp}:${PORT}/admin`);
       console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
-      console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
+      console.log(`\nA envoyer aux invitÃ©s : ${SITE_URL.replace(/\/+$/, '')}`);
     });
   } else {
     const localIp = getLocalIp();
     app.listen(PORT, BIND_HOST, () => {
-      console.log('\n[DEMARRAGE] Système MARIAGE CIVIL démarré !');
+      console.log('\n[DEMARRAGE] SystÃ¨me MARIAGE CIVIL dÃ©marrÃ© !');
       console.log(`[WEB] Local          : http://${DISPLAY_HOST}:${PORT}`);
-      console.log(`[WEB] Réseau local   : http://${localIp}:${PORT}`);
+      console.log(`[WEB] RÃ©seau local   : http://${localIp}:${PORT}`);
       console.log(`[ADMIN] Admin local  : http://${DISPLAY_HOST}:${PORT}/admin`);
-      console.log(`[ADMIN] Admin réseau : http://${localIp}:${PORT}/admin`);
+      console.log(`[ADMIN] Admin rÃ©seau : http://${localIp}:${PORT}/admin`);
       console.log(`\nMot de passe admin : ${ADMIN_PASSWORD}`);
-      console.log(`\nA envoyer aux invités : ${SITE_URL.replace(/\/+$/, '')}`);
+      console.log(`\nA envoyer aux invitÃ©s : ${SITE_URL.replace(/\/+$/, '')}`);
     });
   }
 }
@@ -956,3 +966,6 @@ startServer().catch((err) => {
   console.error('[DEMARRAGE] Impossible de lancer le serveur:', db.formatDbError(err));
   process.exit(1);
 });
+
+
+
