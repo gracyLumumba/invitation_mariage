@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: invitation-anniversaire
+    runtime: node
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "3000"
+      - key: BIND_HOST
+        value: "0.0.0.0"
+      - key: ADMIN_PASSWORD
+        sync: false

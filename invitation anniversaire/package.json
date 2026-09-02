@@ -1,0 +1,21 @@
+{
+  "name": "invitation-anniversaire",
+  "version": "1.0.0",
+  "description": "Invitation d'anniversaire de Lucé Tshibola avec connexion par nom et suivi de présence",
+  "main": "server.js",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

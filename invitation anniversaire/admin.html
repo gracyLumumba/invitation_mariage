@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Invitation Anniversaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff4fa3;
+    --pink-dark:#e60073;
+    --bg:#fff6fa;
+    --text:#241c26;
+    --muted:#71606e;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Jost',sans-serif;
+    background:linear-gradient(145deg, #ffd9ea 0%, var(--bg) 55%, #fff 100%);
+    color:var(--text);
+    padding:24px;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid rgba(230,0,115,.14);
+    border-radius:24px;
+    box-shadow:0 18px 50px rgba(230,0,115,.08);
+    padding:20px;
+  }
+  .title{
+    font-size:30px;
+    margin:0 0 6px;
+    color:var(--pink-dark);
+  }
+  .sub{margin:0;color:var(--muted)}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin:18px 0;
+  }
+  .stat{
+    text-align:center;
+  }
+  .stat .n{font-size:34px;font-weight:700;color:var(--pink-dark)}
+  .stat .l{text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--muted)}
+  .login{
+    max-width:420px;
+    margin:60px auto;
+  }
+  label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+  input{
+    width:100%;
+    border:1px solid rgba(230,0,115,.14);
+    border-radius:14px;
+    padding:13px 14px;
+    margin-bottom:12px;
+  }
+  button{
+    width:100%;
+    border:none;
+    border-radius:999px;
+    padding:13px 16px;
+    color:#fff;
+    background:linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  .table th,.table td{
+    padding:12px 10px;
+    border-bottom:1px solid #f1dce8;
+    text-align:left;
+    vertical-align:top;
+    font-size:14px;
+  }
+  .table th{
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:11px;
+    color:var(--muted);
+  }
+  .pill{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .present{background:#ecfdf5;color:#166534}
+  .absent{background:#fff1f2;color:#9f1239}
+  .pending{background:#f8fafc;color:#334155}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .actions button,.actions a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:11px 14px;
+    border-radius:999px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:600;
+  }
+  .actions a{background:#fff;border:1px solid rgba(230,0,115,.14);color:var(--pink-dark)}
+  .actions button{width:auto}
+  .error{display:none;margin:0 0 12px;padding:12px 14px;background:#fff1f2;border:1px solid #fecdd3;color:#991b1b;border-radius:12px}
+  .hidden{display:none}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:640px){.grid{grid-template-columns:1fr}.table{display:block;overflow:auto}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="loginBox" class="card login">
+      <h1 class="title">Admin anniversaire</h1>
+      <p class="sub">Connecte-toi pour voir les noms et les confirmations de présence.</p>
+      <div id="loginError" class="error"></div>
+      <label for="password">Mot de passe admin</label>
+      <input id="password" type="password" placeholder="Mot de passe">
+      <button id="loginBtn" type="button">Entrer</button>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="top">
+        <div class="card" style="flex:1">
+          <h1 class="title" style="margin-bottom:0">Tableau de bord</h1>
+          <p class="sub">Lucé Tshibola - invitation d’anniversaire</p>
+          <div class="actions">
+            <button id="refreshBtn" type="button">Rafraîchir</button>
+            <button id="logoutBtn" type="button" style="background:#fff;color:var(--pink-dark);border:1px solid rgba(230,0,115,.14)">Déconnexion</button>
+            <a href="/api/admin/export" target="_blank" rel="noopener noreferrer">Exporter JSON</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card stat"><div class="n" id="sTotal">0</div><div class="l">connexions</div></div>
+        <div class="card stat"><div class="n" id="sPresent">0</div><div class="l">présents</div></div>
+        <div class="card stat"><div class="n" id="sAbsent">0</div><div class="l">absents</div></div>
+        <div class="card stat"><div class="n" id="sPending">0</div><div class="l">en attente</div></div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0;color:var(--pink-dark)">Invités</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Connexion</th>
+              <th>Présence</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="visitorsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+const loginBox = document.getElementById('loginBox');
+const dashboard = document.getElementById('dashboard');
+const errorBox = document.getElementById('loginError');
+
+function badge(status) {
+  if (status === 'present') return '<span class="pill present">présent</span>';
+  if (status === 'absent') return '<span class="pill absent">absent</span>';
+  return '<span class="pill pending">en attente</span>';
+}
+
+async function loadData() {
+  const res = await fetch('/api/admin/data');
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.erreur || 'Accès refusé');
+  document.getElementById('sTotal').textContent = data.stats.total;
+  document.getElementById('sPresent').textContent = data.stats.present;
+  document.getElementById('sAbsent').textContent = data.stats.absent;
+  document.getElementById('sPending').textContent = data.stats.pending;
+  const body = document.getElementById('visitorsBody');
+  body.innerHTML = data.visitors.map(v => `
+    <tr>
+      <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
+      <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
+      <td>${badge(v.status)}</td>
+      <td>${escapeHtml(v.lastIp || '')}</td>
+    </tr>
+  `).join('');
+  return data;
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+async function login() {
+  errorBox.style.display = 'none';
+  const password = document.getElementById('password').value;
+  const res = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password })
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.erreur || 'Mot de passe invalide');
+  loginBox.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+  await loadData();
+}
+
+document.getElementById('loginBtn').addEventListener('click', () => login().catch(err => {
+  errorBox.textContent = err.message;
+  errorBox.style.display = 'block';
+}));
+document.getElementById('refreshBtn').addEventListener('click', () => loadData().catch(alert));
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.reload();
+});
+
+fetch('/api/admin/data')
+  .then(async (res) => {
+    if (!res.ok) throw new Error('not admin');
+    const data = await res.json();
+    loginBox.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    document.getElementById('sTotal').textContent = data.stats.total;
+    document.getElementById('sPresent').textContent = data.stats.present;
+    document.getElementById('sAbsent').textContent = data.stats.absent;
+    document.getElementById('sPending').textContent = data.stats.pending;
+    const body = document.getElementById('visitorsBody');
+    body.innerHTML = data.visitors.map(v => `
+      <tr>
+        <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
+        <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
+        <td>${badge(v.status)}</td>
+        <td>${escapeHtml(v.lastIp || '')}</td>
+      </tr>
+    `).join('');
+  })
+  .catch(() => {});
+</script>
+</body>
+</html>

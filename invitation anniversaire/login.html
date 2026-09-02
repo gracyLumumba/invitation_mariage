@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitation Anniversaire - Connexion</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Jost:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff4fa3;
+    --pink-dark:#e60073;
+    --pink-soft:#ffd4e9;
+    --bg:#fff5f9;
+    --text:#281c26;
+    --muted:#745f70;
+    --card:#fff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    font-family:'Jost',sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(255,79,163,.22), transparent 25%),
+      radial-gradient(circle at bottom right, rgba(255,116,182,.18), transparent 25%),
+      linear-gradient(160deg, #ffd9ea 0%, var(--bg) 45%, #fff 100%);
+    color:var(--text);
+    padding:24px;
+  }
+  .card{
+    width:min(520px, 100%);
+    background:rgba(255,255,255,.92);
+    border:1px solid rgba(230,0,115,.14);
+    border-radius:28px;
+    box-shadow:0 24px 60px rgba(230,0,115,.12);
+    padding:32px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card:before{
+    content:"";
+    position:absolute;
+    inset:12px;
+    border:1px dashed rgba(255,79,163,.18);
+    border-radius:22px;
+    pointer-events:none;
+  }
+  h1{
+    font-family:'Great Vibes',cursive;
+    font-size:clamp(48px, 10vw, 72px);
+    line-height:1;
+    color:var(--pink-dark);
+    margin:0 0 8px;
+    text-align:center;
+  }
+  .sub{
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-size:22px;
+    font-style:italic;
+    color:var(--muted);
+    margin:0 0 24px;
+  }
+  label{
+    display:block;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    color:var(--muted);
+    margin:0 0 8px;
+  }
+  input{
+    width:100%;
+    border:1px solid rgba(230,0,115,.16);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:16px;
+    outline:none;
+    background:#fff;
+  }
+  input:focus{
+    border-color:var(--pink);
+    box-shadow:0 0 0 4px rgba(255,79,163,.10);
+  }
+  .row{margin-bottom:16px}
+  button{
+    width:100%;
+    border:none;
+    border-radius:999px;
+    padding:14px 18px;
+    background:linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
+    color:#fff;
+    font-weight:600;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    cursor:pointer;
+    box-shadow:0 14px 28px rgba(230,0,115,.2);
+  }
+  .hint{
+    margin-top:18px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+  }
+  .error{
+    display:none;
+    margin:0 0 14px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:#fff1f1;
+    border:1px solid #f5c2c7;
+    color:#a61b1b;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>Lucé Tshibola</h1>
+    <p class="sub">Fête d’anniversaire de 1 an</p>
+    <div id="error" class="error"></div>
+    <form id="loginForm">
+      <div class="row">
+        <label for="name">Votre nom</label>
+        <input id="name" name="name" type="text" placeholder="Entrez votre nom complet" autocomplete="name" required>
+      </div>
+      <button type="submit">Accéder à l’invitation</button>
+    </form>
+    <p class="hint">Entrez seulement votre nom. Ensuite vous pourrez confirmer votre présence dans l’invitation.</p>
+  </main>
+
+<script>
+const form = document.getElementById('loginForm');
+const errorBox = document.getElementById('error');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBox.style.display = 'none';
+  const name = document.getElementById('name').value.trim();
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erreur || 'Connexion impossible.');
+    window.location.href = data.redirect || '/invitation';
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>
