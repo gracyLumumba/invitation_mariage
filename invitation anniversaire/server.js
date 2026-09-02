@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.BIND_HOST || '0.0.0.0';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ADMIN1234';
-const DATA_FILE = path.join(__dirname, 'data.json');
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -35,6 +35,7 @@ function nowIso() {
 }
 
 function ensureDataFile() {
+  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
   if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({
       visitors: [],
@@ -136,6 +137,14 @@ app.post('/api/login', (req, res) => {
   let visitor = getCurrentVisitor(req);
   const visitorId = visitor?.id || crypto.randomUUID();
   const nameKey = normalizeNameKey(name);
+
+  if (visitor && normalizeNameKey(visitor.name) !== nameKey) {
+    return res.status(409).json({
+      ok: false,
+      erreur: 'Cette connexion est déjà associée à un autre nom. Chaque invité garde son nom.'
+    });
+  }
+
   const duplicate = data.visitors.find(v => normalizeNameKey(v.name) === nameKey && v.id !== visitorId);
 
   if (duplicate) {

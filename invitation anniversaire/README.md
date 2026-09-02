@@ -30,6 +30,8 @@ http://localhost:3000
 - Start command: `npm start`
 - Ajoute une variable d'environnement:
   - `ADMIN_PASSWORD`
+- Les noms et présences sont conservés sur le disque persistant Render monté dans `/var/data`.
+- Pour un autre hébergement, définis `DATA_FILE` vers un emplacement persistant.
 
 ## Supabase / PostgreSQL
 
