@@ -4,6 +4,9 @@
 create table if not exists public.invites (
   id bigserial primary key,
   nom text not null,
+  nom_cle text generated always as (
+    lower(trim(regexp_replace(nom, '\\s+', ' ', 'g')))
+  ) stored unique,
   code_secret text not null unique,
   table_num integer default 0,
   nb_couverts integer default 1,

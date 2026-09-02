@@ -86,6 +86,13 @@ function normalizeName(name) {
   return String(name || '').trim().replace(/\s+/g, ' ');
 }
 
+function normalizeNameKey(name) {
+  return normalizeName(name)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
 function findVisitorById(data, id) {
   return data.visitors.find(v => v.id === id);
 }
@@ -128,10 +135,20 @@ app.post('/api/login', (req, res) => {
   const data = readData();
   let visitor = getCurrentVisitor(req);
   const visitorId = visitor?.id || crypto.randomUUID();
+  const nameKey = normalizeNameKey(name);
+  const duplicate = data.visitors.find(v => normalizeNameKey(v.name) === nameKey && v.id !== visitorId);
+
+  if (duplicate) {
+    return res.status(409).json({
+      ok: false,
+      erreur: 'Ce nom est déjà enregistré. Chaque invité peut se connecter une seule fois.'
+    });
+  }
 
   visitor = findVisitorById(data, visitorId) || {
     id: visitorId,
     name,
+    nameKey,
     loginCount: 0,
     status: 'pending',
     loginAt: null,
@@ -140,6 +157,7 @@ app.post('/api/login', (req, res) => {
   };
 
   visitor.name = name;
+  visitor.nameKey = nameKey;
   visitor.loginCount = Number(visitor.loginCount || 0) + 1;
   visitor.loginAt = nowIso();
   visitor.lastIp = getIp(req);
