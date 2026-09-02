@@ -190,6 +190,9 @@ app.post('/api/rsvp', (req, res) => {
   if (!current) {
     return res.status(404).json({ ok: false, erreur: 'Invité introuvable.' });
   }
+  if (current.status && current.status !== 'pending') {
+    return res.status(409).json({ ok: false, erreur: 'Vous avez déjà répondu.' });
+  }
 
   current.status = status;
   current.rsvpAt = nowIso();

@@ -189,6 +189,88 @@
     letter-spacing:.03em;
     text-transform:none;
   }
+  .rsvp{
+    margin-top:18px;
+    padding:18px;
+    border-radius:24px;
+    background:linear-gradient(180deg, #fff 0%, #fff0f7 100%);
+    border:1px solid rgba(230,0,115,.12);
+    box-shadow:0 20px 36px rgba(230,0,115,.08);
+  }
+  .rsvp h3{
+    margin:0 0 8px;
+    color:var(--pink-dark);
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(26px, 4vw, 32px);
+  }
+  .rsvp p{
+    margin:0 0 16px;
+    color:var(--muted);
+    line-height:1.8;
+    font-size:14px;
+  }
+  .actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  .btn{
+    width:100%;
+    border:none;
+    border-radius:18px;
+    padding:16px 14px;
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
+    min-height:74px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.04em;
+  }
+  .btn.primary{
+    background:linear-gradient(135deg, #ffb0d6 0%, var(--pink) 42%, var(--pink-dark) 100%);
+    color:#fff;
+    box-shadow:0 14px 24px rgba(230,0,115,.24);
+  }
+  .btn.secondary{
+    background:#fff;
+    color:var(--pink-dark);
+    border:1px solid rgba(230,0,115,.16);
+    box-shadow:0 12px 22px rgba(230,0,115,.08);
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .btn.choice-active{
+    outline:2px solid rgba(230,0,115,.2);
+    box-shadow:0 18px 30px rgba(230,0,115,.18);
+  }
+  .status{
+    display:none;
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:18px;
+    font-size:14px;
+    line-height:1.65;
+  }
+  .status.show{display:block}
+  .status.ok{
+    background:linear-gradient(135deg, rgba(255,79,163,.16), rgba(230,0,115,.08));
+    border:1px solid rgba(230,0,115,.14);
+    color:var(--pink-dark);
+  }
+  .status.bad{
+    background:#fff7f8;
+    border:1px solid rgba(201,0,99,.14);
+    color:#9f1239;
+  }
   .location-card{
     margin-top:18px;
     padding:16px;
@@ -461,8 +543,10 @@
     .subtitle{font-size:18px}
     .title{font-size:clamp(48px, 18vw, 72px)}
     .env-title{font-size:clamp(34px, 12vw, 50px)}
-    .location-text,.section p,.long-text p,.footer-contact{font-size:13px;line-height:1.7}
+    .location-text,.section p,.long-text p,.footer-contact,.rsvp p,.status{font-size:13px;line-height:1.7}
     .inv-guest-name{font-size:clamp(28px, 8vw, 42px)}
+    .actions{grid-template-columns:1fr}
+    .btn{min-height:68px}
   }
 </style>
 </head>
@@ -560,7 +644,6 @@
 
     <div class="rsvp">
       <h3>Confirmer la présence</h3>
-      <p>Entrez votre nom dans la page de connexion, puis confirmez si vous serez présent ou non. Cela nous aide à mieux préparer l'accueil de chacun.</p>
       <div class="actions">
         <button class="btn primary" id="presentBtn" type="button">Je serai présent</button>
         <button class="btn secondary" id="absentBtn" type="button">Je ne pourrai pas venir</button>
@@ -697,6 +780,15 @@ fetch('/api/me')
     if (envTitle && data && data.visitor) {
       envTitle.textContent = data.visitor.name;
     }
+    if (data?.visitor?.status === 'present' || data?.visitor?.status === 'absent') {
+      lockRsvp(data.visitor.status);
+      showRsvpMessage(
+        data.visitor.status,
+        data.visitor.status === 'present'
+          ? 'Votre présence est déjà enregistrée. Nous avons hâte de vous recevoir.'
+          : 'Votre absence est déjà enregistrée. Merci encore pour votre retour.'
+      );
+    }
   })
   .catch(() => {
     window.location.href = '/';
@@ -717,6 +809,23 @@ function lancerConfettis() {
 
 const ok = document.getElementById('statusOk');
 const bad = document.getElementById('statusBad');
+const presentBtn = document.getElementById('presentBtn');
+const absentBtn = document.getElementById('absentBtn');
+
+function lockRsvp(choice) {
+  presentBtn.disabled = true;
+  absentBtn.disabled = true;
+  presentBtn.classList.toggle('choice-active', choice === 'present');
+  absentBtn.classList.toggle('choice-active', choice === 'absent');
+}
+
+function showRsvpMessage(status, message) {
+  ok.classList.remove('show');
+  bad.classList.remove('show');
+  const target = status === 'present' ? ok : bad;
+  target.textContent = message;
+  target.classList.add('show');
+}
 
 async function send(status) {
   const res = await fetch('/api/rsvp', {
@@ -726,18 +835,18 @@ async function send(status) {
   });
   const data = await res.json();
   if (!res.ok || !data.ok) throw new Error(data.erreur || 'Erreur');
-  ok.classList.remove('show');
-  bad.classList.remove('show');
-  const target = status === 'present' ? ok : bad;
-  target.textContent = status === 'present'
-    ? 'Votre présence nous réjouit, nous avons hâte de vous accueillir et de partager ce beau moment avec vous.'
-    : 'Merci de nous avoir prévenus. Votre message nous aide à mieux organiser cette belle journée.';
-  target.classList.add('show');
+  showRsvpMessage(
+    status,
+    status === 'present'
+      ? 'Votre présence nous réjouit, nous avons hâte de vous accueillir et de partager ce beau moment avec vous.'
+      : 'Merci de nous avoir prévenus. Votre message nous aide à mieux organiser cette belle journée.'
+  );
+  lockRsvp(status);
   if (status === 'present') lancerConfettis();
 }
 
-document.getElementById('presentBtn').addEventListener('click', () => send('present').catch(alert));
-document.getElementById('absentBtn').addEventListener('click', () => send('absent').catch(alert));
+presentBtn.addEventListener('click', () => send('present').catch(alert));
+absentBtn.addEventListener('click', () => send('absent').catch(alert));
 
 music.load();
 creerPetales();
