@@ -270,6 +270,53 @@ app.get('/api/admin/data', requireAdmin, (req, res) => {
   });
 });
 
+app.patch('/api/admin/visitors/:id', requireAdmin, (req, res) => {
+  const name = normalizeName(req.body.name);
+  if (!name) {
+    return res.status(400).json({ ok: false, erreur: 'Le nom est obligatoire.' });
+  }
+
+  const data = readData();
+  const visitor = findVisitorById(data, req.params.id);
+  if (!visitor) {
+    return res.status(404).json({ ok: false, erreur: 'Invité introuvable.' });
+  }
+
+  const nameKey = normalizeNameKey(name);
+  const duplicate = data.visitors.find(v => v.id !== visitor.id && normalizeNameKey(v.name) === nameKey);
+  if (duplicate) {
+    return res.status(409).json({ ok: false, erreur: 'Ce nom est déjà utilisé par un autre invité.' });
+  }
+
+  const previousName = visitor.name;
+  visitor.name = name;
+  visitor.nameKey = nameKey;
+  visitor.updatedAt = nowIso();
+  data.events.unshift({
+    id: crypto.randomUUID(),
+    type: 'admin_edit',
+    visitorId: visitor.id,
+    name,
+    previousName,
+    at: nowIso(),
+  });
+  writeData(data);
+  res.json({ ok: true, visitor });
+});
+
+app.delete('/api/admin/visitors/:id', requireAdmin, (req, res) => {
+  const data = readData();
+  const index = data.visitors.findIndex(v => v.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ ok: false, erreur: 'Invité introuvable.' });
+  }
+
+  data.visitors.splice(index, 1);
+  data.events = data.events.filter(event => event.visitorId !== req.params.id);
+  writeData(data);
+  res.json({ ok: true });
+});
+
 app.get('/api/admin/export', requireAdmin, (req, res) => {
   const data = readData();
   res.setHeader('Content-Type', 'application/json');

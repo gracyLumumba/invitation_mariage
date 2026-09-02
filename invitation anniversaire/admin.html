@@ -119,6 +119,10 @@
   }
   .actions a{background:#fff;border:1px solid rgba(230,0,115,.14);color:var(--pink-dark)}
   .actions button{width:auto}
+  .row-actions{display:flex;gap:7px;flex-wrap:wrap}
+  .row-actions button{width:auto;padding:8px 11px;font-size:11px;letter-spacing:.06em}
+  .row-actions .edit-btn{background:#fff;color:var(--pink-dark);border:1px solid rgba(230,0,115,.2)}
+  .row-actions .delete-btn{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
   .error{display:none;margin:0 0 12px;padding:12px 14px;background:#fff1f2;border:1px solid #fecdd3;color:#991b1b;border-radius:12px}
   .hidden{display:none}
   @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -165,6 +169,7 @@
               <th>Connexion</th>
               <th>Présence</th>
               <th>IP</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="visitorsBody"></tbody>
@@ -184,6 +189,21 @@ function badge(status) {
   return '<span class="pill pending">en attente</span>';
 }
 
+function renderVisitors(visitors) {
+  document.getElementById('visitorsBody').innerHTML = visitors.map(v => `
+    <tr>
+      <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
+      <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
+      <td>${badge(v.status)}</td>
+      <td>${escapeHtml(v.lastIp || '')}</td>
+      <td><div class="row-actions">
+        <button class="edit-btn" type="button" data-action="edit" data-id="${escapeHtml(v.id)}" data-name="${escapeHtml(v.name || '')}">Modifier</button>
+        <button class="delete-btn" type="button" data-action="delete" data-id="${escapeHtml(v.id)}">Supprimer</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
 async function loadData() {
   const res = await fetch('/api/admin/data');
   const data = await res.json();
@@ -192,15 +212,7 @@ async function loadData() {
   document.getElementById('sPresent').textContent = data.stats.present;
   document.getElementById('sAbsent').textContent = data.stats.absent;
   document.getElementById('sPending').textContent = data.stats.pending;
-  const body = document.getElementById('visitorsBody');
-  body.innerHTML = data.visitors.map(v => `
-    <tr>
-      <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
-      <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
-      <td>${badge(v.status)}</td>
-      <td>${escapeHtml(v.lastIp || '')}</td>
-    </tr>
-  `).join('');
+  renderVisitors(data.visitors);
   return data;
 }
 
@@ -233,6 +245,33 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   location.reload();
 });
 
+document.getElementById('visitorsBody').addEventListener('click', async (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+  const id = button.dataset.id;
+
+  if (button.dataset.action === 'edit') {
+    const name = prompt('Nouveau nom de l’invité :', button.dataset.name || '');
+    if (name === null || !name.trim()) return;
+    const res = await fetch('/api/admin/visitors/' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name: name.trim() })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) return alert(data.erreur || 'Modification impossible.');
+    await loadData();
+  }
+
+  if (button.dataset.action === 'delete') {
+    if (!confirm('Supprimer définitivement cet invité et son historique ?')) return;
+    const res = await fetch('/api/admin/visitors/' + encodeURIComponent(id), { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok || !data.ok) return alert(data.erreur || 'Suppression impossible.');
+    await loadData();
+  }
+});
+
 fetch('/api/admin/data')
   .then(async (res) => {
     if (!res.ok) throw new Error('not admin');
@@ -243,15 +282,7 @@ fetch('/api/admin/data')
     document.getElementById('sPresent').textContent = data.stats.present;
     document.getElementById('sAbsent').textContent = data.stats.absent;
     document.getElementById('sPending').textContent = data.stats.pending;
-    const body = document.getElementById('visitorsBody');
-    body.innerHTML = data.visitors.map(v => `
-      <tr>
-        <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
-        <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
-        <td>${badge(v.status)}</td>
-        <td>${escapeHtml(v.lastIp || '')}</td>
-      </tr>
-    `).join('');
+    renderVisitors(data.visitors);
   })
   .catch(() => {});
 </script>
