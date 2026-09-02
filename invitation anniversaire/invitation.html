@@ -4,52 +4,64 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invitation Anniversaire - Lucé Tshibola</title>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Jost:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Jost:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
     --pink:#ff4fa3;
     --pink-dark:#e60073;
+    --pink-deep:#c90063;
     --pink-soft:#ffd6ea;
+    --gold:#f0c14b;
     --bg:#fff6fa;
     --text:#281c26;
     --muted:#745f70;
-    --card:#fff;
+    --card:#ffffff;
   }
   *{box-sizing:border-box}
   body{
     margin:0;
+    min-height:100vh;
     font-family:'Jost',sans-serif;
     color:var(--text);
-    min-height:100vh;
     background:
-      radial-gradient(circle at top left, rgba(255,79,163,.18), transparent 24%),
-      radial-gradient(circle at top right, rgba(255,190,220,.22), transparent 20%),
-      linear-gradient(145deg, #ffd9ea 0%, var(--bg) 46%, #fff 100%);
+      radial-gradient(circle at top left, rgba(255,79,163,.20), transparent 22%),
+      radial-gradient(circle at top right, rgba(255,194,223,.24), transparent 18%),
+      linear-gradient(145deg, #ffd9ea 0%, var(--bg) 48%, #fff 100%);
     padding:24px;
   }
-  .wrap{max-width:920px;margin:0 auto}
+  .wrap{max-width:980px;margin:0 auto}
+  .topline{
+    text-align:center;
+    color:var(--pink-dark);
+    text-transform:uppercase;
+    letter-spacing:.28em;
+    font-size:12px;
+    font-weight:700;
+    margin:4px 0 14px;
+  }
   .hero{
     position:relative;
     overflow:hidden;
-    background:rgba(255,255,255,.92);
+    background:rgba(255,255,255,.94);
     border:1px solid rgba(230,0,115,.14);
-    border-radius:32px;
+    border-radius:34px;
     box-shadow:0 24px 60px rgba(230,0,115,.10);
     padding:28px;
   }
-  .hero:before,.hero:after{
+  .hero::before,
+  .hero::after{
     content:"🎈";
     position:absolute;
-    font-size:28px;
+    font-size:30px;
     opacity:.35;
     animation: float 4s ease-in-out infinite;
   }
-  .hero:before{top:18px;left:18px}
-  .hero:after{top:18px;right:18px;animation-delay:1.2s}
+  .hero::before{top:18px;left:18px}
+  .hero::after{top:18px;right:18px;animation-delay:1.2s}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   .title{
     font-family:'Great Vibes',cursive;
-    font-size:clamp(54px, 11vw, 88px);
+    font-size:clamp(56px, 11vw, 92px);
     line-height:1;
     margin:0;
     text-align:center;
@@ -72,13 +84,19 @@
     font-size:12px;
     font-weight:700;
   }
-  .name-pill{
+  .pill-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:18px;
+  }
+  .pill{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    gap:10px;
-    margin:20px auto 0;
-    padding:10px 18px;
+    gap:8px;
+    padding:10px 16px;
     border-radius:999px;
     background:linear-gradient(135deg, #fff 0%, #ffe2ef 100%);
     border:1px solid rgba(230,0,115,.14);
@@ -120,6 +138,26 @@
     font-size:13px;
     line-height:1.6;
   }
+  .long-text{
+    margin-top:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,244,250,.98));
+    border:1px solid rgba(230,0,115,.10);
+    border-radius:24px;
+    padding:20px;
+    box-shadow:0 14px 30px rgba(230,0,115,.06);
+  }
+  .long-text h3{
+    margin:0 0 12px;
+    color:var(--pink-dark);
+    font-family:'Cormorant Garamond',serif;
+    font-size:30px;
+  }
+  .long-text p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.95;
+    font-size:16px;
+  }
   .section{
     margin-top:18px;
     background:linear-gradient(135deg, rgba(255,79,163,.12), rgba(230,0,115,.06));
@@ -131,9 +169,47 @@
     margin:0 0 8px;
     color:var(--pink-dark);
     font-family:'Cormorant Garamond',serif;
-    font-size:26px;
+    font-size:28px;
   }
   .section p{margin:0;color:var(--muted);line-height:1.8}
+  .gift-banner{
+    margin-top:18px;
+    padding:14px 16px;
+    border-radius:18px;
+    background:linear-gradient(135deg, rgba(255,79,163,.20), rgba(230,0,115,.12));
+    color:var(--pink-deep);
+    border:1px solid rgba(201,0,99,.16);
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-size:12px;
+    text-align:center;
+  }
+  .gift-banner strong{
+    display:block;
+    margin-top:6px;
+    font-size:14px;
+    letter-spacing:.03em;
+    text-transform:none;
+  }
+  .rsvp{
+    margin-top:20px;
+    background:#fff;
+    border:1px solid rgba(230,0,115,.14);
+    border-radius:24px;
+    padding:20px;
+  }
+  .rsvp h3{
+    margin:0 0 8px;
+    font-family:'Cormorant Garamond',serif;
+    font-size:28px;
+    color:var(--pink-dark);
+  }
+  .rsvp p{
+    margin:0 0 14px;
+    color:var(--muted);
+    line-height:1.8;
+  }
   .actions{
     display:flex;
     gap:12px;
@@ -159,23 +235,6 @@
     color:var(--pink-dark);
     border:1px solid rgba(230,0,115,.14);
   }
-  .rsvp{
-    margin-top:20px;
-    background:#fff;
-    border:1px solid rgba(230,0,115,.14);
-    border-radius:24px;
-    padding:20px;
-  }
-  .rsvp h3{
-    margin:0 0 8px;
-    font-family:'Cormorant Garamond',serif;
-    font-size:28px;
-    color:var(--pink-dark);
-  }
-  .rsvp p{
-    margin:0 0 14px;
-    color:var(--muted);
-  }
   .status{
     margin-top:12px;
     display:none;
@@ -185,6 +244,13 @@
   .status.show{display:block}
   .status.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
   .status.bad{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}
+  .footer{
+    margin-top:18px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.7;
+  }
   .music{
     position:fixed;
     right:14px;
@@ -198,33 +264,81 @@
     box-shadow:0 10px 24px rgba(230,0,115,.14);
     cursor:pointer;
   }
-  .note{
-    margin-top:16px;
-    text-align:center;
-    color:var(--muted);
-    font-size:12px;
+  .confetti-layer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:60;
+    overflow:hidden;
+  }
+  .confetti{
+    position:absolute;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    opacity:.95;
+    animation: fall linear forwards;
+  }
+  .balloon{
+    position:absolute;
+    top:-40px;
+    width:30px;
+    height:40px;
+    border-radius:50% 50% 48% 48%;
+    box-shadow:inset -5px -8px 0 rgba(255,255,255,.14), 0 8px 14px rgba(230,0,115,.10);
+    animation: fallBalloon linear forwards;
+  }
+  .balloon::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:100%;
+    width:1px;
+    height:34px;
+    transform:translateX(-50%);
+    background:rgba(120,60,90,.55);
+  }
+  @keyframes fall{
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+    100%{transform:translateY(110vh) rotate(540deg);opacity:0}
+  }
+  @keyframes fallBalloon{
+    0%{transform:translateY(-20px) translateX(0) rotate(-8deg);opacity:1}
+    100%{transform:translateY(110vh) translateX(20px) rotate(8deg);opacity:0}
   }
   @media (max-width:720px){
     .grid{grid-template-columns:1fr}
+    .hero{padding:22px}
   }
 </style>
 </head>
 <body>
+  <div class="confetti-layer" id="confettiLayer"></div>
   <audio id="music" src="chanson anniversaire.mpeg" preload="auto" loop></audio>
   <button class="music" id="musicBtn" title="Musique">♪</button>
+
   <main class="wrap">
+    <div class="topline">Anniversaire de 1 an</div>
     <section class="hero">
       <p class="title">Lucé Tshibola</p>
       <p class="subtitle">Fête d’anniversaire de 1 an</p>
       <p class="date">Samedi 19 septembre 2026</p>
-      <div class="name-pill" id="guestName">Bienvenue</div>
-      <div class="name-pill">Famille Katupa Betu</div>
+
+      <div class="pill-row">
+        <div class="pill" id="guestName">Bienvenue</div>
+        <div class="pill">Famille Katupa Betu</div>
+      </div>
 
       <div class="grid">
         <div class="box">
           <div class="label">Lieu</div>
           <p class="value">Domicile familial</p>
-          <div class="small">Avenue Kasangulu, arrêt Sinai n°79</div>
+          <div class="small">
+            <a href="https://maps.app.goo.gl/9tGBLYYRAUnKbGHz5" target="_blank" rel="noopener noreferrer" style="color:var(--pink-dark);text-decoration:none;font-weight:700;">
+              Ouvrir l'adresse sur Maps
+            </a>
+          </div>
         </div>
         <div class="box">
           <div class="label">Ambiance</div>
@@ -238,9 +352,23 @@
         <p>Nous avons la joie de vous convier à partager ce grand moment de famille pour célébrer les 1 an de Lucé Tshibola.</p>
       </div>
 
+      <div class="long-text">
+        <h3>Une journée de fête et de tendresse</h3>
+        <p>
+          En ce jour spécial, nous souhaitons réunir la famille et les proches autour de Lucé Tshibola afin de célébrer cette première année de vie remplie de sourires, de bénédictions et de beaux souvenirs. Votre présence donnera encore plus de chaleur à cette fête d’anniversaire.
+          <br><br>
+          Nous vous invitons à venir partager un moment simple, joyeux et élégant, avec de belles photos, de la musique, des rires et un cœur de famille bien rempli. Merci de vous joindre à nous pour honorer cette belle occasion.
+        </p>
+      </div>
+
+      <div class="gift-banner">
+        Cadeau obligatoire
+        <strong>Votre présence nous touche, mais un cadeau est aussi attendu pour accompagner cette grande joie.</strong>
+      </div>
+
       <div class="rsvp">
         <h3>Confirmer la présence</h3>
-        <p>Entrez votre nom dans la page de connexion, puis confirmez si vous serez présent.</p>
+        <p>Entrez votre nom dans la page de connexion, puis confirmez si vous serez présent ou non. Cela nous aide à mieux préparer l’accueil de chacun.</p>
         <div class="actions">
           <button class="btn primary" id="presentBtn" type="button">Je serai présent</button>
           <button class="btn secondary" id="absentBtn" type="button">Je ne pourrai pas venir</button>
@@ -249,17 +377,44 @@
         <div id="statusBad" class="status bad">Merci de nous avoir prévenus.</div>
       </div>
 
-      <div class="note">Votre nom sera visible dans l’admin dès votre connexion et votre confirmation.</div>
+      <div class="footer">Votre nom sera visible dans l’admin dès votre connexion et votre confirmation.</div>
     </section>
   </main>
 
 <script>
 const audio = document.getElementById('music');
 const musicBtn = document.getElementById('musicBtn');
+const confettiLayer = document.getElementById('confettiLayer');
+
 musicBtn.addEventListener('click', () => {
   if (audio.paused) audio.play().catch(() => {});
   else audio.pause();
 });
+
+function createCelebration() {
+  const colors = ['#ff4fa3', '#e60073', '#f0c14b', '#ff83b8', '#7dd3fc'];
+  for (let i = 0; i < 36; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = (4 + Math.random() * 4) + 's';
+    el.style.animationDelay = (Math.random() * 2) + 's';
+    el.style.transform = `rotate(${Math.random() * 180}deg)`;
+    confettiLayer.appendChild(el);
+  }
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'balloon';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = (8 + Math.random() * 5) + 's';
+    el.style.animationDelay = (Math.random() * 3) + 's';
+    confettiLayer.appendChild(el);
+  }
+}
+
+createCelebration();
 
 fetch('/api/me')
   .then(async (res) => {
@@ -285,6 +440,16 @@ async function send(status) {
   ok.classList.remove('show');
   bad.classList.remove('show');
   (status === 'present' ? ok : bad).classList.add('show');
+  if (status === 'present') {
+    for (let i = 0; i < 18; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = ['#ff4fa3', '#e60073', '#f0c14b', '#ff83b8'][Math.floor(Math.random() * 4)];
+      el.style.animationDuration = (3 + Math.random() * 3) + 's';
+      confettiLayer.appendChild(el);
+    }
+  }
 }
 
 document.getElementById('presentBtn').addEventListener('click', () => send('present').catch(alert));
