@@ -518,9 +518,9 @@
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(44,31,31,.14);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(8px);
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
     transition: opacity .25s, visibility .25s, transform .25s, background .2s;
   }
   .music-toggle.show {
@@ -533,6 +533,12 @@
     border-color: var(--rose);
   }
   .music-toggle .icon { width: 20px; height: 20px; }
+  .music-symbol {
+    display: inline-block;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 600;
+  }
 
   #env-screen {
     position: fixed;
@@ -711,7 +717,7 @@
 <body>
 <audio id="wedding-music" src="chanson anniversaire.mpeg" preload="auto" loop></audio>
 <button class="music-toggle" id="music-toggle" type="button" title="Couper la musique" aria-label="Couper la musique">
-  <i data-lucide="volume-2" class="icon"></i>
+  <span class="music-symbol" aria-hidden="true">♫</span>
 </button>
 
 <div id="env-screen">
@@ -844,7 +850,7 @@ function escapeHtml(value) {
 }
 
 function updateMusicButton() {
-  musicToggle.innerHTML = '<i data-lucide="' + (musicMuted ? 'volume-x' : 'volume-2') + '" class="icon"></i>';
+  musicToggle.innerHTML = '<span class="music-symbol" aria-hidden="true">♫</span>';
   musicToggle.title = musicMuted ? 'Relancer la musique' : 'Couper la musique';
   musicToggle.setAttribute('aria-label', musicToggle.title);
   renderIcons();
