@@ -123,6 +123,7 @@
   .row-actions button{width:auto;padding:8px 11px;font-size:11px;letter-spacing:.06em}
   .row-actions .edit-btn{background:#fff;color:var(--pink-dark);border:1px solid rgba(230,0,115,.2)}
   .row-actions .delete-btn{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
+  .empty{padding:28px 12px;text-align:center;color:var(--muted)}
   .error{display:none;margin:0 0 12px;padding:12px 14px;background:#fff1f2;border:1px solid #fecdd3;color:#991b1b;border-radius:12px}
   .hidden{display:none}
   @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -149,12 +150,13 @@
             <button id="refreshBtn" type="button">Rafraîchir</button>
             <button id="logoutBtn" type="button" style="background:#fff;color:var(--pink-dark);border:1px solid rgba(230,0,115,.14)">Déconnexion</button>
             <a href="/api/admin/export" target="_blank" rel="noopener noreferrer">Exporter JSON</a>
+            <button id="pdfBtn" type="button">Imprimer PDF des presents</button>
           </div>
         </div>
       </div>
 
       <div class="grid">
-        <div class="card stat"><div class="n" id="sTotal">0</div><div class="l">connexions</div></div>
+        <div class="card stat"><div class="n" id="sTotal">0</div><div class="l">invites</div></div>
         <div class="card stat"><div class="n" id="sPresent">0</div><div class="l">présents</div></div>
         <div class="card stat"><div class="n" id="sAbsent">0</div><div class="l">absents</div></div>
         <div class="card stat"><div class="n" id="sPending">0</div><div class="l">en attente</div></div>
@@ -190,7 +192,12 @@ function badge(status) {
 }
 
 function renderVisitors(visitors) {
-  document.getElementById('visitorsBody').innerHTML = visitors.map(v => `
+  const body = document.getElementById('visitorsBody');
+  if (!visitors.length) {
+    body.innerHTML = '<tr><td colspan="5" class="empty">Aucun invite enregistre pour le moment.</td></tr>';
+    return;
+  }
+  body.innerHTML = visitors.map(v => `
     <tr>
       <td><strong>${escapeHtml(v.name || '')}</strong><div style="color:#6b7280;font-size:12px">connexions: ${v.loginCount || 0}</div></td>
       <td>${new Date(v.loginAt || v.createdAt || Date.now()).toLocaleString('fr-FR')}</td>
@@ -245,6 +252,22 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   location.reload();
 });
 
+document.getElementById('pdfBtn').addEventListener('click', async () => {
+  try {
+    const data = await loadData();
+    const present = data.visitors.filter(v => v.status === 'present');
+    const rows = present.length
+      ? present.map((v, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(v.name || '')}</td><td>Present</td></tr>`).join('')
+      : '<tr><td colspan="3">Aucun invite present pour le moment.</td></tr>';
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!printWindow) throw new Error('Autorisez les fenetres contextuelles pour imprimer le PDF.');
+    printWindow.document.write(`<!doctype html><html lang="fr"><head><meta charset="UTF-8"><title>Invites presents - Luce Tshibola</title><style>body{font-family:Arial,sans-serif;color:#241c26;padding:32px}h1{color:#e60073}p{color:#71606e}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{padding:12px;border:1px solid #e8bfd4;text-align:left}th{background:#fff0f7;color:#e60073}</style></head><body><h1>Invites presents</h1><p>Anniversaire de 1 an de Luce Tshibola - 19 septembre 2026</p><table><thead><tr><th>N°</th><th>Nom</th><th>Reponse</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
+    printWindow.document.close();
+  } catch (error) {
+    alert(error.message || 'Impossible de preparer le PDF.');
+  }
+});
+
 document.getElementById('visitorsBody').addEventListener('click', async (event) => {
   const button = event.target.closest('button[data-action]');
   if (!button) return;
@@ -284,7 +307,10 @@ fetch('/api/admin/data')
     document.getElementById('sPending').textContent = data.stats.pending;
     renderVisitors(data.visitors);
   })
-  .catch(() => {});
+  .catch((error) => {
+    errorBox.textContent = error.message || 'Impossible de charger les invites.';
+    errorBox.style.display = 'block';
+  });
 </script>
 </body>
 </html>
